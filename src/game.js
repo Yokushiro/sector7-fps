@@ -78,28 +78,55 @@ let ac;function snd(f,d,type,v,noise){if(!ac)return;const t=ac.currentTime,o=ac.
 
 /* ---------- враги ---------- */
 const bodyM=new T.MeshStandardMaterial({color:0x2b3037,roughness:.28,metalness:.95,envMapIntensity:1.3});
-function spawn(){const pts=[[-10,-10],[10,-10],[-10,10],[10,10],[0,-10.5]];let q;for(let i=0;i<8;i++){q=pts[Math.random()*pts.length|0];if(Math.hypot(q[0]-P.pos.x,q[1]-P.pos.z)>9)break}
- const heavy=spawned%3===2;
- const g=new T.Group(),m=bodyM.clone(),e={
-  g,type:heavy?'heavy':'scout',hp:heavy?105:60,m,t:R(0,9),
-  cd:R(heavy?1.8:1.2,heavy?2.6:1.9),attackMin:heavy?1.8:1.2,attackMax:heavy?2.6:1.9,
-  moveSpeed:heavy?1.65:2.65,preferredDistance:heavy?7:5.5,
-  projectileSpeed:heavy?11:14,damage:heavy?12:6,
-  spread:heavy?.22:.42,eye:new T.MeshBasicMaterial({color:new T.Color(3,.2,.1)})
+function spawn(){
+ const pts=[[-10,-10],[10,-10],[-10,10],[10,10],[0,-10.5]];
+ let q;
+ for(let i=0;i<8;i++){q=pts[Math.random()*pts.length|0];if(Math.hypot(q[0]-P.pos.x,q[1]-P.pos.z)>9)break}
+ const sequence=['scout','assault','heavy','scout','sniper','assault','scout','heavy','sniper','scout'];
+ const type=sequence[spawned%sequence.length],profile=S7DroneAI.PROFILES[type];
+ const g=new T.Group(),m=bodyM.clone();
+ m.color.setHex(profile.bodyColor);
+ const eye=new T.MeshBasicMaterial({color:profile.eyeColor});
+ const e={
+  g,type,hp:profile.hp,m,t:R(0,9),cd:R(profile.attackMin,profile.attackMax),
+  moveSpeed:profile.moveSpeed,preferredDistance:profile.preferredDistance,
+  projectileSpeed:profile.projectileSpeed,damage:profile.damage,spread:profile.spread,
+  attackMin:profile.attackMin,attackMax:profile.attackMax,eye,flash:0
  };
- const b=new T.Mesh(new T.CapsuleGeometry(heavy?.43:.36,heavy?.9:.7,8,20),m),
- h=new T.Mesh(new T.SphereGeometry(heavy?.31:.27,28,18),m),
- ey=new T.Mesh(new T.SphereGeometry(heavy?.12:.1,16,10),e.eye),
- ring=new T.Mesh(new T.TorusGeometry(heavy?.56:.47,.035,10,32),new T.MeshBasicMaterial({color:new T.Color(heavy?2.5: .2,heavy?1.1:2,3)}));
- h.position.y=heavy?.94:.78;h.userData.head=1;ey.position.set(0,heavy?.96:.8,.22);ring.rotation.x=Math.PI/2;ring.position.y=.1;g.add(b,h,ey,ring);
- if(heavy){
-  const armor=new T.Mesh(new T.BoxGeometry(.95,.16,.42),m);
-  armor.position.set(0,.35,0);g.add(armor);
-  const left=new T.Mesh(new T.BoxGeometry(.18,.38,.34),m);
-  left.position.set(-.48,.28,0);g.add(left);
-  const right=left.clone();right.position.x=.48;g.add(right);
+ let bodyGeometry;
+ if(type==='sniper') bodyGeometry=new T.CylinderGeometry(.24,.34,1.2,16);
+ else if(type==='assault') bodyGeometry=new T.OctahedronGeometry(.48,1);
+ else bodyGeometry=new T.CapsuleGeometry(type==='heavy'?.46:.36,type==='heavy'?1:.7,8,20);
+ const body=new T.Mesh(bodyGeometry,m);
+ if(type==='assault')body.scale.set(1,.78,1.18);
+ const head=new T.Mesh(new T.SphereGeometry(type==='heavy'?.32:.27,24,16),m);
+ head.position.y=type==='heavy'?1.02:.82;
+ const sensor=new T.Mesh(new T.SphereGeometry(type==='sniper'?.14:.11,16,10),eye);
+ sensor.position.set(0,type==='heavy'?1.05:.85,.25);
+ head.userData.head=1;
+ const ringColor=new T.Color(profile.ringColor).multiplyScalar(1.6);
+ const ring=new T.Mesh(new T.TorusGeometry(type==='heavy'?.65:type==='assault'?.5:.46,.04,10,32),new T.MeshBasicMaterial({color:ringColor}));
+ ring.rotation.x=Math.PI/2;ring.position.y=.08;
+ g.add(body,head,sensor,ring);
+ if(type==='heavy'){
+  const armor=new T.Mesh(new T.BoxGeometry(1.12,.2,.5),m);armor.position.set(0,.38,0);g.add(armor);
+  for(const side of[-1,1]){const plate=new T.Mesh(new T.BoxGeometry(.2,.48,.42),m);plate.position.set(side*.55,.28,0);g.add(plate)}
+ }else if(type==='assault'){
+  for(const side of[-1,1]){
+   const pod=new T.Mesh(new T.CylinderGeometry(.13,.18,.62,12),m);
+   pod.rotation.z=Math.PI/2;pod.position.set(side*.48,.02,0);g.add(pod);
+   const glow=new T.Mesh(new T.SphereGeometry(.13,12,8),new T.MeshBasicMaterial({color:0xff5a18}));
+   glow.position.set(side*.72,.02,0);g.add(glow);
+  }
+ }else if(type==='sniper'){
+  const barrel=new T.Mesh(new T.BoxGeometry(.13,.13,.95),m);barrel.position.set(.28,.25,.42);g.add(barrel);
+  const antenna=new T.Mesh(new T.CylinderGeometry(.025,.04,.62,8),new T.MeshStandardMaterial({color:0x9a6bff,emissive:0x4c28aa,emissiveIntensity:2}));
+  antenna.position.set(0,1.05,0);g.add(antenna);
+  const scope=new T.Mesh(new T.BoxGeometry(.28,.18,.28),m);scope.position.set(0,.58,.1);g.add(scope);
  }
- g.traverse(o=>{o.userData.e=e;o.castShadow=true});g.position.set(q[0],1.3,q[1]);scene.add(g);enemies.push(e);spawned++}
+ g.traverse(o=>{o.userData.e=e;o.castShadow=true});
+ g.position.set(q[0],1.3,q[1]);scene.add(g);enemies.push(e);spawned++;
+}
 function killE(e){scene.remove(e.g);enemies.splice(enemies.indexOf(e),1);for(let i=0;i<18;i++)spark(e.g.position,new T.Color(3,1.6,.5),6);snd(90,.4,'sawtooth',.4);kills++;$('kl').textContent=`Дроны: ${kills} / ${GOAL}`;if(kills>=GOAL)end(true)}
 const spGeo=new T.BoxGeometry(.03,.03,.03);
 function spark(p,c,sp=4){const m=new T.Mesh(spGeo,new T.MeshBasicMaterial({color:c}));m.position.copy(p);scene.add(m);sparks.push({m,v:new T.Vector3(R(-1,1),R(0,1.4),R(-1,1)).multiplyScalar(sp),l:R(.3,.7)})}
