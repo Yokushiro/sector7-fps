@@ -35,3 +35,14 @@ test('corridor lintels remain visual-only so they do not block player movement',
   assert.match(lab, /box\(0, H - \.5, -S - \.5, 4\.2, 1, 1, steel, false\)/);
   assert.match(reactor, /box\(0, H - \.5, -S - \.5, 4\.2, 1, 1, steel, false\)/);
 });
+
+
+test('reactor finale requires a console interaction after combat before the exit unlocks', () => {
+  const reactor = read('src/levels/ReactorLevel.js');
+  const game = read('src/game.js');
+  assert.match(reactor, /requiredInteractionId: 'reactor-shutdown'/);
+  assert.match(reactor, /id: 'reactor-shutdown'/);
+  assert.match(game, /nearby\.id===activeLevel\.requiredInteractionId&&!combatCleared/);
+  assert.match(game, /if\(item\.id===activeLevel\.requiredInteractionId\)\{missionCleared=true/);
+  assert.match(game, /if\(!combatCleared&&spawned<GOAL/);
+});
