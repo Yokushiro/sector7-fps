@@ -24,12 +24,12 @@ canvas{display:block}
 <div id="ov"><div><h1>SECTOR 7</h1><p>Уничтожь 10 охранных дронов в заброшенном бункере.</p>
 <p>WASD — движение · Shift — бег · Мышь — прицел · ЛКМ — огонь<br>R — перезарядка · F — фонарь</p><p id="msg"><b>Нажми, чтобы начать</b></p></div></div>
 <script src="node_modules/three/build/three.min.js"></script>
-<script src="node_modules/three/examples/js/postprocessing/EffectComposer.js"></script>
-<script src="node_modules/three/examples/js/shaders/CopyShader.js"></script>
-<script src="node_modules/three/examples/js/shaders/LuminosityHighPassShader.js"></script>
-<script src="node_modules/three/examples/js/postprocessing/ShaderPass.js"></script>
-<script src="node_modules/three/examples/js/postprocessing/RenderPass.js"></script>
-<script src="node_modules/three/examples/js/postprocessing/UnrealBloomPass.js"></script>
+<script src="vendor/three/EffectComposer.js"></script>
+<script src="vendor/three/CopyShader.js"></script>
+<script src="vendor/three/LuminosityHighPassShader.js"></script>
+<script src="vendor/three/ShaderPass.js"></script>
+<script src="vendor/three/RenderPass.js"></script>
+<script src="vendor/three/UnrealBloomPass.js"></script>
 <script>
 const T=THREE,R=(a,b)=>a+Math.random()*(b-a),cl=(v,a,b)=>Math.max(a,Math.min(b,v));
 const renderer=new T.WebGLRenderer({antialias:true,powerPreference:'high-performance'});
