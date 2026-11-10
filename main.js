@@ -25,6 +25,11 @@ function create() {
     if (i.type === 'keyDown' && i.key === 'F11') {
       w.setFullScreen(!w.isFullScreen());
     }
+
+    // Temporary diagnostics: open Chromium DevTools with Ctrl+Shift+I.
+    if (i.type === 'keyDown' && i.control && i.shift && i.key.toLowerCase() === 'i') {
+      w.webContents.openDevTools({ mode: 'detach' });
+    }
   });
 }
 
