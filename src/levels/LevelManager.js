@@ -1,0 +1,79 @@
+(function(root){
+  'use strict';
+
+  class S7LevelManager {
+    constructor({ THREE, scene, solids, boxes }) {
+      if (!THREE || !scene || !Array.isArray(solids) || !Array.isArray(boxes)) {
+        throw new TypeError('LevelManager requires THREE, scene, solids and boxes');
+      }
+      this.THREE = THREE;
+      this.scene = scene;
+      this.solids = solids;
+      this.boxes = boxes;
+      this.definitions = new Map();
+      this.current = null;
+    }
+
+    register(definition) {
+      if (!definition || typeof definition.id !== 'string' || !definition.id ||
+          typeof definition.build !== 'function') {
+        throw new TypeError('A level definition requires an id and build(context)');
+      }
+      if (this.definitions.has(definition.id)) {
+        throw new Error('Level is already registered: ' + definition.id);
+      }
+      this.definitions.set(definition.id, definition);
+      return this;
+    }
+
+    load(id, context) {
+      const definition = this.definitions.get(id);
+      if (!definition) throw new Error('Unknown level: ' + id);
+      if (!context || typeof context.box !== 'function') {
+        throw new TypeError('Level context must provide a box factory');
+      }
+      this.unload();
+      const rootGroup = new this.THREE.Group();
+      this.scene.add(rootGroup);
+      const buildContext = {
+        ...context,
+        THREE: this.THREE,
+        scene: rootGroup,
+        box: (...args) => context.box(...args, rootGroup)
+      };
+      try {
+        const metadata = definition.build(buildContext) || {};
+        this.current = { ...metadata, id, root: rootGroup };
+        return this.current;
+      } catch (error) {
+        rootGroup.removeFromParent();
+        this.solids.length = 0;
+        this.boxes.length = 0;
+        throw error;
+      }
+    }
+
+    unload() {
+      if (this.current?.root) {
+        this.current.root.traverse(object => {
+          if (object.geometry) object.geometry.dispose();
+        });
+        this.current.root.removeFromParent();
+      }
+      this.current = null;
+      this.solids.length = 0;
+      this.boxes.length = 0;
+    }
+
+    getCurrent() {
+      return this.current;
+    }
+
+    hasLevel(id) {
+      return this.definitions.has(id);
+    }
+  }
+
+  root.S7LevelManager = S7LevelManager;
+  if (typeof module !== 'undefined' && module.exports) module.exports = S7LevelManager;
+})(typeof window !== 'undefined' ? window : globalThis);
