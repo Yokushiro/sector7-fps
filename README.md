@@ -6,17 +6,27 @@
 **Управление:** WASD, Shift — бег, мышь, ЛКМ — огонь, R — перезарядка, F — фонарь, F11 — полный экран.
 
 ## Скачать
-Раздел **Releases** — `SECTOR7-…-portable.exe` (без установки) или `…-nsis.exe` (установщик).
+
+В разделе **[Releases](https://github.com/Yokushiro/sector7-fps/releases)** доступны две Windows-версии:
+
+- `SECTOR7-…-portable.exe` — портативная версия, не требует установки.
+- `SECTOR7-…-setup.exe` — установщик с возможностью выбрать папку установки.
 
 ## Локальный запуск
-```
+
+Для запуска проекта из исходного кода потребуется установленный [Node.js](https://nodejs.org/).
+
+```bash
 npm install
 npm start
 ```
 
-## Выпуск релиза
+## Сборка для Windows
+
+Для сборки Windows-версий используется Electron Builder.
+
+```bash
+npm run dist
 ```
-git tag v1.0.0
-git push origin v1.0.0
-```
-GitHub Actions соберёт exe на Windows и приложит к релизу.
+
+Готовые файлы появятся в папке `dist`.
