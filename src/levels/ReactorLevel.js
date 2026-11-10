@@ -154,6 +154,7 @@
       scene.add(corridorLight);
 
       // Emergency shutdown console with the final incident record.
+      let reactorShutdown = false;
       const terminal = new T.Mesh(new T.BoxGeometry(1.3, 2, .9), steel);
       terminal.position.set(8, 1, 12);
       terminal.castShadow = true;
@@ -165,6 +166,18 @@
       terminalLight.position.set(8, 2, 12.8);
       scene.add(terminalLight);
 
+      // Optional black-box recorder reveals what the archive concealed about Ilya's final shift.
+      const recorder = new T.Mesh(new T.BoxGeometry(1.05, 1.45, .65), dark);
+      recorder.position.set(-8, .9, 12);
+      recorder.castShadow = true;
+      scene.add(recorder);
+      const recorderScreen = new T.Mesh(new T.PlaneGeometry(.76, .56), new T.MeshBasicMaterial({ color: 0x42cfff }));
+      recorderScreen.position.set(-8, 1.32, 12.34);
+      scene.add(recorderScreen);
+      const recorderLight = new T.PointLight(0x32caff, .75, 5, 2);
+      recorderLight.position.set(-8, 1.8, 12.65);
+      scene.add(recorderLight);
+
       return {
         name: 'Реакторное ядро',
         bounds: { halfSize: 33, height: H },
@@ -173,17 +186,36 @@
         evacuationSeconds: 90,
         playerSpawn: { x: 0, y: 1.7, z: 28, yaw: 0 },
         enemySpawnPoints: [[-14, -14], [14, -14], [-14, 12], [14, 12], [0, -15], [-16, 0], [16, 0], [16, 16]],
-        openExit() { exitOpen = true; context.removeCollisionBox(exitDoor.userData.collisionBox); },
+        openExit() { exitOpen = true; reactorShutdown = true; context.removeCollisionBox(exitDoor.userData.collisionBox); },
         update(dt, time) {
           if (exitOpen) exitDoor.position.y += (10 - exitDoor.position.y) * Math.min(1, dt * 2.2);
           reactorRings.forEach((ring, index) => {
             ring.rotation.y = Math.sin(time * .45 + index) * .12;
             ring.rotation.z += dt * (index % 2 ? -.18 : .24);
           });
-          coreLight.intensity = 3.0 + Math.sin(time * 2.1) * .45;
-          coreMaterial.emissiveIntensity = 2.8 + Math.sin(time * 1.7) * .35;
+          if (reactorShutdown) {
+            coreMaterial.opacity = Math.max(0, coreMaterial.opacity - dt * .22);
+            coreMaterial.emissiveIntensity = Math.max(.05, coreMaterial.emissiveIntensity - dt * 1.1);
+            core.scale.y = Math.max(.12, core.scale.y - dt * .12);
+            coreLight.intensity = Math.max(.08, coreLight.intensity - dt * 2.2);
+            alarm.intensity = .25 + Math.max(0, Math.sin(time * 8)) * 1.35;
+            corridorLight.intensity = Math.max(.15, corridorLight.intensity - dt * .35);
+          } else {
+            coreLight.intensity = 3.0 + Math.sin(time * 2.1) * .45;
+            coreMaterial.emissiveIntensity = 2.8 + Math.sin(time * 1.7) * .35;
+          }
         },
         interactables: [{
+          id: 'reactor-archive',
+          label: 'ПРОСЛУШАТЬ ЧЁРНЫЙ ЯЩИК',
+          x: -8,
+          z: 12,
+          dialogue: [
+            { speaker: 'ИЛЬЯ / ЗАПИСЬ', text: 'Смена 19. Ядро имитирует голоса погибших сотрудников. Сегодня оно заговорило голосом моей дочери. Я отключил внешний канал, но кто-то снова его включил.' },
+            { speaker: 'АРХИВ / 07', text: 'Запись повреждена. Идентификатор оператора: Илья Воронцов. Статус: погиб. Дата: 19 суток назад.' },
+            { speaker: 'ИЛЬЯ', text: 'Теперь ты понимаешь. Я не пытался спасти себя. Я пытался не дать ему выйти наружу.' }
+          ]
+        }, {
           id: 'reactor-shutdown',
           label: 'АКТИВИРОВАТЬ АВАРИЙНОЕ ОТКЛЮЧЕНИЕ',
           x: 8,
