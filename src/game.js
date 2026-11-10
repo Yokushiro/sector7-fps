@@ -37,6 +37,7 @@ function box(x,y,z,w,h,d,m,col=true,target=scene){const me=new T.Mesh(new T.BoxG
 const levelManager=new S7LevelManager({THREE:T,scene,solids,boxes});
 levelManager.register(S7BunkerLevel);
 const activeLevel=levelManager.load(currentMission.levelId,{mat,canvas,randomRange:R,box});
+const LEVEL_BOUNDS=activeLevel.bounds;
 
 
 const torch=new T.SpotLight(0xe8f4ff,1.6,28,.5,.6,1.2);torch.position.set(.2,-.1,0);torch.target.position.set(0,0,-5);cam.add(torch,torch.target);
@@ -187,7 +188,7 @@ function loop(now){requestAnimationFrame(loop);const dt=Math.min(.05,(now-last)/
   spawnT-=dt;if(spawned<GOAL&&enemies.length<currentMission.spawn.maxActive&&spawnT<=0){spawn();spawnT=currentMission.spawn.interval}
   droneAI.update(enemies,P,dt,collide,scene,proj,snd,R);
   for(let i=proj.length-1;i>=0;i--){const p=proj[i];p.m.position.addScaledVector(p.v,dt);p.l-=dt;const dd=p.m.position.distanceTo(new T.Vector3(P.pos.x,Math.min(p.m.position.y,1.5),P.pos.z));
-   let hit=p.l<=0||Math.abs(p.m.position.x)>S||Math.abs(p.m.position.z)>S||p.m.position.y<0;
+   let hit=p.l<=0||Math.abs(p.m.position.x)>LEVEL_BOUNDS.halfSize||Math.abs(p.m.position.z)>LEVEL_BOUNDS.halfSize||p.m.position.y<0;
    if(!hit)for(const b of boxes)if(p.m.position.y<2.4&&p.m.position.x>b.x0&&p.m.position.x<b.x1&&p.m.position.z>b.z0&&p.m.position.z<b.z1){hit=true;break}
    if(dd<.55){dmg(p.damage||8);hit=true}if(hit){scene.remove(p.m);proj.splice(i,1)}}
  }
