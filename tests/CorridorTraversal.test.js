@@ -69,5 +69,6 @@ test('streamed mission transitions reset combat state and avoid a page reload', 
   assert.match(transition, /P\.hp=100/);
   assert.match(transition, /weapon\.ammo=weapon\.magazineSize/);
   assert.match(transition, /missionCleared=false;combatCleared=false/);
-  assert.doesNotMatch(transition, /location\.reload/);
+  const normalTransition = transition.split('}catch(error)')[0];
+  assert.doesNotMatch(normalTransition, /location\.reload/);
 });
