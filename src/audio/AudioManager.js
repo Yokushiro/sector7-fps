@@ -29,13 +29,32 @@
       return this.context;
     }
 
-    startAmbience(profileName) {
+    startAmbience(profileName, fadeSeconds = 0) {
       const context = this.context;
       if (!context) return false;
-      this.stopAmbience();
+      const fade = Math.max(0, Number(fadeSeconds) || 0);
+      if (this.master && fade > 0) {
+        const previous = { master: this.master, sources: this.sources, nodes: this.nodes };
+        const now = context.currentTime;
+        try {
+          previous.master.gain.cancelScheduledValues(now);
+          previous.master.gain.setValueAtTime(previous.master.gain.value, now);
+          previous.master.gain.linearRampToValueAtTime(0, now + fade);
+        } catch (error) {}
+        setTimeout(() => this.releaseAmbience(previous), fade * 1000 + 100);
+        this.master = null;
+        this.sources = [];
+        this.nodes = [];
+      } else {
+        this.stopAmbience();
+      }
       const profile = PROFILES[profileName] || PROFILES.bunker;
       const master = context.createGain();
-      master.gain.value = 1;
+      master.gain.value = fade > 0 ? 0 : 1;
+      if (fade > 0) {
+        master.gain.setValueAtTime(0, context.currentTime);
+        master.gain.linearRampToValueAtTime(1, context.currentTime + fade);
+      }
       master.connect(context.destination);
 
       const lowpass = context.createBiquadFilter();
@@ -83,13 +102,17 @@
       return true;
     }
 
-    stopAmbience() {
-      for (const source of this.sources) {
+    releaseAmbience(graph) {
+      for (const source of graph.sources || []) {
         try { source.stop(); } catch (error) {}
       }
-      for (const node of this.nodes) {
+      for (const node of graph.nodes || []) {
         try { if (typeof node.disconnect === 'function') node.disconnect(); } catch (error) {}
       }
+    }
+
+    stopAmbience() {
+      this.releaseAmbience({ sources: this.sources, nodes: this.nodes });
       this.sources = [];
       this.nodes = [];
       this.master = null;
