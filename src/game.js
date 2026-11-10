@@ -88,7 +88,10 @@ function spawn(){
   g,type,hp:profile.hp,m,t:R(0,9),cd:R(profile.attackMin,profile.attackMax),
   moveSpeed:profile.moveSpeed,preferredDistance:profile.preferredDistance,
   projectileSpeed:profile.projectileSpeed,damage:profile.damage,spread:profile.spread,
-  attackMin:profile.attackMin,attackMax:profile.attackMax,eye,flash:0
+  attackMin:profile.attackMin,attackMax:profile.attackMax,
+  strafeSign:R(0,1)<.5?-1:1,
+  flankOffset:type==='sniper'?5.5:type==='heavy'?2.8:type==='assault'?3.2:4.2,
+  eye,flash:0
  };
  let bodyGeometry;
  if(type==='sniper') bodyGeometry=new T.CylinderGeometry(.24,.34,1.2,16);
