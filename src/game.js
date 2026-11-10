@@ -153,7 +153,7 @@ function hitWorld(hit){
  for(let i=0;i<5;i++)spark(hit.point,new T.Color(3,2,1),3);
 }
 function dmg(n){P.hp-=n;hurt=1;snd(70,.25,'sine',.6);$('hpf').style.width=Math.max(0,P.hp)+'%';if(P.hp<=0)end(false)}
-function end(w){if(state==='over')return;state='over';document.exitPointerLock&&document.exitPointerLock();
+function end(w){if(state==='over')return;state='over';audioManager.stopMusic();audioManager.stopAmbience();document.exitPointerLock&&document.exitPointerLock();
  const record=saveSystem.recordMissionResult({missionId:currentMission.id,won:w,kills,nextMissionOrder:currentMission.order+1});
  $('ov').style.display='flex';
  const nextMission=w?missionSystem.getUnlockedMissions(record.campaign).find(mission=>mission.order>currentMission.order):null;
