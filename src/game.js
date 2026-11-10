@@ -57,7 +57,7 @@ const torch=new T.SpotLight(0xe8f4ff,1.6,28,.5,.6,1.2);torch.position.set(.2,-.1
 
 /* ---------- состояние ---------- */
 let GROUND_Y=activeLevel.playerSpawn.y;
-const P={pos:new T.Vector3(activeLevel.playerSpawn.x,GROUND_Y,activeLevel.playerSpawn.z),yaw:0,pitch:0,hp:100,velocityY:0,grounded:true};
+const P={pos:new T.Vector3(activeLevel.playerSpawn.x,GROUND_Y,activeLevel.playerSpawn.z),yaw:activeLevel.playerSpawn.yaw||0,pitch:0,hp:100,velocityY:0,grounded:true};
 const jumpController=new S7JumpController(GROUND_Y);
 let state='menu',kills=0,spawned=0,spawnT=0,hurt=0,tm=0,mouse=false,fallback=false,locked=false,missionCleared=false,combatCleared=false,outroShown=false,introShown=false,evacuationRemaining=0;
 const keys=Object.create(null); // shared keyboard state for input handlers and the game loop
@@ -206,11 +206,11 @@ function loadMission(nextMission){
   GROUND_Y=activeLevel.playerSpawn.y;
   jumpController.groundY=GROUND_Y;
   P.pos.set(activeLevel.playerSpawn.x,GROUND_Y,activeLevel.playerSpawn.z);
-  P.yaw=0;P.pitch=0;P.hp=100;P.velocityY=0;P.grounded=true;
+  P.yaw=activeLevel.playerSpawn.yaw||0;P.pitch=0;P.hp=100;P.velocityY=0;P.grounded=true;
   $('hpf').style.width='100%';
   weapon.ammo=weapon.magazineSize;weapon.reloadRemaining=0;weapon.cooldown=0;weapon.recoil=0;weapon.pitchKick=0;
   weapon.group.rotation.set(0,0,0);weapon.onAmmoChange(weapon.ammo);
-  cam.position.copy(P.pos);cam.rotation.set(0,0,0);
+  cam.position.copy(P.pos);cam.rotation.set(0,P.yaw,0);
   for(const key of Object.keys(keys))delete keys[key];
   kills=0;spawned=0;spawnT=0;hurt=0;mouse=false;fallback=false;missionCleared=false;combatCleared=false;outroShown=false;introShown=true;evacuationRemaining=0;$('evacTimer').hidden=true;
   $('missionTitle').textContent=`${currentMission.title} · ${currentMission.location}`;
@@ -284,6 +284,6 @@ function loop(now){requestAnimationFrame(loop);const dt=Math.min(.05,(now-last)/
  hurt=Math.max(0,hurt-dt*1.6);dust.rotation.y+=dt*.01;dust.position.y=Math.sin(tm*.2)*.1;
  // мерцание неона
  fin.uniforms.time.value=tm%10;fin.uniforms.hurt.value=hurt;
- if(state!=='play'&&state!=='over'){cam.position.set(Math.sin(tm*.15)*4,2.4,9);cam.lookAt(0,1.8,-5)}
+ if(state==='menu'){cam.position.set(Math.sin(tm*.15)*4,2.4,9);cam.lookAt(0,1.8,-5)}else if(state==='dialogue'){cam.position.copy(P.pos);cam.rotation.set(P.pitch,P.yaw,0)}
  comp.render();perfMonitor.update(renderer,now);renderer.info.reset()}
 cam.position.copy(P.pos);requestAnimationFrame(loop);
