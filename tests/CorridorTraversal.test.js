@@ -78,6 +78,7 @@ test('reactor shutdown starts a visible 90-second evacuation countdown', () => {
   const game = read('src/game.js');
   const html = read('index.html');
   assert.match(game, /evacuationRemaining=90/);
+  assert.match(game, /evacuationRemaining=Math\.max\(0,evacuationRemaining-dt\)/);
   assert.match(game, /if\(evacuationRemaining<=0\)end\(false\)/);
   assert.match(game, /ЭВАКУАЦИЯ · 01:30/);
   assert.match(html, /id="evacTimer"/);
