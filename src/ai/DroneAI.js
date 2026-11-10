@@ -91,7 +91,13 @@
         }
 
         enemy.cd -= dt;
-        enemy.eye.color.setRGB(3 + Math.sin(enemy.t * 8), 0.2 + (enemy.cd < 0.4 ? 2 : 0), 0.1);
+        const eyeColor = enemy.eyeColor || 0xff3928;
+        const eyePulse = enemy.cd < 0.4 ? 1.8 : 1;
+        enemy.eye.color.setRGB(
+          ((eyeColor >> 16) & 255) / 255 * eyePulse,
+          ((eyeColor >> 8) & 255) / 255 * eyePulse,
+          (eyeColor & 255) / 255 * eyePulse
+        );
         if (enemy.cd <= 0 && distance < 20 && hasLineOfSight(group.position, player.pos)) {
           enemy.cd = randomRange(enemy.attackMin || 1.4, enemy.attackMax || 2.4);
           const projectile = new THREE.Mesh(
