@@ -65,6 +65,7 @@ const enemies=[],proj=[],sparks=[];
 const droneAI=new S7DroneAI();
 const $=id=>document.getElementById(id);
 const dialogueSystem=new S7DialogueSystem({rootElement:$('dialogue'),speakerElement:$('dialogueSpeaker'),textElement:$('dialogueText'),promptElement:$('dialoguePrompt')});
+const interactionSystem=new S7InteractionSystem(activeLevel.interactables||[]);
 $('dialogue').addEventListener('click',()=>dialogueSystem.advance());
 const savedStats=savedCampaign.stats;
 $('saveInfo').textContent=`СОХРАНЕНИЕ · Побед: ${savedStats.wins} · Поражений: ${savedStats.losses} · Лучший результат: ${savedStats.bestKills} дронов`;
@@ -173,13 +174,14 @@ function end(w){if(state==='over')return;if(w&&!outroShown&&currentMission.outro
 
 /* ---------- управление ---------- */
 const dom=renderer.domElement;
+function useNearbyInteraction(){const nearby=interactionSystem.findNearby(P.pos);if(!nearby)return;const item=interactionSystem.activate(nearby.id);if(!item)return;state='dialogue';mouse=false;$('interactHint').hidden=true;document.exitPointerLock&&document.exitPointerLock();dialogueSystem.start(item.dialogue,()=>{state='play';try{dom.requestPointerLock()}catch(e){fallback=true}})}
 $('ov').onclick=()=>{if(state==='over'||state==='dialogue')return;if(!ac)ac=audioManager.unlock();if(ac){audioManager.startAmbience(currentMission.audioProfile);audioManager.startMusic()}state='dialogue';$('ov').style.display='none';
  dialogueSystem.start(currentMission.introDialogue,()=>{state='play';try{dom.requestPointerLock()}catch(e){fallback=true}})};
 document.addEventListener('pointerlockchange',()=>{locked=document.pointerLockElement===dom;if(!locked&&state==='play'&&!fallback){state='menu';$('msg').innerHTML='<b>Пауза — нажми, чтобы продолжить</b>';$('ov').style.display='flex'}});
 document.addEventListener('pointerlockerror',()=>{fallback=true});
 addEventListener('mousemove',e=>{if(state!=='play'||!(locked||fallback))return;P.yaw-=e.movementX*.0022;P.pitch=cl(P.pitch-e.movementY*.0022,-1.45,1.45)});
 addEventListener('mousedown',e=>{if(e.button===0)mouse=true});addEventListener('mouseup',()=>mouse=false);
-addEventListener('keydown',e=>{if(dialogueSystem.isActive()&&(e.code==='Enter'||e.code==='KeyE')){e.preventDefault();dialogueSystem.advance();return}keys[e.code]=1;if(e.code==='Space'){e.preventDefault();if(!e.repeat&&state==='play'&&jumpController.jump(P))snd(125,.14,'sawtooth',.12)}if(e.code==='KeyR')weapon.reload();if(e.code==='KeyF')torch.visible=!torch.visible;if(e.code==='F3')perfMonitor.toggle()});addEventListener('keyup',e=>keys[e.code]=0);
+addEventListener('keydown',e=>{if(dialogueSystem.isActive()&&(e.code==='Enter'||e.code==='KeyE')){e.preventDefault();dialogueSystem.advance();return}if(e.code==='KeyE'&&state==='play'){e.preventDefault();useNearbyInteraction();return}keys[e.code]=1;if(e.code==='Space'){e.preventDefault();if(!e.repeat&&state==='play'&&jumpController.jump(P))snd(125,.14,'sawtooth',.12)}if(e.code==='KeyR')weapon.reload();if(e.code==='KeyF')torch.visible=!torch.visible;if(e.code==='F3')perfMonitor.toggle()});addEventListener('keyup',e=>keys[e.code]=0);
 setTimeout(()=>{if(state==='menu'&&!$('ov').matches(':hover'))0},0);
 
 /* ---------- пост-обработка ---------- */
@@ -203,6 +205,7 @@ function loop(now){requestAnimationFrame(loop);const dt=Math.min(.05,(now-last)/
  if(state==='play'){
   const f=(keys.KeyW?1:0)-(keys.KeyS?1:0),r=(keys.KeyD?1:0)-(keys.KeyA?1:0),sp=keys.ShiftLeft?7:4.6,mv=f||r;
   if(mv){const l=Math.hypot(f,r),sy=Math.sin(P.yaw),cy=Math.cos(P.yaw);P.pos.x+=(-sy*f+cy*r)/l*sp*dt;P.pos.z+=(-cy*f-sy*r)/l*sp*dt;collide(P.pos,.4)}
+  const nearby=interactionSystem.findNearby(P.pos);$('interactHint').hidden=!nearby;if(nearby)$('interactHint').textContent=`E — ${nearby.label}`;
   if(jumpController.update(P,dt))snd(75,.09,'sine',.08);
   if(P.grounded)P.pos.y=GROUND_Y+(mv?Math.sin(tm*(keys.ShiftLeft?13:9))*.035:0);
   cam.position.copy(P.pos);cam.rotation.set(P.pitch+weapon.pitchKick,P.yaw,0);
