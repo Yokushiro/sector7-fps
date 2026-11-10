@@ -19,7 +19,22 @@
       box(-10.15, H / 2, -S - .5, 15.9, H, 1, concrete);
       box(10.15, H / 2, -S - .5, 15.9, H, 1, concrete);
       box(0, H - .5, -S - .5, 4.2, 1, 1, steel, false);
-      box(0, H / 2, S + .5, S * 2 + 2, H, 1, concrete);
+      // South access opens into the laboratory connector; the corridor is continuous across the sector boundary.
+      box(-10.15, H / 2, S + .5, 15.9, H, 1, concrete);
+      box(10.15, H / 2, S + .5, 15.9, H, 1, concrete);
+      box(0, H - .5, S + .5, 4.2, 1, 1, steel, false);
+      const entryFloor = new T.Mesh(new T.PlaneGeometry(5.2, 14), mat('floor', 2, 5, .35));
+      entryFloor.rotation.x = -Math.PI / 2;
+      entryFloor.position.set(0, .015, 25);
+      entryFloor.receiveShadow = true;
+      scene.add(entryFloor);
+      solids.push(entryFloor);
+      box(-2.8, 3.5, 25, .45, 7, 14, concrete);
+      box(2.8, 3.5, 25, .45, 7, 14, concrete);
+      box(0, H - .35, 25, 5.9, .5, 14, dark, false);
+      const entryLamp = new T.PointLight(0x38cfff, .9, 18, 2);
+      entryLamp.position.set(0, 5, 25);
+      scene.add(entryLamp);
       box(-S - .5, H / 2, 0, 1, H, S * 2, concrete);
       box(S + .5, H / 2, 0, 1, H, S * 2, concrete);
 
@@ -142,7 +157,7 @@
         bounds: { halfSize: 33, height: H },
         exitZone: { x0: -2.1, x1: 2.1, z0: -31.2, z1: -29.1 },
         requiredInteractionId: 'reactor-shutdown',
-        playerSpawn: { x: 0, y: 1.7, z: -28, yaw: Math.PI },
+        playerSpawn: { x: 0, y: 1.7, z: 28, yaw: Math.PI },
         enemySpawnPoints: [[-14, -14], [14, -14], [-14, 12], [14, 12], [0, -15], [-16, 0], [16, 0], [16, 16]],
         openExit() { exitOpen = true; const index = boxes.indexOf(exitDoor.userData.collisionBox); if (index >= 0) boxes.splice(index, 1); },
         update(dt, time) {
