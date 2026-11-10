@@ -44,8 +44,11 @@ test('unknown missions and objectives fail safely', () => {
 test('second mission unlocks only after campaign progress reaches its order', () => {
   const missions = new MissionSystem();
   assert.equal(missions.getMission('lab-02').objectives[0].target, 14);
+  assert.equal(missions.getMission('reactor-03').objectives[0].target, 18);
+  assert.equal(missions.getMission('reactor-03').introDialogue.length, 3);
   assert.deepEqual(missions.getUnlockedMissions({ unlockedMission: 1 }).map(item => item.id), ['bunker-01']);
   assert.deepEqual(missions.getUnlockedMissions({ unlockedMission: 2 }).map(item => item.id), ['bunker-01', 'lab-02']);
+  assert.deepEqual(missions.getUnlockedMissions({ unlockedMission: 3 }).map(item => item.id), ['bunker-01', 'lab-02', 'reactor-03']);
 });
 
 test('campaign selection prefers the first incomplete unlocked mission', () => {
