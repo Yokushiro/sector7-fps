@@ -76,6 +76,7 @@ const torch=new T.SpotLight(0xe8f4ff,1.6,28,.5,.6,1.2);torch.position.set(.2,-.1
 const P={pos:new T.Vector3(0,1.7,9),yaw:0,pitch:0,hp:100},keys={};
 let state='menu',ammo=30,rel=0,fireT=0,kick=0,kills=0,spawned=0,spawnT=0,hurt=0,tm=0,mouse=false,fallback=false,locked=false;
 const GOAL=10,enemies=[],proj=[],sparks=[];
+const droneAI=new S7DroneAI();
 const $=id=>document.getElementById(id);
 function collide(p,r){for(const b of boxes){const cx=cl(p.x,b.x0,b.x1),cz=cl(p.z,b.z0,b.z1),dx=p.x-cx,dz=p.z-cz,d2=dx*dx+dz*dz;
  if(d2<r*r){if(d2>1e-6){const d=Math.sqrt(d2),k=(r-d)/d;p.x+=dx*k;p.z+=dz*k}else p.x+=r}}}
@@ -151,14 +152,7 @@ function loop(now){requestAnimationFrame(loop);const dt=Math.min(.05,(now-last)/
   gun.position.set(.27+Math.sin(tm*4.5)*.004*mv,-.25+Math.sin(tm*9)*.006*mv,-.55+kick);
   flash.material.opacity*=.6;fl2.intensity*=.55;
   spawnT-=dt;if(spawned<GOAL&&enemies.length<5&&spawnT<=0){spawn();spawnT=3.5}
-  for(const e of enemies){const g=e.g;e.t+=dt;const dx=P.pos.x-g.position.x,dz=P.pos.z-g.position.z,d=Math.hypot(dx,dz)||1,st=d<8?1:0;
-   const mx=dx/d*(d>6?2.4:-.6)+(-dz/d)*st*Math.sin(e.t*.7)*2.2,mz=dz/d*(d>6?2.4:-.6)+(dx/d)*st*Math.sin(e.t*.7)*2.2;
-   g.position.x+=mx*dt;g.position.z+=mz*dt;g.position.y=1.3+Math.sin(e.t*2)*.12;collide(g.position,.5);
-   g.lookAt(P.pos.x,g.position.y,P.pos.z);
-   if(e.flash>0){e.flash-=dt;if(e.flash<=0)e.m.emissive.setRGB(0,0,0)}
-   e.cd-=dt;e.eye.color.setRGB(3+Math.sin(e.t*8),.2+(e.cd<.4?2:0),.1);
-   if(e.cd<=0&&d<20){e.cd=R(1.4,2.4);const m=new T.Mesh(new T.SphereGeometry(.11,10,8),new T.MeshBasicMaterial({color:new T.Color(5,2.2,.4)}));m.position.copy(g.position);
-    const v=new T.Vector3(P.pos.x+R(-.5,.5),1.2+R(-.3,.3),P.pos.z+R(-.5,.5)).sub(g.position).normalize().multiplyScalar(13);scene.add(m);proj.push({m,v,l:3});snd(500,.12,'square',.08)}}
+  droneAI.update(enemies,P,dt,collide,scene,proj,snd,R);
   for(let i=proj.length-1;i>=0;i--){const p=proj[i];p.m.position.addScaledVector(p.v,dt);p.l-=dt;const dd=p.m.position.distanceTo(new T.Vector3(P.pos.x,Math.min(p.m.position.y,1.5),P.pos.z));
    let hit=p.l<=0||Math.abs(p.m.position.x)>S||Math.abs(p.m.position.z)>S||p.m.position.y<0;
    if(!hit)for(const b of boxes)if(p.m.position.y<2.4&&p.m.position.x>b.x0&&p.m.position.x<b.x1&&p.m.position.z>b.z0&&p.m.position.z<b.z1){hit=true;break}
