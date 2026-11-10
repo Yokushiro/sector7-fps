@@ -69,6 +69,7 @@ const interactionSystem=new S7InteractionSystem(activeLevel.interactables||[]);
 $('dialogue').addEventListener('click',()=>dialogueSystem.advance());
 const savedStats=savedCampaign.stats;
 $('saveInfo').textContent=`СОХРАНЕНИЕ · Побед: ${savedStats.wins} · Поражений: ${savedStats.losses} · Лучший результат: ${savedStats.bestKills} дронов`;
+$('missionTitle').textContent=`${currentMission.title} · ${currentMission.location}`;
 $('missionDescription').textContent=currentMission.description;
 $('kl').textContent=`Дроны: 0 / ${GOAL}`;
 function collide(p,r){for(const b of boxes){const cx=cl(p.x,b.x0,b.x1),cz=cl(p.z,b.z0,b.z1),dx=p.x-cx,dz=p.z-cz,d2=dx*dx+dz*dz;
