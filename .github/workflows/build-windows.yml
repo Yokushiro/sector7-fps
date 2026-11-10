@@ -1,8 +1,6 @@
 name: Windows Build Check
 
 on:
-  push:
-    branches: [feature/sector7-2-core]
   pull_request:
     branches: [main]
   workflow_dispatch:
