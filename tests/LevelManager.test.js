@@ -39,7 +39,7 @@ test('level manager registers and loads a level into an isolated scene group', (
     }
   });
   const level = manager.load('test-room', {
-    box(...args) { assert.equal(args.at(-1), level.root); }
+    box(...args) { assert.equal(args.at(-1), scene.children[0]); }
   });
   assert.equal(level.id, 'test-room');
   assert.equal(level.name, 'Test room');
