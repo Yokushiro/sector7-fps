@@ -39,6 +39,8 @@
         ...context,
         THREE: this.THREE,
         scene: rootGroup,
+        solids: this.solids,
+        boxes: this.boxes,
         box: (...args) => typeof args[7] === 'boolean'
           ? context.box(...args, rootGroup)
           : context.box(...args, true, rootGroup)
