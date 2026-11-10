@@ -45,6 +45,28 @@
         maxActive: 6,
         enemySequence: ['assault', 'scout', 'sniper', 'heavy', 'assault', 'sniper', 'scout', 'heavy', 'assault', 'sniper', 'heavy', 'scout', 'assault', 'heavy']
       }
+    },
+    {
+      id: 'reactor-03',
+      order: 3,
+      title: 'СЕРДЦЕ СИСТЕМЫ',
+      location: 'Реакторное ядро',
+      description: 'Доберись до реакторного ядра и уничтожь 18 защитных машин.',
+      introDialogue: [
+        { speaker: 'ИЛЬЯ', text: 'Ты у самого ядра. Я пытался остановить запуск вручную, но система заперла все шлюзы. Единственный способ открыть центральный контур — перегрузить её защиту.' },
+        { speaker: 'АРХИВ / 07', text: 'Несанкционированный доступ к управляющему ядру. Последнее предупреждение: немедленно покиньте объект.' },
+        { speaker: 'ИЛЬЯ', text: 'Не слушай её. Если ядро останется активным, оно выйдет за пределы комплекса. Закончи начатое.' }
+      ],
+      levelId: 'reactor-03',
+      audioProfile: 'reactor',
+      objectives: [
+        { id: 'disable-reactor-guard', type: 'eliminate', target: 18, label: 'Уничтожить защитные машины' }
+      ],
+      spawn: {
+        interval: 2.55,
+        maxActive: 7,
+        enemySequence: ['scout', 'assault', 'heavy', 'sniper', 'assault', 'heavy', 'scout', 'sniper', 'assault', 'heavy', 'sniper', 'scout', 'assault', 'heavy', 'sniper', 'assault', 'scout', 'heavy']
+      }
     }
   ];
 
