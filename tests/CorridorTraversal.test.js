@@ -8,11 +8,11 @@ function read(relativePath) {
 }
 
 test('bunker and laboratory both provide traversable corridor exits', () => {
-  for (const levelPath of ['src/levels/BunkerLevel.js', 'src/levels/LabLevel.js']) {
+  for (const levelPath of ['src/levels/BunkerLevel.js', 'src/levels/LabLevel.js', 'src/levels/ReactorLevel.js']) {
     const source = read(levelPath);
     assert.match(source, /corridorFloor/);
     assert.match(source, /exitZone:\s*\{/);
-    assert.match(source, /bounds:\s*\{\s*halfSize:\s*(27|29)/);
+    assert.match(source, /bounds:\s*\{\s*halfSize:\s*(27|29|33)/);
   }
 });
 
