@@ -55,6 +55,7 @@ test('campaign UI systems load before the main game script', () => {
     assert.ok(source.indexOf(script) < source.indexOf('src/game.js'), script + ' must load before game.js');
   }
   assert.doesNotMatch(source, /\\\\n<div id="dialogue"/);
+  assert.doesNotMatch(source, /\\\\n#evacTimer/);
 });
 
 
