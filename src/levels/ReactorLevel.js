@@ -18,7 +18,7 @@
       // Main chamber walls; the north opening continues into the reactor access corridor.
       box(-10.15, H / 2, -S - .5, 15.9, H, 1, concrete);
       box(10.15, H / 2, -S - .5, 15.9, H, 1, concrete);
-      box(0, H - .5, -S - .5, 4.2, 1, 1, steel);
+      box(0, H - .5, -S - .5, 4.2, 1, 1, steel, false);
       box(0, H / 2, S + .5, S * 2 + 2, H, 1, concrete);
       box(-S - .5, H / 2, 0, 1, H, S * 2, concrete);
       box(S + .5, H / 2, 0, 1, H, S * 2, concrete);
