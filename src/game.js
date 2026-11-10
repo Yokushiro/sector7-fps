@@ -127,7 +127,8 @@ function spawn(){
  g.traverse(o=>{o.userData.e=e;o.castShadow=true});
  g.position.set(q[0],1.3,q[1]);scene.add(g);enemies.push(e);spawned++;
 }
-function killE(e){scene.remove(e.g);enemies.splice(enemies.indexOf(e),1);for(let i=0;i<18;i++)spark(e.g.position,new T.Color(3,1.6,.5),6);snd(90,.4,'sawtooth',.4);kills++;$('kl').textContent=`Дроны: ${kills} / ${GOAL}`;if(missionSystem.isObjectiveComplete(currentMission.id,missionObjective.id,kills))end(true)}
+function disposeRenderable(root){root.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material){const materials=Array.isArray(o.material)?o.material:[o.material];for(const material of materials)material.dispose()}})}
+function killE(e){scene.remove(e.g);disposeRenderable(e.g);enemies.splice(enemies.indexOf(e),1);for(let i=0;i<18;i++)spark(e.g.position,new T.Color(3,1.6,.5),6);snd(90,.4,'sawtooth',.4);kills++;$('kl').textContent=`Дроны: ${kills} / ${GOAL}`;if(missionSystem.isObjectiveComplete(currentMission.id,missionObjective.id,kills))end(true)}
 const spGeo=new T.BoxGeometry(.03,.03,.03);
 function spark(p,c,sp=4){const m=new T.Mesh(spGeo,new T.MeshBasicMaterial({color:c}));m.position.copy(p);scene.add(m);sparks.push({m,v:new T.Vector3(R(-1,1),R(0,1.4),R(-1,1)).multiplyScalar(sp),l:R(.3,.7)})}
 
@@ -200,9 +201,9 @@ function loop(now){requestAnimationFrame(loop);const dt=Math.min(.05,(now-last)/
   for(let i=proj.length-1;i>=0;i--){const p=proj[i];p.m.position.addScaledVector(p.v,dt);p.l-=dt;const dd=p.m.position.distanceTo(new T.Vector3(P.pos.x,Math.min(p.m.position.y,1.5),P.pos.z));
    let hit=p.l<=0||Math.abs(p.m.position.x)>LEVEL_BOUNDS.halfSize||Math.abs(p.m.position.z)>LEVEL_BOUNDS.halfSize||p.m.position.y<0;
    if(!hit)for(const b of boxes)if(p.m.position.y<2.4&&p.m.position.x>b.x0&&p.m.position.x<b.x1&&p.m.position.z>b.z0&&p.m.position.z<b.z1){hit=true;break}
-   if(dd<.55){dmg(p.damage||8);hit=true}if(hit){scene.remove(p.m);proj.splice(i,1)}}
+   if(dd<.55){dmg(p.damage||8);hit=true}if(hit){scene.remove(p.m);p.m.geometry.dispose();p.m.material.dispose();proj.splice(i,1)}}
  }
- for(let i=sparks.length-1;i>=0;i--){const s=sparks[i];s.v.y-=9*dt;s.m.position.addScaledVector(s.v,dt);s.l-=dt;if(s.l<=0||s.m.position.y<.02){scene.remove(s.m);sparks.splice(i,1)}}
+ for(let i=sparks.length-1;i>=0;i--){const s=sparks[i];s.v.y-=9*dt;s.m.position.addScaledVector(s.v,dt);s.l-=dt;if(s.l<=0||s.m.position.y<.02){scene.remove(s.m);s.m.material.dispose();sparks.splice(i,1)}}
  hurt=Math.max(0,hurt-dt*1.6);dust.rotation.y+=dt*.01;dust.position.y=Math.sin(tm*.2)*.1;
  // мерцание неона
  fin.uniforms.time.value=tm%10;fin.uniforms.hurt.value=hurt;
