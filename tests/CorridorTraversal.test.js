@@ -23,7 +23,7 @@ test('combat completion opens the route instead of ending the mission immediatel
   assert.match(source, /missionCleared=true/);
   assert.match(source, /ИЩИ ВЫХОД В КОРИДОРЕ/);
   assert.match(source, /missionCleared&&exit&&P\.pos\.x>=exit\.x0/);
-  assert.match(source, /if\(!missionCleared&&spawned<GOAL/);
+  assert.match(source, /if\(!combatCleared&&spawned<GOAL/);
 });
 
 
