@@ -96,3 +96,15 @@ test('each sector starts at the far end of its incoming corridor', () => {
   const game = read('src/game.js');
   assert.match(game, /P\.yaw=activeLevel\.playerSpawn\.yaw\|\|0/);
 });
+
+
+test('evacuation doors block the corridor until opened, then release collision', () => {
+  const game = read('src/game.js');
+  assert.match(game, /me\.userData\.collisionBox=collisionBox/);
+  for (const levelPath of ['src/levels/BunkerLevel.js', 'src/levels/LabLevel.js', 'src/levels/ReactorLevel.js']) {
+    const source = read(levelPath);
+    assert.match(source, /const exitDoor\s*=\s*box\([^;]+\);/);
+    assert.match(source, /boxes\.indexOf\(exitDoor\.userData\.collisionBox\)/);
+    assert.match(source, /boxes\.splice\(index, 1\)/);
+  }
+});
