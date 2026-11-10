@@ -116,7 +116,8 @@
         new T.PlaneGeometry(7, 3.2),
         new T.MeshBasicMaterial({ map: new T.CanvasTexture(signCanvas) })
       );
-      sign.position.set(0, 7.1, -S + .03);
+      sign.rotation.y = -Math.PI / 2;
+      sign.position.set(S + .03, 7.1, 0);
       scene.add(sign);
 
       scene.add(new T.HemisphereLight(0x7696b2, 0x100d14, .38));
