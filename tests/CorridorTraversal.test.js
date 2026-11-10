@@ -75,6 +75,17 @@ test('streamed mission transitions reset combat state and avoid a page reload', 
 });
 
 
+test('reactor shutdown visibly powers down the core and the black-box recorder reveals the truth about Ilya', () => {
+  const reactor = read('src/levels/ReactorLevel.js');
+  assert.match(reactor, /let reactorShutdown = false/);
+  assert.match(reactor, /reactorShutdown = true/);
+  assert.match(reactor, /coreMaterial\.opacity = Math\.max\(0, coreMaterial\.opacity - dt \* \.22\)/);
+  assert.match(reactor, /coreLight\.intensity = Math\.max\(\.08, coreLight\.intensity - dt \* 2\.2\)/);
+  assert.match(reactor, /id: 'reactor-archive'/);
+  assert.match(reactor, /ПРОСЛУШАТЬ ЧЁРНЫЙ ЯЩИК/);
+  assert.match(reactor, /Я не пытался спасти себя/);
+});
+
 test('reactor shutdown starts a visible 90-second evacuation countdown', () => {
   const reactor = read('src/levels/ReactorLevel.js');
   const game = read('src/game.js');
