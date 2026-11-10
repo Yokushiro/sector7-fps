@@ -150,6 +150,9 @@ test('sector handoff preserves player resources and uses a short fade instead of
   assert.match(game, /function transitionToMission\(nextMission\)/);
   assert.match(game, /setTimeout\(\(\)=>\{\s*loadMission\(nextMission,\{preservePlayer:true,player\}\)/);
   assert.match(game, /dialogueSystem\.startRadio\(currentMission\.introDialogue\)/);
+  assert.match(game, /outroPlaying=true;state='transition'/);
+  assert.match(game, /dialogueSystem\.startRadio\(currentMission\.outroDialogue/);
+  assert.match(game, /outroShown=true;outroPlaying=false;state='play';end\(true\)/);
   assert.match(game, /dialogueSystem\.update\(dt\)/);
   assert.match(game, /P\.hp=carried\.hp/);
   assert.match(game, /if\(!carried\)\{/);
