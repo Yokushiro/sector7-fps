@@ -17,6 +17,22 @@
         maxActive: 5,
         enemySequence: ['scout', 'assault', 'heavy', 'scout', 'sniper', 'assault', 'scout', 'heavy', 'sniper', 'scout']
       }
+    },
+    {
+      id: 'lab-02',
+      order: 2,
+      title: 'КРАСНЫЙ ПРОТОКОЛ',
+      location: 'Исследовательский комплекс',
+      description: 'Проникни в исследовательский комплекс и уничтожь 14 боевых дронов.',
+      levelId: 'lab-02',
+      objectives: [
+        { id: 'eliminate-lab-drones', type: 'eliminate', target: 14, label: 'Уничтожить боевых дронов' }
+      ],
+      spawn: {
+        interval: 2.9,
+        maxActive: 6,
+        enemySequence: ['assault', 'scout', 'sniper', 'heavy', 'assault', 'sniper', 'scout', 'heavy', 'assault', 'sniper', 'heavy', 'scout', 'assault', 'heavy']
+      }
     }
   ];
 
@@ -48,6 +64,15 @@
       return this.missions
         .filter(mission => mission.order <= unlocked)
         .map(mission => this.copyMission(mission));
+    }
+
+    getMissionForCampaign(campaignSave, requestedId) {
+      const unlocked = this.getUnlockedMissions(campaignSave);
+      if (!unlocked.length) return null;
+      const requested = unlocked.find(mission => mission.id === requestedId);
+      if (requested) return requested;
+      const completed = new Set(Array.isArray(campaignSave?.completedMissions) ? campaignSave.completedMissions : []);
+      return unlocked.find(mission => !completed.has(mission.id)) || unlocked[0];
     }
 
     getObjective(missionId, objectiveId) {
