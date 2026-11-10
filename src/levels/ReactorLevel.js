@@ -172,7 +172,7 @@
         requiredInteractionId: 'reactor-shutdown',
         playerSpawn: { x: 0, y: 1.7, z: 28, yaw: 0 },
         enemySpawnPoints: [[-14, -14], [14, -14], [-14, 12], [14, 12], [0, -15], [-16, 0], [16, 0], [16, 16]],
-        openExit() { exitOpen = true; const index = boxes.indexOf(exitDoor.userData.collisionBox); if (index >= 0) boxes.splice(index, 1); },
+        openExit() { exitOpen = true; context.removeCollisionBox(exitDoor.userData.collisionBox); },
         update(dt, time) {
           if (exitOpen) exitDoor.position.y += (10 - exitDoor.position.y) * Math.min(1, dt * 2.2);
           reactorRings.forEach((ring, index) => {
