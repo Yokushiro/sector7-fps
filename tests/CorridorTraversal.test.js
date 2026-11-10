@@ -57,3 +57,17 @@ test('campaign advances to the next location in-place after the corridor exit', 
   assert.match(game, /activeLevel=levelManager\.load\(currentMission\.levelId/);
   assert.match(game, /location\.hash=currentMission\.id/);
 });
+
+
+test('streamed mission transitions reset combat state and avoid a page reload', () => {
+  const game = read('src/game.js');
+  const start = game.indexOf('function loadMission(nextMission)');
+  const stop = game.indexOf('function useNearbyInteraction()', start);
+  assert.ok(start >= 0 && stop > start);
+  const transition = game.slice(start, stop);
+  assert.match(transition, /kills=0;spawned=0;spawnT=0/);
+  assert.match(transition, /P\.hp=100/);
+  assert.match(transition, /weapon\.ammo=weapon\.magazineSize/);
+  assert.match(transition, /missionCleared=false;combatCleared=false/);
+  assert.doesNotMatch(transition, /location\.reload/);
+});
