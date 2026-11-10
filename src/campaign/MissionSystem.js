@@ -105,6 +105,7 @@
       return {
         ...mission,
         objectives: mission.objectives.map(objective => ({ ...objective })),
+        introDialogue: (mission.introDialogue || []).map(line => ({ ...line })),
         spawn: {
           ...mission.spawn,
           enemySequence: [...mission.spawn.enemySequence]
