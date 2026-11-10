@@ -8,6 +8,7 @@ const scripts = [
   'src/game.js',
   'src/campaign/MissionSystem.js',
   'src/campaign/DialogueSystem.js',
+  'src/campaign/InteractionSystem.js',
   'src/core/SaveSystem.js',
   'src/levels/LevelManager.js',
   'src/levels/BunkerLevel.js',
