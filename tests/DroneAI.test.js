@@ -1,3 +1,4 @@
+// Basic behavior checks for enemy movement and archetype tuning.
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
