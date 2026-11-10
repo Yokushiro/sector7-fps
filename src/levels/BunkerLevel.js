@@ -18,7 +18,7 @@ const entryLamp=new T.PointLight(0x4c9dff,.85,16,2);entryLamp.position.set(0,4.8
 const corridorFloor=new T.Mesh(new T.PlaneGeometry(5.2,14),mat('floor',2,5,.3));corridorFloor.rotation.x=-Math.PI/2;corridorFloor.position.set(0,.015,-19);corridorFloor.receiveShadow=true;scene.add(corridorFloor);solids.push(corridorFloor);
 box(-2.8,3,-19,.45,6,14,mat('concrete',2,4));box(2.8,3,-19,.45,6,14,mat('concrete',2,4));box(0,H-.35,-19,5.9,.5,14,mat('metal',2,5,.8),false);
 const corridorLight=new T.Mesh(new T.BoxGeometry(.25,.12,8),new T.MeshBasicMaterial({color:0xffa34d}));corridorLight.position.set(0,6.1,-18);scene.add(corridorLight);const corridorLamp=new T.PointLight(0xff7b32,1.1,18,2);corridorLamp.position.set(0,4.8,-18);scene.add(corridorLamp);
-const exitDoor=box(0,3,-26,5.6,6,.45,mat('metal',2,2,.9),false);
+const exitDoor=box(0,3,-26,5.6,6,.45,mat('metal',2,2,.9));
 let exitOpen=false;
 box(-S-.5,H/2,0,1,H,S*2,mat('concrete',6,2));box(S+.5,H/2,0,1,H,S*2,mat('concrete',6,2));
 const mm=mat('metal',1,1,.85),mm2=mat('metal',2,1,.7,0xa9794f),mc=mat('concrete',1,3);
@@ -52,7 +52,7 @@ const bunkerLights=[];
         exitZone: { x0: -2.1, x1: 2.1, z0: -25.2, z1: -23.1 },
         playerSpawn: { x: 0, y: 1.7, z: 22, yaw: 0 },
         enemySpawnPoints: [[-10,-10],[10,-10],[-10,10],[10,10],[0,-10.5]],
-        openExit() { exitOpen = true; },
+        openExit() { exitOpen = true; const index = boxes.indexOf(exitDoor.userData.collisionBox); if (index >= 0) boxes.splice(index, 1); },
         update(dt, time) {
           bunkerLights.forEach((light, index) => { light.intensity = .68 + Math.sin(time * 2.1 + index * 1.4) * .08; });
           if (exitOpen) exitDoor.position.y += (8 - exitDoor.position.y) * Math.min(1, dt * 2.2);
