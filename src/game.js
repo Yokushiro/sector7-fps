@@ -1,5 +1,6 @@
 const T=THREE,R=(a,b)=>a+Math.random()*(b-a),cl=(v,a,b)=>Math.max(a,Math.min(b,v));
 const renderer=new T.WebGLRenderer({antialias:true,powerPreference:'high-performance'});
+renderer.info.autoReset=false;
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;
 document.body.prepend(renderer.domElement);
 const scene=new T.Scene();scene.background=new T.Color(0x04060a);scene.fog=new T.FogExp2(0x070c12,.034);
@@ -119,7 +120,7 @@ document.addEventListener('pointerlockchange',()=>{locked=document.pointerLockEl
 document.addEventListener('pointerlockerror',()=>{fallback=true});
 addEventListener('mousemove',e=>{if(state!=='play'||!(locked||fallback))return;P.yaw-=e.movementX*.0022;P.pitch=cl(P.pitch-e.movementY*.0022,-1.45,1.45)});
 addEventListener('mousedown',e=>{if(e.button===0)mouse=true});addEventListener('mouseup',()=>mouse=false);
-addEventListener('keydown',e=>{keys[e.code]=1;if(e.code==='KeyR')reload();if(e.code==='KeyF')torch.visible=!torch.visible});addEventListener('keyup',e=>keys[e.code]=0);
+addEventListener('keydown',e=>{keys[e.code]=1;if(e.code==='KeyR')reload();if(e.code==='KeyF')torch.visible=!torch.visible;if(e.code==='F3')perfMonitor.toggle()});addEventListener('keyup',e=>keys[e.code]=0);
 setTimeout(()=>{if(state==='menu'&&!$('ov').matches(':hover'))0},0);
 
 /* ---------- пост-обработка ---------- */
@@ -132,6 +133,7 @@ const fin=new T.ShaderPass({uniforms:{tDiffuse:{value:null},time:{value:0},hurt:
  void main(){vec2 d=vUv-.5;float l=dot(d,d);vec3 c=vec3(texture2D(tDiffuse,vUv+d*.004).r,texture2D(tDiffuse,vUv).g,texture2D(tDiffuse,vUv-d*.004).b);
  c*=1.15;c=(c*(2.51*c+.03))/(c*(2.43*c+.59)+.14);c=pow(c,vec3(1./2.2));c*=1.-l*1.5;c+=(h(vUv*1000.)-.5)*.035;c+=vec3(.6,0.,0.)*hurt*(.25+l*3.);gl_FragColor=vec4(c,1.);}`});
 comp.addPass(fin);
+const perfMonitor=new S7PerformanceMonitor();
 function resize(){const w=innerWidth,h=innerHeight;renderer.setSize(w,h);comp.setSize(w,h);cam.aspect=w/h;cam.updateProjectionMatrix()}
 addEventListener('resize',resize);resize();
 
@@ -166,5 +168,5 @@ function loop(now){requestAnimationFrame(loop);const dt=Math.min(.05,(now-last)/
  // мерцание неона
  fin.uniforms.time.value=tm%10;fin.uniforms.hurt.value=hurt;
  if(state!=='play'&&state!=='over'){cam.position.set(Math.sin(tm*.15)*4,2.4,9);cam.lookAt(0,1.8,-5)}
- comp.render()}
+ comp.render();perfMonitor.update(renderer,now);renderer.info.reset()}
 cam.position.copy(P.pos);requestAnimationFrame(loop);
