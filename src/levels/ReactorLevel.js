@@ -4,7 +4,7 @@
   const ReactorLevel = {
     id: 'reactor-03',
     build(context) {
-      const { THREE: T, scene, mat, box, canvas, solids } = context;
+      const { THREE: T, scene, mat, box, canvas, solids, boxes } = context;
       const S = 18, H = 11;
       const concrete = mat('concrete', 8, 3, 0, 0x727c83);
       const steel = mat('metal', 3, 2, .9, 0x53616b);
@@ -42,6 +42,7 @@
       base.receiveShadow = true;
       scene.add(base);
       solids.push(base);
+      boxes.push({ x0: -5.8, x1: 5.8, z0: -6.8, z1: 4.8 });
       const coreMaterial = new T.MeshStandardMaterial({
         color: 0x7bdfff,
         emissive: 0x087fc4,
