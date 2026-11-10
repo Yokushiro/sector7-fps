@@ -18,7 +18,7 @@
       box(0, H, 0, S * 2 + 2, .6, S * 2 + 2, wall, false);
       box(-8.15, H / 2, -S - .5, 12.9, H, 1, wall);
       box(8.15, H / 2, -S - .5, 12.9, H, 1, wall);
-      box(0, H - .5, -S - .5, 4.2, 1, 1, steel);
+      box(0, H - .5, -S - .5, 4.2, 1, 1, steel, false);
       // Service corridor continues deeper into the facility and ends at the reactor access door.
       const corridorFloor = new T.Mesh(new T.PlaneGeometry(5.2, 14), mat('floor', 2, 5, .3));
       corridorFloor.rotation.x = -Math.PI / 2;
