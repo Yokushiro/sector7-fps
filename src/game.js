@@ -71,7 +71,7 @@ const torch=new T.SpotLight(0xe8f4ff,1.6,28,.5,.6,1.2);torch.position.set(.2,-.1
 let GROUND_Y=activeLevel.playerSpawn.y;
 const P={pos:new T.Vector3(activeLevel.playerSpawn.x,GROUND_Y,activeLevel.playerSpawn.z),yaw:activeLevel.playerSpawn.yaw||0,pitch:0,hp:100,velocityY:0,grounded:true};
 const jumpController=new S7JumpController(GROUND_Y);
-let state='menu',kills=0,spawned=0,spawnT=0,hurt=0,tm=0,mouse=false,fallback=false,locked=false,missionCleared=false,combatCleared=false,outroShown=false,introShown=false,evacuationRemaining=0;
+let state='menu',kills=0,spawned=0,spawnT=0,hurt=0,tm=0,mouse=false,fallback=false,locked=false,missionCleared=false,combatCleared=false,outroShown=false,outroPlaying=false,introShown=false,evacuationRemaining=0;
 const keys=Object.create(null); // shared keyboard state for input handlers and the game loop
 const enemies=[],proj=[],sparks=[];
 const droneAI=new S7DroneAI();
@@ -181,8 +181,9 @@ function end(w){
  if(state==='over'||state==='transition')return;
  $('evacTimer').hidden=true;
  if(w&&!outroShown&&currentMission.outroDialogue?.length){
-  state='dialogue';document.exitPointerLock&&document.exitPointerLock();
-  dialogueSystem.start(currentMission.outroDialogue,()=>{outroShown=true;end(true)});
+  if(outroPlaying)return;
+  outroPlaying=true;state='transition';document.exitPointerLock&&document.exitPointerLock();
+  dialogueSystem.startRadio(currentMission.outroDialogue,()=>{outroShown=true;outroPlaying=false;state='play';end(true)});
   return;
  }
  state='transition';
@@ -238,7 +239,7 @@ function loadMission(nextMission,transition={}){
   weapon.onAmmoChange(weapon.ammo);
   cam.position.copy(P.pos);cam.rotation.set(P.pitch+weapon.pitchKick,P.yaw,0);
   for(const key of Object.keys(keys))delete keys[key];
-  kills=0;spawned=0;spawnT=0;hurt=0;mouse=false;fallback=false;missionCleared=false;combatCleared=false;outroShown=false;introShown=true;evacuationRemaining=0;$('evacTimer').hidden=true;
+  kills=0;spawned=0;spawnT=0;hurt=0;mouse=false;fallback=false;missionCleared=false;combatCleared=false;outroShown=false;outroPlaying=false;introShown=true;evacuationRemaining=0;$('evacTimer').hidden=true;
   $('missionTitle').textContent=`${currentMission.title} · ${currentMission.location}`;
   $('missionDescription').textContent=currentMission.description;
   $('kl').textContent=`Дроны: 0 / ${GOAL}`;
