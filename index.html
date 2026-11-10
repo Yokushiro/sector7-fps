@@ -23,7 +23,7 @@ canvas{display:block}
 #dialogue{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);width:min(760px,calc(100% - 36px));padding:20px 24px 16px;background:linear-gradient(135deg,#07131deb,#101b25ed);border:1px solid #6c9bb566;box-shadow:0 12px 50px #000b,inset 0 0 28px #1c4a6322;z-index:5;color:#d8f4ff;cursor:pointer}
 #interactHint{position:fixed;left:50%;bottom:86px;transform:translateX(-50%);padding:9px 15px;background:#06121de8;border:1px solid #62cce977;color:#c8f5ff;font-size:12px;letter-spacing:.1em;text-shadow:0 0 8px #2acfff;white-space:nowrap;z-index:4}#interactHint[hidden]{display:none}
 #transitionFade{position:fixed;inset:0;z-index:9999;background:#000;opacity:0;pointer-events:none;transition:opacity .28s ease}
-#dialogue.radio{bottom:auto;top:calc(68px + env(safe-area-inset-top,0px));width:min(820px,calc(100% - 48px));padding:13px 20px 11px;background:linear-gradient(90deg,#06111be8,#0b1d29e8);border-color:#4dbfe077;box-shadow:0 8px 32px #0009}
+#dialogue.radio{pointer-events:none;cursor:default;bottom:auto;top:calc(68px + env(safe-area-inset-top,0px));width:min(820px,calc(100% - 48px));padding:13px 20px 11px;background:linear-gradient(90deg,#06111be8,#0b1d29e8);border-color:#4dbfe077;box-shadow:0 8px 32px #0009}
 #dialogue.radio #dialogueText{font-size:15px;min-height:0}
 #dialogue.radio #dialoguePrompt{font-size:9px;margin-top:6px}
 #dialogue[hidden]{display:none}#dialogueSpeaker{font-size:13px;letter-spacing:.18em;color:#ffad68;margin-bottom:10px}
