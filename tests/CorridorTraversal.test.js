@@ -53,7 +53,7 @@ test('reactor finale requires a console interaction after combat before the exit
 test('campaign advances to the next location in-place after the corridor exit', () => {
   const game = read('src/game.js');
   assert.match(game, /function loadMission\(nextMission\)/);
-  assert.match(game, /if\(w&&nextMission\)\{loadMission\(nextMission\);return\}/);
+  assert.match(game, /if\(w&&nextMission\)\{transitionToMission\(nextMission\);return\}/);
   assert.match(game, /activeLevel=levelManager\.load\(currentMission\.levelId/);
   assert.match(game, /location\.hash=currentMission\.id/);
 });
@@ -66,8 +66,9 @@ test('streamed mission transitions reset combat state and avoid a page reload', 
   assert.ok(start >= 0 && stop > start);
   const transition = game.slice(start, stop);
   assert.match(transition, /kills=0;spawned=0;spawnT=0/);
-  assert.match(transition, /P\.hp=100/);
-  assert.match(transition, /weapon\.ammo=weapon\.magazineSize/);
+  assert.match(transition, /P\.hp=carried\.hp/);
+  assert.match(transition, /weapon\.onAmmoChange\(weapon\.ammo\)/);
+  assert.match(transition, /audioManager\.startAmbience\(currentMission\.audioProfile,carried\?1\.25:0\)/);
   assert.match(transition, /missionCleared=false;combatCleared=false/);
   const normalTransition = transition.split('}catch(error)')[0];
   assert.doesNotMatch(normalTransition, /location\.reload/);
@@ -92,7 +93,7 @@ test('each sector starts at the far end of its incoming corridor', () => {
   assert.match(bunker, /entryFloor/);
   assert.match(bunker, /playerSpawn:\s*\{\s*x:\s*0,\s*y:\s*1\.7,\s*z:\s*22,\s*yaw:\s*0\s*\}/);
   assert.match(lab, /playerSpawn:\s*\{\s*x:\s*0,\s*y:\s*1\.7,\s*z:\s*-26,\s*yaw:\s*Math\.PI\s*\}/);
-  assert.match(reactor, /playerSpawn:\s*\{\s*x:\s*0,\s*y:\s*1\.7,\s*z:\s*-28,\s*yaw:\s*Math\.PI\s*\}/);
+  assert.match(reactor, /playerSpawn:\s*\{\s*x:\s*0,\s*y:\s*1\.7,\s*z:\s*28,\s*yaw:\s*Math\.PI\s*\}/);
   const game = read('src/game.js');
   assert.match(game, /P\.yaw=activeLevel\.playerSpawn\.yaw\|\|0/);
 });
@@ -107,4 +108,35 @@ test('evacuation doors block the corridor until opened, then release collision',
     assert.match(source, /boxes\.indexOf\(exitDoor\.userData\.collisionBox\)/);
     assert.match(source, /boxes\.splice\(index, 1\)/);
   }
+});
+
+
+test('laboratory route enters from the bunker side and exits through the opposite corridor', () => {
+  const lab = read('src/levels/LabLevel.js');
+  assert.match(lab, /corridorFloor\.position\.set\(0, \.015, -21\)/);
+  assert.match(lab, /exitCorridorFloor\.position\.set\(0, \.015, 21\)/);
+  assert.match(lab, /const exitDoor = box\(0, 3, 28,/);
+  assert.match(lab, /exitZone: \{ x0: -2\.1, x1: 2\.1, z0: 26\.3, z1: 28\.0 \}/);
+  assert.doesNotMatch(lab, /const exitDoor = box\(0, 3, -28,/);
+});
+
+test('reactor entry continues from the laboratory exit while the evacuation corridor remains on the far side', () => {
+  const reactor = read('src/levels/ReactorLevel.js');
+  assert.match(reactor, /entryFloor\.position\.set\(0, \.015, 25\)/);
+  assert.match(reactor, /corridorFloor\.position\.set\(0, \.015, -25\)/);
+  assert.match(reactor, /playerSpawn: \{ x: 0, y: 1\.7, z: 28, yaw: Math\.PI \}/);
+  assert.match(reactor, /exitZone: \{ x0: -2\.1, x1: 2\.1, z0: -31\.2, z1: -29\.1 \}/);
+});
+
+test('sector handoff preserves player resources and uses a short fade instead of a loading screen', () => {
+  const game = read('src/game.js');
+  assert.match(game, /function transitionToMission\(nextMission\)/);
+  assert.match(game, /setTimeout\(\(\)=>\{\s*loadMission\(nextMission,\{preservePlayer:true,player\}\)/);
+  assert.match(game, /dialogueSystem\.startRadio\(currentMission\.introDialogue\)/);
+  assert.match(game, /dialogueSystem\.update\(dt\)/);
+  assert.match(game, /P\.hp=carried\.hp/);
+  assert.match(game, /if\(!carried\)\{/);
+  const html = read('index.html');
+  assert.match(html, /id="transitionFade"/);
+  assert.match(html, /#dialogue\.radio/);
 });
