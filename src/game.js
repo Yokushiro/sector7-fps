@@ -68,6 +68,10 @@ let state='menu',kills=0,spawned=0,spawnT=0,hurt=0,tm=0,mouse=false,fallback=fal
 const GOAL=10,enemies=[],proj=[],sparks=[];
 const droneAI=new S7DroneAI();
 const $=id=>document.getElementById(id);
+const saveSystem=new S7SaveSystem();
+const savedCampaign=saveSystem.load();
+const savedStats=savedCampaign.stats;
+$('saveInfo').textContent=`СОХРАНЕНИЕ · Побед: ${savedStats.wins} · Поражений: ${savedStats.losses} · Лучший результат: ${savedStats.bestKills} дронов`;
 function collide(p,r){for(const b of boxes){const cx=cl(p.x,b.x0,b.x1),cz=cl(p.z,b.z0,b.z1),dx=p.x-cx,dz=p.z-cz,d2=dx*dx+dz*dz;
  if(d2<r*r){if(d2>1e-6){const d=Math.sqrt(d2),k=(r-d)/d;p.x+=dx*k;p.z+=dz*k}else p.x+=r}}}
 
@@ -152,8 +156,10 @@ function hitWorld(hit){
  for(let i=0;i<5;i++)spark(hit.point,new T.Color(3,2,1),3);
 }
 function dmg(n){P.hp-=n;hurt=1;snd(70,.25,'sine',.6);$('hpf').style.width=Math.max(0,P.hp)+'%';if(P.hp<=0)end(false)}
-function end(w){state='over';document.exitPointerLock&&document.exitPointerLock();$('ov').style.display='flex';
- $('ov').innerHTML=`<div><h1>${w?'СЕКТОР ЗАЧИЩЕН':'ТЫ ПОГИБ'}</h1><p>Уничтожено дронов: ${kills} / ${GOAL}</p><p><b>Нажми, чтобы сыграть снова</b></p></div>`;$('ov').onclick=()=>location.reload()}
+function end(w){if(state==='over')return;state='over';document.exitPointerLock&&document.exitPointerLock();
+ const record=saveSystem.recordMissionResult({missionId:'bunker-01',won:w,kills});
+ $('ov').style.display='flex';
+ $('ov').innerHTML=`<div><h1>${w?'СЕКТОР ЗАЧИЩЕН':'ТЫ ПОГИБ'}</h1><p>Уничтожено дронов: ${kills} / ${GOAL}</p><p>Всего побед: ${record.stats.wins} · Поражений: ${record.stats.losses}</p><p>Лучший результат: ${record.stats.bestKills} дронов</p><p><b>Нажми, чтобы сыграть снова</b></p></div>`;$('ov').onclick=()=>location.reload()}
 
 /* ---------- управление ---------- */
 const dom=renderer.domElement;
