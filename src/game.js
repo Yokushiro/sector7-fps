@@ -55,7 +55,9 @@ const dust=activeLevel.dust || {rotation:{y:0},position:{y:0}};
 const torch=new T.SpotLight(0xe8f4ff,1.6,28,.5,.6,1.2);torch.position.set(.2,-.1,0);torch.target.position.set(0,0,-5);cam.add(torch,torch.target);
 
 /* ---------- состояние ---------- */
-const GROUND_Y=activeLevel.playerSpawn.y;\nconst P={pos:new T.Vector3(activeLevel.playerSpawn.x,GROUND_Y,activeLevel.playerSpawn.z),yaw:0,pitch:0,hp:100,velocityY:0,grounded:true};\nconst jumpController=new S7JumpController(GROUND_Y);
+const GROUND_Y=activeLevel.playerSpawn.y;
+const P={pos:new T.Vector3(activeLevel.playerSpawn.x,GROUND_Y,activeLevel.playerSpawn.z),yaw:0,pitch:0,hp:100,velocityY:0,grounded:true};
+const jumpController=new S7JumpController(GROUND_Y);
 let state='menu',kills=0,spawned=0,spawnT=0,hurt=0,tm=0,mouse=false,fallback=false,locked=false;
 const enemies=[],proj=[],sparks=[];
 const droneAI=new S7DroneAI();
@@ -192,7 +194,8 @@ function loop(now){requestAnimationFrame(loop);const dt=Math.min(.05,(now-last)/
  if(state==='play'){
   const f=(keys.KeyW?1:0)-(keys.KeyS?1:0),r=(keys.KeyD?1:0)-(keys.KeyA?1:0),sp=keys.ShiftLeft?7:4.6,mv=f||r;
   if(mv){const l=Math.hypot(f,r),sy=Math.sin(P.yaw),cy=Math.cos(P.yaw);P.pos.x+=(-sy*f+cy*r)/l*sp*dt;P.pos.z+=(-cy*f-sy*r)/l*sp*dt;collide(P.pos,.4)}
-  jumpController.update(P,dt);\n  else P.pos.y=GROUND_Y+(mv?Math.sin(tm*(keys.ShiftLeft?13:9))*.035:0);
+  jumpController.update(P,dt);
+  if(P.grounded)P.pos.y=GROUND_Y+(mv?Math.sin(tm*(keys.ShiftLeft?13:9))*.035:0);
   cam.position.copy(P.pos);cam.rotation.set(P.pitch+weapon.pitchKick,P.yaw,0);
   if(mouse)weapon.fire(solids,enemies,spark,hitEnemy,hitWorld,R);
   weapon.update(dt,tm,mv);
