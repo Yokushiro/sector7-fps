@@ -106,8 +106,7 @@ test('evacuation doors block the corridor until opened, then release collision',
   for (const levelPath of ['src/levels/BunkerLevel.js', 'src/levels/LabLevel.js', 'src/levels/ReactorLevel.js']) {
     const source = read(levelPath);
     assert.match(source, /const exitDoor\s*=\s*box\([^;]+\);/);
-    assert.match(source, /boxes\.indexOf\(exitDoor\.userData\.collisionBox\)/);
-    assert.match(source, /boxes\.splice\(index, 1\)/);
+    assert.match(source, /context\.removeCollisionBox\(exitDoor\.userData\.collisionBox\)/);
   }
 });
 
