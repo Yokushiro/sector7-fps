@@ -120,12 +120,34 @@
       corridorLight.position.set(0, 5, -25);
       scene.add(corridorLight);
 
+      // Emergency shutdown console with the final incident record.
+      const terminal = new T.Mesh(new T.BoxGeometry(1.3, 2, .9), steel);
+      terminal.position.set(8, 1, 12);
+      terminal.castShadow = true;
+      scene.add(terminal);
+      const terminalScreen = new T.Mesh(new T.PlaneGeometry(.95, .78), new T.MeshBasicMaterial({ color: 0xffa34d }));
+      terminalScreen.position.set(8, 1.58, 12.47);
+      scene.add(terminalScreen);
+      const terminalLight = new T.PointLight(0xff8a3b, 1, 7, 2);
+      terminalLight.position.set(8, 2, 12.8);
+      scene.add(terminalLight);
+
       return {
         name: 'Реакторное ядро',
         bounds: { halfSize: 33, height: H },
         exitZone: { x0: -2.1, x1: 2.1, z0: -31.2, z1: -29.1 },
         playerSpawn: { x: 0, y: 1.7, z: 14 },
-        enemySpawnPoints: [[-14, -14], [14, -14], [-14, 12], [14, 12], [0, -15], [-16, 0], [16, 0], [0, 14]]
+        enemySpawnPoints: [[-14, -14], [14, -14], [-14, 12], [14, 12], [0, -15], [-16, 0], [16, 0], [0, 14]],
+        interactables: [{
+          id: 'reactor-record',
+          label: 'ПРОЧИТАТЬ ПОСЛЕДНИЙ ПРОТОКОЛ',
+          x: 8,
+          z: 12,
+          dialogue: [
+            { speaker: 'АРХИВ / 07', text: 'Последняя запись Ильи. Он перенёс собственную нейронную карту в контур ограничителя, чтобы удерживать управляющее ядро внутри комплекса.' },
+            { speaker: 'ИЛЬЯ', text: 'Если ты читаешь это, значит я не смог выбраться. Отключи ядро. И если услышишь мой голос после этого — не отвечай.' }
+          ]
+        }]
       };
     }
   };
