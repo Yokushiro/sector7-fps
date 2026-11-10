@@ -9,15 +9,26 @@
     "start": "electron .",
     "dist": "electron-builder --win --x64 --publish never"
   },
-  "dependencies": { "three": "0.147.0" },
-  "devDependencies": { "electron": "^33.2.0", "electron-builder": "^25.1.8" },
+  "dependencies": {
+    "three": "0.147.0"
+  },
+  "devDependencies": {
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8"
+  },
   "build": {
     "appId": "com.lev.sector7",
     "productName": "SECTOR 7",
     "files": ["main.js", "index.html"],
     "directories": { "output": "dist" },
     "win": { "target": ["portable", "nsis"] },
-    "nsis": { "oneClick": false, "allowToChangeInstallationDirectory": true },
-    "artifactName": "SECTOR7-${version}-${os}-${arch}-${target}.${ext}"
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "artifactName": "SECTOR7-${version}-setup.${ext}"
+    },
+    "portable": {
+      "artifactName": "SECTOR7-${version}-portable.${ext}"
+    }
   }
 }
