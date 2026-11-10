@@ -162,7 +162,7 @@
         exitZone: { x0: -2.1, x1: 2.1, z0: 28.2, z1: 29.5 },
         playerSpawn: { x: 0, y: 1.7, z: -26, yaw: Math.PI },
         enemySpawnPoints: [[-11, -11], [11, -11], [-11, 11], [11, 11], [0, -12.5], [-12.5, 0], [12.5, 0]],
-        openExit() { exitOpen = true; const index = boxes.indexOf(exitDoor.userData.collisionBox); if (index >= 0) boxes.splice(index, 1); },
+        openExit() { exitOpen = true; context.removeCollisionBox(exitDoor.userData.collisionBox); },
         update(dt, time) {
           alarm.intensity = .85 + Math.max(0, Math.sin(time * 4.2)) * .8;
           if (exitOpen) exitDoor.position.y += (9 - exitDoor.position.y) * Math.min(1, dt * 2.2);
