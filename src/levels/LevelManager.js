@@ -75,6 +75,12 @@
         scene: rootGroup,
         solids,
         boxes,
+        removeCollisionBox: collisionBox => {
+          for (const collection of [boxes, this.boxes]) {
+            const index = collection.indexOf(collisionBox);
+            if (index !== -1) collection.splice(index, 1);
+          }
+        },
         box: (...args) => typeof args[7] === 'boolean'
           ? context.box(...args, rootGroup)
           : context.box(...args, true, rootGroup)
