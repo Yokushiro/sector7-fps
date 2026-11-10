@@ -99,3 +99,26 @@ test('failed level builds roll back the scene and collision collections', () => 
   assert.equal(boxes.length, 0);
   assert.equal(manager.getCurrent(), null);
 });
+
+
+test('streaming disposes unique materials and textures but preserves shared PBR cache resources', () => {
+  const scene = new Group();
+  const manager = new LevelManager({ THREE: fakeThree, scene, solids: [], boxes: [] });
+  const geometry = { disposed: false, dispose() { this.disposed = true; } };
+  const texture = { isTexture: true, disposed: false, dispose() { this.disposed = true; } };
+  const uniqueMaterial = { userData: {}, map: texture, disposed: false, dispose() { this.disposed = true; } };
+  const sharedMaterial = { userData: { sector7Shared: true }, disposed: false, dispose() { this.disposed = true; } };
+  manager.register({
+    id: 'resource-room',
+    build(context) {
+      context.scene.add({ geometry, material: [uniqueMaterial, sharedMaterial] });
+    }
+  });
+  manager.register({ id: 'next-room', build() {} });
+  manager.load('resource-room', { box() {} });
+  manager.load('next-room', { box() {} });
+  assert.equal(geometry.disposed, true);
+  assert.equal(texture.disposed, true);
+  assert.equal(uniqueMaterial.disposed, true);
+  assert.equal(sharedMaterial.disposed, false);
+});
