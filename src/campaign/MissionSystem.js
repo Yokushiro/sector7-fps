@@ -8,6 +8,11 @@
       title: 'ПРОБУЖДЕНИЕ',
       location: 'Заброшенный бункер',
       description: 'Уничтожь 10 охранных дронов в заброшенном бункере.',
+      introDialogue: [
+        { speaker: 'НЕИЗВЕСТНЫЙ', text: 'Если ты слышишь это сообщение, значит аварийный маяк всё-таки сработал. Не знаю, кто ты. Но внутрь комплекса лучше было не заходить.' },
+        { speaker: 'АРХИВ / 07', text: 'Объект: подземный исследовательский сектор 7. Связь с персоналом потеряна 19 суток назад. Автоматическая система обороны активна.' },
+        { speaker: 'НЕИЗВЕСТНЫЙ', text: 'Меня зовут Илья. Я был инженером здесь. Дроны не должны были атаковать людей. Найди терминал в лаборатории. Там ответы.' }
+      ],
       levelId: 'bunker-01',
       audioProfile: 'bunker',
       objectives: [
@@ -25,6 +30,11 @@
       title: 'КРАСНЫЙ ПРОТОКОЛ',
       location: 'Исследовательский комплекс',
       description: 'Проникни в исследовательский комплекс и уничтожь 14 боевых дронов.',
+      introDialogue: [
+        { speaker: 'АРХИВ / 07', text: 'Внимание. Зафиксировано проникновение в лабораторный блок. Протокол изоляции активирован.' },
+        { speaker: 'ИЛЬЯ', text: 'Ты добрался до лаборатории. Здесь проводили испытания автономного управляющего ядра. После сбоя оно начало считать весь персонал угрозой.' },
+        { speaker: 'ИЛЬЯ', text: 'Ядро находится глубже. Отключи питание центрального узла. И не верь голосу системы, что бы она тебе ни обещала.' }
+      ],
       levelId: 'lab-02',
       audioProfile: 'lab',
       objectives: [
@@ -44,6 +54,7 @@
       this.missions = source.map(mission => ({
         ...mission,
         objectives: mission.objectives.map(objective => ({ ...objective })),
+        introDialogue: (mission.introDialogue || []).map(line => ({ ...line })),
         spawn: {
           ...mission.spawn,
           enemySequence: [...mission.spawn.enemySequence]
@@ -105,6 +116,7 @@
   S7MissionSystem.MISSIONS = MISSIONS.map(mission => ({
     ...mission,
     objectives: mission.objectives.map(objective => ({ ...objective })),
+    introDialogue: (mission.introDialogue || []).map(line => ({ ...line })),
     spawn: { ...mission.spawn, enemySequence: [...mission.spawn.enemySequence] }
   }));
   root.S7MissionSystem = S7MissionSystem;
