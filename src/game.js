@@ -64,7 +64,7 @@ const torch=new T.SpotLight(0xe8f4ff,1.6,28,.5,.6,1.2);torch.position.set(.2,-.1
 
 /* ---------- состояние ---------- */
 const P={pos:new T.Vector3(0,1.7,9),yaw:0,pitch:0,hp:100},keys={};
-let state='menu',ammo=30,rel=0,fireT=0,kick=0,kills=0,spawned=0,spawnT=0,hurt=0,tm=0,mouse=false,fallback=false,locked=false;
+let state='menu',kills=0,spawned=0,spawnT=0,hurt=0,tm=0,mouse=false,fallback=false,locked=false;
 const GOAL=10,enemies=[],proj=[],sparks=[];
 const droneAI=new S7DroneAI();
 const $=id=>document.getElementById(id);
@@ -145,8 +145,8 @@ function loop(now){requestAnimationFrame(loop);const dt=Math.min(.05,(now-last)/
   const f=(keys.KeyW?1:0)-(keys.KeyS?1:0),r=(keys.KeyD?1:0)-(keys.KeyA?1:0),sp=keys.ShiftLeft?7:4.6,mv=f||r;
   if(mv){const l=Math.hypot(f,r),sy=Math.sin(P.yaw),cy=Math.cos(P.yaw);P.pos.x+=(-sy*f+cy*r)/l*sp*dt;P.pos.z+=(-cy*f-sy*r)/l*sp*dt;collide(P.pos,.4)}
   P.pos.y=1.7+(mv?Math.sin(tm*(keys.ShiftLeft?13:9))*.035:0);
-  cam.position.copy(P.pos);cam.rotation.set(P.pitch+pitchKick,P.yaw,0);pitchKick*=.8;
-  if(mouse)weapon.fire(solids,enemies,ray,spark,hitEnemy,hitWorld,R);
+  cam.position.copy(P.pos);cam.rotation.set(P.pitch+weapon.pitchKick,P.yaw,0);
+  if(mouse)weapon.fire(solids,enemies,spark,hitEnemy,hitWorld,R);
   weapon.update(dt,tm,mv);
   spawnT-=dt;if(spawned<GOAL&&enemies.length<5&&spawnT<=0){spawn();spawnT=3.5}
   droneAI.update(enemies,P,dt,collide,scene,proj,snd,R);
