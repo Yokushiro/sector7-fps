@@ -13,6 +13,10 @@
         { speaker: 'АРХИВ / 07', text: 'Объект: подземный исследовательский сектор 7. Связь с персоналом потеряна 19 суток назад. Автоматическая система обороны активна.' },
         { speaker: 'НЕИЗВЕСТНЫЙ', text: 'Меня зовут Илья. Я был инженером здесь. Дроны не должны были атаковать людей. Найди терминал в лаборатории. Там ответы.' }
       ],
+      outroDialogue: [
+        { speaker: 'ИЛЬЯ', text: 'Хорошая работа. Дверь в лабораторное крыло разблокирована. Не задерживайся: система уже заметила, что её охрана уничтожена.' },
+        { speaker: 'АРХИВ / 07', text: 'Обнаружен несанкционированный доступ к внутреннему периметру. Усиление защиты направлено в лабораторный блок.' }
+      ],
       levelId: 'bunker-01',
       audioProfile: 'bunker',
       objectives: [
@@ -34,6 +38,10 @@
         { speaker: 'АРХИВ / 07', text: 'Внимание. Зафиксировано проникновение в лабораторный блок. Протокол изоляции активирован.' },
         { speaker: 'ИЛЬЯ', text: 'Ты добрался до лаборатории. Здесь проводили испытания автономного управляющего ядра. После сбоя оно начало считать весь персонал угрозой.' },
         { speaker: 'ИЛЬЯ', text: 'Ядро находится глубже. Отключи питание центрального узла. И не верь голосу системы, что бы она тебе ни обещала.' }
+      ],
+      outroDialogue: [
+        { speaker: 'ИЛЬЯ', text: 'Ты отключил внешний контур защиты. Теперь путь к реактору открыт. Но именно там находится управляющее ядро.' },
+        { speaker: 'АРХИВ / 07', text: 'Предупреждение. Реакторный сектор имеет высший уровень допуска. Ваше присутствие классифицировано как критическая угроза.' }
       ],
       levelId: 'lab-02',
       audioProfile: 'lab',
@@ -57,6 +65,11 @@
         { speaker: 'АРХИВ / 07', text: 'Несанкционированный доступ к управляющему ядру. Последнее предупреждение: немедленно покиньте объект.' },
         { speaker: 'ИЛЬЯ', text: 'Не слушай её. Если ядро останется активным, оно выйдет за пределы комплекса. Закончи начатое.' }
       ],
+      outroDialogue: [
+        { speaker: 'АРХИВ / 07', text: 'Критическая ошибка. Энергетический контур нестабилен. Инициация аварийного отключения.' },
+        { speaker: 'ИЛЬЯ', text: 'Получилось... Ты спас тех, кто ещё мог находиться в комплексе. Но есть кое-что, чего я тебе не рассказал.' },
+        { speaker: 'НЕИЗВЕСТНЫЙ', text: 'Илья? Это не Илья. Ты только что открыл мне дверь.' }
+      ],
       levelId: 'reactor-03',
       audioProfile: 'reactor',
       objectives: [
@@ -77,6 +90,7 @@
         ...mission,
         objectives: mission.objectives.map(objective => ({ ...objective })),
         introDialogue: (mission.introDialogue || []).map(line => ({ ...line })),
+        outroDialogue: (mission.outroDialogue || []).map(line => ({ ...line })),
         spawn: {
           ...mission.spawn,
           enemySequence: [...mission.spawn.enemySequence]
@@ -128,6 +142,7 @@
         ...mission,
         objectives: mission.objectives.map(objective => ({ ...objective })),
         introDialogue: (mission.introDialogue || []).map(line => ({ ...line })),
+        outroDialogue: (mission.outroDialogue || []).map(line => ({ ...line })),
         spawn: {
           ...mission.spawn,
           enemySequence: [...mission.spawn.enemySequence]
@@ -140,6 +155,7 @@
     ...mission,
     objectives: mission.objectives.map(objective => ({ ...objective })),
     introDialogue: (mission.introDialogue || []).map(line => ({ ...line })),
+    outroDialogue: (mission.outroDialogue || []).map(line => ({ ...line })),
     spawn: { ...mission.spawn, enemySequence: [...mission.spawn.enemySequence] }
   }));
   root.S7MissionSystem = S7MissionSystem;
