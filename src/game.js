@@ -52,6 +52,18 @@ let activeLevel=levelManager.load(currentMission.levelId,{mat,canvas,randomRange
 let LEVEL_BOUNDS=activeLevel.bounds;
 let dust=activeLevel.dust || {rotation:{y:0},position:{y:0}};
 
+function preloadNextMission(){
+ const nextDefinition=S7MissionSystem.MISSIONS.find(mission=>mission.order>currentMission.order);
+ if(!nextDefinition||levelManager.getPrepared(nextDefinition.levelId))return false;
+ try{
+  levelManager.prepare(nextDefinition.levelId,{mat,canvas,randomRange:R,box});
+  return true;
+ }catch(error){
+  console.warn('Next sector preload failed; it will be built during transition',error);
+  return false;
+ }
+}
+preloadNextMission();
 
 const torch=new T.SpotLight(0xe8f4ff,1.6,28,.5,.6,1.2);torch.position.set(.2,-.1,0);torch.target.position.set(0,0,-5);cam.add(torch,torch.target);
 
@@ -202,6 +214,7 @@ function loadMission(nextMission,transition={}){
   GOAL=missionObjective.target;
   activeLevel=levelManager.load(currentMission.levelId,{mat,canvas,randomRange:R,box});
   LEVEL_BOUNDS=activeLevel.bounds;
+  setTimeout(preloadNextMission,750);
   dust=activeLevel.dust||{rotation:{y:0},position:{y:0}};
   interactionSystem=new S7InteractionSystem(activeLevel.interactables||[]);
   GROUND_Y=activeLevel.playerSpawn.y;
