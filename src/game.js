@@ -63,6 +63,8 @@ const keys=Object.create(null); // shared keyboard state for input handlers and 
 const enemies=[],proj=[],sparks=[];
 const droneAI=new S7DroneAI();
 const $=id=>document.getElementById(id);
+const dialogueSystem=new S7DialogueSystem({rootElement:$('dialogue'),speakerElement:$('dialogueSpeaker'),textElement:$('dialogueText'),promptElement:$('dialoguePrompt')});
+$('dialogue').addEventListener('click',()=>dialogueSystem.advance());
 const savedStats=savedCampaign.stats;
 $('saveInfo').textContent=`СОХРАНЕНИЕ · Побед: ${savedStats.wins} · Поражений: ${savedStats.losses} · Лучший результат: ${savedStats.bestKills} дронов`;
 $('missionDescription').textContent=currentMission.description;
@@ -169,13 +171,13 @@ function end(w){if(state==='over')return;state='over';audioManager.stopMusic();a
 
 /* ---------- управление ---------- */
 const dom=renderer.domElement;
-$('ov').onclick=()=>{if(state==='over')return;if(!ac)ac=audioManager.unlock();if(ac){audioManager.startAmbience(currentMission.audioProfile);audioManager.startMusic()}state='play';$('ov').style.display='none';
- try{dom.requestPointerLock()}catch(e){fallback=true}};
+$('ov').onclick=()=>{if(state==='over'||state==='dialogue')return;if(!ac)ac=audioManager.unlock();if(ac){audioManager.startAmbience(currentMission.audioProfile);audioManager.startMusic()}state='dialogue';$('ov').style.display='none';
+ dialogueSystem.start(currentMission.introDialogue,()=>{state='play';try{dom.requestPointerLock()}catch(e){fallback=true}})};
 document.addEventListener('pointerlockchange',()=>{locked=document.pointerLockElement===dom;if(!locked&&state==='play'&&!fallback){state='menu';$('msg').innerHTML='<b>Пауза — нажми, чтобы продолжить</b>';$('ov').style.display='flex'}});
 document.addEventListener('pointerlockerror',()=>{fallback=true});
 addEventListener('mousemove',e=>{if(state!=='play'||!(locked||fallback))return;P.yaw-=e.movementX*.0022;P.pitch=cl(P.pitch-e.movementY*.0022,-1.45,1.45)});
 addEventListener('mousedown',e=>{if(e.button===0)mouse=true});addEventListener('mouseup',()=>mouse=false);
-addEventListener('keydown',e=>{keys[e.code]=1;if(e.code==='Space'){e.preventDefault();if(!e.repeat&&state==='play'&&jumpController.jump(P))snd(125,.14,'sawtooth',.12)}if(e.code==='KeyR')weapon.reload();if(e.code==='KeyF')torch.visible=!torch.visible;if(e.code==='F3')perfMonitor.toggle()});addEventListener('keyup',e=>keys[e.code]=0);
+addEventListener('keydown',e=>{if(dialogueSystem.isActive()&&(e.code==='Enter'||e.code==='KeyE')){e.preventDefault();dialogueSystem.advance();return}keys[e.code]=1;if(e.code==='Space'){e.preventDefault();if(!e.repeat&&state==='play'&&jumpController.jump(P))snd(125,.14,'sawtooth',.12)}if(e.code==='KeyR')weapon.reload();if(e.code==='KeyF')torch.visible=!torch.visible;if(e.code==='F3')perfMonitor.toggle()});addEventListener('keyup',e=>keys[e.code]=0);
 setTimeout(()=>{if(state==='menu'&&!$('ov').matches(':hover'))0},0);
 
 /* ---------- пост-обработка ---------- */
