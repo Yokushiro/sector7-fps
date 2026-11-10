@@ -16,7 +16,26 @@
       context.solids.push(floor);
 
       box(0, H, 0, S * 2 + 2, .6, S * 2 + 2, wall, false);
-      box(0, H / 2, -S - .5, S * 2 + 2, H, 1, wall);
+      box(-8.15, H / 2, -S - .5, 12.9, H, 1, wall);
+      box(8.15, H / 2, -S - .5, 12.9, H, 1, wall);
+      box(0, H - .5, -S - .5, 4.2, 1, 1, steel);
+      // Service corridor continues deeper into the facility and ends at the reactor access door.
+      const corridorFloor = new T.Mesh(new T.PlaneGeometry(5.2, 14), mat('floor', 2, 5, .3));
+      corridorFloor.rotation.x = -Math.PI / 2;
+      corridorFloor.position.set(0, .015, -21);
+      corridorFloor.receiveShadow = true;
+      scene.add(corridorFloor);
+      context.solids.push(corridorFloor);
+      box(-2.8, 3, -21, .45, 6, 14, wall);
+      box(2.8, 3, -21, .45, 6, 14, wall);
+      box(0, H - .35, -21, 5.9, .5, 14, darkSteel, false);
+      const corridorStrip = new T.Mesh(new T.BoxGeometry(.25, .12, 8), new T.MeshBasicMaterial({ color: 0xff3545 }));
+      corridorStrip.position.set(0, 7.1, -20);
+      scene.add(corridorStrip);
+      const corridorLamp = new T.PointLight(0xff2638, 1.25, 18, 2);
+      corridorLamp.position.set(0, 4.8, -20);
+      scene.add(corridorLamp);
+      box(0, 3, -28, 5.6, 6, .45, darkSteel, false);
       box(0, H / 2, S + .5, S * 2 + 2, H, 1, wall);
       box(-S - .5, H / 2, 0, 1, H, S * 2, wall);
       box(S + .5, H / 2, 0, 1, H, S * 2, wall);
@@ -106,7 +125,8 @@
 
       return {
         name: 'Исследовательский комплекс',
-        bounds: { halfSize: S, height: H },
+        bounds: { halfSize: 29, height: H },
+        exitZone: { x0: -2.1, x1: 2.1, z0: -27.2, z1: -25.1 },
         playerSpawn: { x: 0, y: 1.7, z: 11 },
         enemySpawnPoints: [[-11, -11], [11, -11], [-11, 11], [11, 11], [0, -12.5], [-12.5, 0], [12.5, 0]]
       };
