@@ -32,8 +32,9 @@ const terminalLamp=new T.PointLight(0x25cfff,.8,5,2);terminalLamp.position.set(-
 // свет
 scene.add(new T.HemisphereLight(0x3a5570,0x0a0a0a,.35));
 const strips=new T.MeshStandardMaterial({color:0,emissive:0xcfeaff,emissiveIntensity:4});
+const bunkerLights=[];
 [[-5,-5],[5,5],[-5,5],[5,-5]].forEach(([x,z],i)=>{const s=new T.Mesh(new T.BoxGeometry(.3,.1,5),strips);s.position.set(x,H-.35,z);scene.add(s);
- const l=new T.PointLight(0xbfe0ff,.75,20,2);l.position.set(x,H-1,z);if(i<2){l.castShadow=true;l.shadow.mapSize.set(1024,1024);l.shadow.bias=-.002}scene.add(l)});
+ const l=new T.PointLight(0xbfe0ff,.75,20,2);l.position.set(x,H-1,z);if(i<2){l.castShadow=true;l.shadow.mapSize.set(1024,1024);l.shadow.bias=-.002}scene.add(l);bunkerLights.push(l)});
 [[0xff6a1a,-10.5,3,9,1.2],[0xff2a8a,10.5,3,-9,1.2],[0x20e0ff,0,2.5,-10.5,1]].forEach(([c,x,y,z,i])=>{const l=new T.PointLight(c,i,15,2);l.position.set(x,y,z);scene.add(l);
  const g=new T.Mesh(new T.BoxGeometry(.3,2.4,.3),new T.MeshBasicMaterial({color:new T.Color(c).multiplyScalar(3)}));g.position.set(x,y,z);scene.add(g)});
 // пыль
@@ -45,6 +46,9 @@ const strips=new T.MeshStandardMaterial({color:0,emissive:0xcfeaff,emissiveInten
         exitZone: { x0: -2.1, x1: 2.1, z0: -25.2, z1: -23.1 },
         playerSpawn: { x: 0, y: 1.7, z: 9 },
         enemySpawnPoints: [[-10,-10],[10,-10],[-10,10],[10,10],[0,-10.5]],
+        update(dt, time) {
+          bunkerLights.forEach((light, index) => { light.intensity = .68 + Math.sin(time * 2.1 + index * 1.4) * .08; });
+        },
         interactables: [{
           id: 'bunker-log',
           label: 'ПРОСМОТРЕТЬ АРХИВНУЮ ЗАПИСЬ',
