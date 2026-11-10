@@ -25,6 +25,16 @@ function makeEnemy(type, speed, preferredDistance) {
   };
 }
 
+// Enemy archetypes expose distinct combat roles and readable stat profiles.
+test('all four enemy archetypes have distinct combat profiles', () => {
+  const profiles = DroneAI.PROFILES;
+  assert.deepEqual(Object.keys(profiles).sort(), ['assault', 'heavy', 'scout', 'sniper']);
+  assert.ok(profiles.assault.moveSpeed > profiles.scout.moveSpeed);
+  assert.ok(profiles.heavy.hp > profiles.scout.hp);
+  assert.ok(profiles.sniper.preferredDistance > profiles.heavy.preferredDistance);
+  assert.ok(profiles.sniper.damage > profiles.scout.damage);
+});
+
 test('drone AI moves enemies toward the player', () => {
   const ai = new DroneAI();
   const enemy = makeEnemy('scout', 2.6, 5.5);
