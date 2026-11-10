@@ -140,7 +140,7 @@
       return {
         name: 'Исследовательский комплекс',
         bounds: { halfSize: 29, height: H },
-        exitZone: { x0: -2.1, x1: 2.1, z0: -27.2, z1: -25.1 },
+        exitZone: { x0: -2.1, x1: 2.1, z0: -28.0, z1: -26.3 },
         playerSpawn: { x: 0, y: 1.7, z: -26, yaw: Math.PI },
         enemySpawnPoints: [[-11, -11], [11, -11], [-11, 11], [11, 11], [0, -12.5], [-12.5, 0], [12.5, 0]],
         openExit() { exitOpen = true; },
