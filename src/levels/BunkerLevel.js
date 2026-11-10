@@ -8,7 +8,12 @@
       const S=12,H=7;
 const fl=new T.Mesh(new T.PlaneGeometry(S*2,S*2),mat('floor',6,6,.3));fl.rotation.x=-Math.PI/2;fl.receiveShadow=true;scene.add(fl);solids.push(fl);
 box(0,H,0,S*2+2,.6,S*2+2,mat('concrete',6,2,0,0x889099),false);
-box(-7.15,H/2,-S-.5,10.9,H,1,mat('concrete',6,2));box(7.15,H/2,-S-.5,10.9,H,1,mat('concrete',6,2));box(0,H-.5,-S-.5,4.2,1,1,mat('metal',2,1,.85),false);box(0,H/2,S+.5,S*2+2,H,1,mat('concrete',6,2));
+box(-7.15,H/2,-S-.5,10.9,H,1,mat('concrete',6,2));box(7.15,H/2,-S-.5,10.9,H,1,mat('concrete',6,2));box(0,H-.5,-S-.5,4.2,1,1,mat('metal',2,1,.85),false);
+box(-7.15,H/2,S+.5,10.9,H,1,mat('concrete',6,2));box(7.15,H/2,S+.5,10.9,H,1,mat('concrete',6,2));box(0,H-.5,S+.5,4.2,1,1,mat('metal',2,1,.85),false);
+// Entry passage: the player begins here and walks into the bunker through the southern bulkhead.
+const entryFloor=new T.Mesh(new T.PlaneGeometry(5.2,14),mat('floor',2,5,.3));entryFloor.rotation.x=-Math.PI/2;entryFloor.position.set(0,.015,19);entryFloor.receiveShadow=true;scene.add(entryFloor);solids.push(entryFloor);
+box(-2.8,3,19,.45,6,14,mat('concrete',2,4));box(2.8,3,19,.45,6,14,mat('concrete',2,4));box(0,H-.35,19,5.9,.5,14,mat('metal',2,5,.8),false);box(0,3,26.5,5.6,6,.45,mat('metal',2,2,.9),false);
+const entryLamp=new T.PointLight(0x4c9dff,.85,16,2);entryLamp.position.set(0,4.8,19);scene.add(entryLamp);
 // Passageway to the lower laboratory wing: the doorway is part of the playable space, not a teleport.
 const corridorFloor=new T.Mesh(new T.PlaneGeometry(5.2,14),mat('floor',2,5,.3));corridorFloor.rotation.x=-Math.PI/2;corridorFloor.position.set(0,.015,-19);corridorFloor.receiveShadow=true;scene.add(corridorFloor);solids.push(corridorFloor);
 box(-2.8,3,-19,.45,6,14,mat('concrete',2,4));box(2.8,3,-19,.45,6,14,mat('concrete',2,4));box(0,H-.35,-19,5.9,.5,14,mat('metal',2,5,.8),false);
