@@ -143,7 +143,7 @@
         exitZone: { x0: -2.1, x1: 2.1, z0: -31.2, z1: -29.1 },
         requiredInteractionId: 'reactor-shutdown',
         playerSpawn: { x: 0, y: 1.7, z: 14 },
-        enemySpawnPoints: [[-14, -14], [14, -14], [-14, 12], [14, 12], [0, -15], [-16, 0], [16, 0], [0, 14]],
+        enemySpawnPoints: [[-14, -14], [14, -14], [-14, 12], [14, 12], [0, -15], [-16, 0], [16, 0], [16, 16]],
         openExit() { exitOpen = true; },
         update(dt, time) {
           if (exitOpen) exitDoor.position.y += (10 - exitDoor.position.y) * Math.min(1, dt * 2.2);
