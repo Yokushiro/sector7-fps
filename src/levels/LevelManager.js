@@ -26,6 +26,34 @@
       return this;
     }
 
+    disposeGroup(rootGroup) {
+      const geometries = new Set();
+      const materials = new Set();
+      const textures = new Set();
+      rootGroup.traverse(object => {
+        if (object.geometry) geometries.add(object.geometry);
+        if (!object.material) return;
+        const objectMaterials = Array.isArray(object.material) ? object.material : [object.material];
+        for (const material of objectMaterials) {
+          if (!material || material.userData?.sector7Shared) continue;
+          materials.add(material);
+          for (const value of Object.values(material)) {
+            if (value && value.isTexture) textures.add(value);
+          }
+        }
+      });
+      geometries.forEach(geometry => {
+        try { geometry.dispose(); } catch (error) {}
+      });
+      textures.forEach(texture => {
+        try { texture.dispose(); } catch (error) {}
+      });
+      materials.forEach(material => {
+        try { material.dispose(); } catch (error) {}
+      });
+      rootGroup.removeFromParent();
+    }
+
     load(id, context) {
       const definition = this.definitions.get(id);
       if (!definition) throw new Error('Unknown level: ' + id);
@@ -50,7 +78,7 @@
         this.current = { ...metadata, id, root: rootGroup };
         return this.current;
       } catch (error) {
-        rootGroup.removeFromParent();
+        this.disposeGroup(rootGroup);
         this.solids.length = 0;
         this.boxes.length = 0;
         throw error;
@@ -58,12 +86,7 @@
     }
 
     unload() {
-      if (this.current?.root) {
-        this.current.root.traverse(object => {
-          if (object.geometry) object.geometry.dispose();
-        });
-        this.current.root.removeFromParent();
-      }
+      if (this.current?.root) this.disposeGroup(this.current.root);
       this.current = null;
       this.solids.length = 0;
       this.boxes.length = 0;
