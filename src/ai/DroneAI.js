@@ -29,24 +29,53 @@
         const dz = player.pos.z - group.position.z;
         const distance = Math.hypot(dx, dz) || 1;
         const preferredDistance = enemy.preferredDistance || 6;
-        const strafing = distance < preferredDistance + 2 ? 1 : 0;
-        const lateral = (enemy.strafeSign || 1) * strafing * Math.sin(enemy.t * 0.7) * 2.2;
-        let moveX = dx / distance * (distance > preferredDistance ? (enemy.moveSpeed || 2.4) : -0.6)
-          - (dz / distance) * lateral;
-        let moveZ = dz / distance * (distance > preferredDistance ? (enemy.moveSpeed || 2.4) : -0.6)
-          + (dx / distance) * lateral;
+        const visible = hasLineOfSight(group.position, player.pos);
+        const strafeSign = enemy.strafeSign || 1;
+        let moveX, moveZ;
 
-        // Steer around nearby cover instead of repeatedly pushing into it.
+        if (!visible) {
+          // When cover blocks the shot, move toward a point offset around its edge.
+          const flankOffset = enemy.flankOffset || 3.8;
+          const flankX = player.pos.x - (dz / distance) * flankOffset * strafeSign;
+          const flankZ = player.pos.z + (dx / distance) * flankOffset * strafeSign;
+          const flankDx = flankX - group.position.x;
+          const flankDz = flankZ - group.position.z;
+          const flankDistance = Math.hypot(flankDx, flankDz) || 1;
+          const speed = enemy.moveSpeed || 2.4;
+          moveX = flankDx / flankDistance * speed;
+          moveZ = flankDz / flankDistance * speed;
+        } else {
+          const strafing = distance < preferredDistance + 2 ? 1 : 0;
+          const lateral = strafeSign * strafing * Math.sin(enemy.t * 0.7) * 2.2;
+          const forward = distance > preferredDistance ? (enemy.moveSpeed || 2.4) : -0.6;
+          moveX = dx / distance * forward - (dz / distance) * lateral;
+          moveZ = dz / distance * forward + (dx / distance) * lateral;
+        }
+
+        // Repel from nearby cover. If a drone is already inside an AABB,
+        // choose its nearest face so it can recover instead of remaining stuck.
         for (const box of obstacles) {
-          const closestX = Math.max(box.x0, Math.min(box.x1, group.position.x));
-          const closestZ = Math.max(box.z0, Math.min(box.z1, group.position.z));
-          const awayX = group.position.x - closestX;
-          const awayZ = group.position.z - closestZ;
-          const awayDistance = Math.hypot(awayX, awayZ);
-          if (awayDistance > 0.001 && awayDistance < 1.35) {
-            const strength = (1.35 - awayDistance) * 3.2;
-            moveX += awayX / awayDistance * strength;
-            moveZ += awayZ / awayDistance * strength;
+          const inside = group.position.x >= box.x0 && group.position.x <= box.x1
+            && group.position.z >= box.z0 && group.position.z <= box.z1;
+          let awayX = group.position.x - Math.max(box.x0, Math.min(box.x1, group.position.x));
+          let awayZ = group.position.z - Math.max(box.z0, Math.min(box.z1, group.position.z));
+          let awayDistance = Math.hypot(awayX, awayZ);
+          if (inside) {
+            const faces = [
+              { distance: group.position.x - box.x0, x: -1, z: 0 },
+              { distance: box.x1 - group.position.x, x: 1, z: 0 },
+              { distance: group.position.z - box.z0, x: 0, z: -1 },
+              { distance: box.z1 - group.position.z, x: 0, z: 1 }
+            ].sort((a, b) => a.distance - b.distance);
+            awayX = faces[0].x;
+            awayZ = faces[0].z;
+            awayDistance = 0;
+          }
+          if ((inside || awayDistance < 1.35) && (awayDistance > 0.001 || inside)) {
+            const strength = inside ? 5 : (1.35 - awayDistance) * 3.2;
+            const normalizer = inside ? 1 : awayDistance;
+            moveX += awayX / normalizer * strength;
+            moveZ += awayZ / normalizer * strength;
           }
         }
 
