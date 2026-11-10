@@ -137,7 +137,8 @@ test('the next sector is prebuilt invisibly and its collision is isolated until 
   assert.match(manager, /rootGroup\.visible = false/);
   assert.match(manager, /this\.prepared\.set\(id, level\)/);
   assert.match(manager, /this\.solids\.push\(\.\.\.level\.solids\)/);
-  assert.match(game, /rootGroup/);
+  assert.match(manager, /rootGroup\\.userData\\.s7Solids = solids/);
+  assert.match(game, /target!==scene\\?target\\.userData/);
   assert.match(game, /local\?\.s7Solids\|\|solids/);
   assert.match(game, /function preloadNextMission\(\)/);
   assert.match(game, /levelManager\.prepare\(nextDefinition\.levelId/);
