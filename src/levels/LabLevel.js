@@ -35,7 +35,7 @@
       const corridorLamp = new T.PointLight(0xff2638, 1.25, 18, 2);
       corridorLamp.position.set(0, 4.8, -20);
       scene.add(corridorLamp);
-      const exitDoor = box(0, 3, -28, 5.6, 6, .45, darkSteel, false);
+      const exitDoor = box(0, 3, -28, 5.6, 6, .45, darkSteel);
       let exitOpen = false;
       box(0, H / 2, S + .5, S * 2 + 2, H, 1, wall);
       box(-S - .5, H / 2, 0, 1, H, S * 2, wall);
@@ -143,7 +143,7 @@
         exitZone: { x0: -2.1, x1: 2.1, z0: -28.0, z1: -26.3 },
         playerSpawn: { x: 0, y: 1.7, z: -26, yaw: Math.PI },
         enemySpawnPoints: [[-11, -11], [11, -11], [-11, 11], [11, 11], [0, -12.5], [-12.5, 0], [12.5, 0]],
-        openExit() { exitOpen = true; },
+        openExit() { exitOpen = true; const index = boxes.indexOf(exitDoor.userData.collisionBox); if (index >= 0) boxes.splice(index, 1); },
         update(dt, time) {
           alarm.intensity = .85 + Math.max(0, Math.sin(time * 4.2)) * .8;
           if (exitOpen) exitDoor.position.y += (9 - exitDoor.position.y) * Math.min(1, dt * 2.2);
