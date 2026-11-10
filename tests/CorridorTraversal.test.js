@@ -72,3 +72,13 @@ test('streamed mission transitions reset combat state and avoid a page reload', 
   const normalTransition = transition.split('}catch(error)')[0];
   assert.doesNotMatch(normalTransition, /location\.reload/);
 });
+
+
+test('reactor shutdown starts a visible 90-second evacuation countdown', () => {
+  const game = read('src/game.js');
+  const html = read('index.html');
+  assert.match(game, /evacuationRemaining=90/);
+  assert.match(game, /if\(evacuationRemaining<=0\)end\(false\)/);
+  assert.match(game, /ЭВАКУАЦИЯ · 01:30/);
+  assert.match(html, /id="evacTimer"/);
+});
