@@ -193,7 +193,7 @@ function loop(now){requestAnimationFrame(loop);const dt=Math.min(.05,(now-last)/
   if(mouse)weapon.fire(solids,enemies,spark,hitEnemy,hitWorld,R);
   weapon.update(dt,tm,mv);
   spawnT-=dt;if(spawned<GOAL&&enemies.length<currentMission.spawn.maxActive&&spawnT<=0){spawn();spawnT=currentMission.spawn.interval}
-  droneAI.update(enemies,P,dt,collide,scene,proj,snd,R);
+  droneAI.update(enemies,P,dt,collide,scene,proj,snd,R,boxes);
   for(let i=proj.length-1;i>=0;i--){const p=proj[i];p.m.position.addScaledVector(p.v,dt);p.l-=dt;const dd=p.m.position.distanceTo(new T.Vector3(P.pos.x,Math.min(p.m.position.y,1.5),P.pos.z));
    let hit=p.l<=0||Math.abs(p.m.position.x)>LEVEL_BOUNDS.halfSize||Math.abs(p.m.position.z)>LEVEL_BOUNDS.halfSize||p.m.position.y<0;
    if(!hit)for(const b of boxes)if(p.m.position.y<2.4&&p.m.position.x>b.x0&&p.m.position.x<b.x1&&p.m.position.z>b.z0&&p.m.position.z<b.z1){hit=true;break}
