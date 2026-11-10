@@ -25,7 +25,7 @@ for(const z of[-S+1.2,S-1.2]){const p=new T.Mesh(new T.CylinderGeometry(.22,.22,
 // неоновая вывеска
 const sg=canvas(512,(x,s)=>{x.fillStyle='#000';x.fillRect(0,0,s,s);x.fillStyle='#ff5a2a';x.font='bold 150px Bahnschrift,Arial';x.textAlign='center';x.fillText('SECTOR 7',256,230);x.font='60px Arial';x.fillStyle='#ffd0a0';x.fillText('ДОСТУП ЗАПРЕЩЁН',256,330)});
 const sm=new T.MeshBasicMaterial({map:new T.CanvasTexture(sg),color:new T.Color(2.4,2.4,2.4)});sm.map.encoding=T.sRGBEncoding;
-const sign=new T.Mesh(new T.PlaneGeometry(7,7),sm);sign.scale.y=.5;sign.position.set(0,4.2,-S+.02);scene.add(sign);
+const sign=new T.Mesh(new T.PlaneGeometry(7,7),sm);sign.scale.y=.5;sign.rotation.y=Math.PI/2;sign.position.set(-S-.02,4.2,0);scene.add(sign);
 // Архивный терминал с необязательной записью инженера.
 const terminalBase=new T.Mesh(new T.BoxGeometry(1.1,1.7,.8),mm);terminalBase.position.set(-7,.85,8);terminalBase.castShadow=true;scene.add(terminalBase);
 const terminalScreen=new T.Mesh(new T.PlaneGeometry(.82,.68),new T.MeshBasicMaterial({color:0x35dfff,emissive:0x126080,emissiveIntensity:1.8}));terminalScreen.position.set(-7,1.35,8.41);scene.add(terminalScreen);
