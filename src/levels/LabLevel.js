@@ -141,6 +141,9 @@
         exitZone: { x0: -2.1, x1: 2.1, z0: -27.2, z1: -25.1 },
         playerSpawn: { x: 0, y: 1.7, z: 11 },
         enemySpawnPoints: [[-11, -11], [11, -11], [-11, 11], [11, 11], [0, -12.5], [-12.5, 0], [12.5, 0]],
+        update(dt, time) {
+          alarm.intensity = .85 + Math.max(0, Math.sin(time * 4.2)) * .8;
+        },
         interactables: [{
           id: 'lab-report',
           label: 'ОТКРЫТЬ ОТЧЁТ ИССЛЕДОВАНИЙ',
