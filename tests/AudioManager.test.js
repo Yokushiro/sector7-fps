@@ -67,3 +67,20 @@ test('restarting ambience replaces the previous soundscape', () => {
   assert.equal(firstSources.every(source => source.stopped), true);
   assert.equal(audio.sources.length, 3);
 });
+
+
+test('audio manager starts, controls and stops the original combat soundtrack', () => {
+  const context = fakeAudioContext();
+  const audio = new AudioManager(() => context);
+  audio.unlock();
+  assert.equal(audio.startMusic(), true);
+  assert.ok(audio.musicMaster);
+  assert.ok(audio.musicSources.length > 0);
+  assert.equal(audio.setMusicVolume(.35), true);
+  assert.equal(audio.musicMaster.gain.value, .35);
+  const sources = [...audio.musicSources];
+  audio.stopMusic();
+  assert.equal(sources.every(source => source.stopped), true);
+  assert.equal(audio.musicMaster, null);
+  assert.equal(audio.musicTimer, null);
+});
