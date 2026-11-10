@@ -24,3 +24,13 @@ test('combat completion opens the route instead of ending the mission immediatel
   assert.match(source, /missionCleared&&exit&&P\.pos\.x>=exit\.x0/);
   assert.match(source, /if\(!missionCleared&&spawned<GOAL/);
 });
+
+
+test('corridor lintels remain visual-only so they do not block player movement', () => {
+  const bunker = read('src/levels/BunkerLevel.js');
+  const lab = read('src/levels/LabLevel.js');
+  const reactor = read('src/levels/ReactorLevel.js');
+  assert.match(bunker, /box\(0,H-\.5,-S-\.5,4\.2,1,1,mat\('metal',2,1,\.85\),false\)/);
+  assert.match(lab, /box\(0, H - \.5, -S - \.5, 4\.2, 1, 1, steel, false\)/);
+  assert.match(reactor, /box\(0, H - \.5, -S - \.5, 4\.2, 1, 1, steel, false\)/);
+});
