@@ -36,27 +36,27 @@ function box(x,y,z,w,h,d,m,col=true,target=scene){const me=new T.Mesh(new T.BoxG
  if(col)boxes.push({x0:x-w/2,x1:x+w/2,z0:z-d/2,z1:z+d/2});return me}
 const saveSystem=new S7SaveSystem();
 const missionSystem=new S7MissionSystem();
-const savedCampaign=saveSystem.load();
+let savedCampaign=saveSystem.load();
 const requestedMissionId=location.hash.slice(1);
-const currentMission=missionSystem.getMissionForCampaign(savedCampaign.campaign,requestedMissionId);
+let currentMission=missionSystem.getMissionForCampaign(savedCampaign.campaign,requestedMissionId);
 if(!currentMission)throw new Error('No unlocked campaign missions are available');
-const missionObjective=currentMission.objectives.find(objective=>objective.type==='eliminate');
+let missionObjective=currentMission.objectives.find(objective=>objective.type==='eliminate');
 if(!missionObjective)throw new Error('The active mission has no supported elimination objective');
-const GOAL=missionObjective.target;
+let GOAL=missionObjective.target;
 
 const levelManager=new S7LevelManager({THREE:T,scene,solids,boxes});
 levelManager.register(S7BunkerLevel);
 levelManager.register(S7LabLevel);
 levelManager.register(S7ReactorLevel);
-const activeLevel=levelManager.load(currentMission.levelId,{mat,canvas,randomRange:R,box});
-const LEVEL_BOUNDS=activeLevel.bounds;
-const dust=activeLevel.dust || {rotation:{y:0},position:{y:0}};
+let activeLevel=levelManager.load(currentMission.levelId,{mat,canvas,randomRange:R,box});
+let LEVEL_BOUNDS=activeLevel.bounds;
+let dust=activeLevel.dust || {rotation:{y:0},position:{y:0}};
 
 
 const torch=new T.SpotLight(0xe8f4ff,1.6,28,.5,.6,1.2);torch.position.set(.2,-.1,0);torch.target.position.set(0,0,-5);cam.add(torch,torch.target);
 
 /* ---------- состояние ---------- */
-const GROUND_Y=activeLevel.playerSpawn.y;
+let GROUND_Y=activeLevel.playerSpawn.y;
 const P={pos:new T.Vector3(activeLevel.playerSpawn.x,GROUND_Y,activeLevel.playerSpawn.z),yaw:0,pitch:0,hp:100,velocityY:0,grounded:true};
 const jumpController=new S7JumpController(GROUND_Y);
 let state='menu',kills=0,spawned=0,spawnT=0,hurt=0,tm=0,mouse=false,fallback=false,locked=false,missionCleared=false,combatCleared=false,outroShown=false,introShown=false;
@@ -65,7 +65,7 @@ const enemies=[],proj=[],sparks=[];
 const droneAI=new S7DroneAI();
 const $=id=>document.getElementById(id);
 const dialogueSystem=new S7DialogueSystem({rootElement:$('dialogue'),speakerElement:$('dialogueSpeaker'),textElement:$('dialogueText'),promptElement:$('dialoguePrompt')});
-const interactionSystem=new S7InteractionSystem(activeLevel.interactables||[]);
+let interactionSystem=new S7InteractionSystem(activeLevel.interactables||[]);
 $('dialogue').addEventListener('click',()=>dialogueSystem.advance());
 const savedStats=savedCampaign.stats;
 $('saveInfo').textContent=`СОХРАНЕНИЕ · Побед: ${savedStats.wins} · Поражений: ${savedStats.losses} · Лучший результат: ${savedStats.bestKills} дронов`;
