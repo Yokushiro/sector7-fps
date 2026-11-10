@@ -12,10 +12,11 @@ test('nearest unused interaction is selected within range', () => {
 });
 
 test('activated interaction is one-time and returns a defensive dialogue copy', () => {
-  const system = new InteractionSystem([
-    { id: 'log', x: 0, z: 0, dialogue: [{ speaker: 'ИЛЬЯ', text: 'Оригинал' }] }
-  ]);
+  const definition = { id: 'log', x: 0, z: 0, dialogue: [{ speaker: 'ИЛЬЯ', text: 'Оригинал' }] };
+  const system = new InteractionSystem([definition]);
+  definition.dialogue[0].text = 'Внешнее изменение';
   const item = system.activate('log');
+  assert.equal(item.dialogue[0].text, 'Оригинал');
   item.dialogue[0].text = 'Изменено';
   assert.equal(system.isUsed('log'), true);
   assert.equal(system.activate('log'), null);
