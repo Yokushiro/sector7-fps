@@ -97,3 +97,20 @@ test('reactor mission uses a deeper, heavier ambience profile', () => {
   assert.equal(context.sources[1].frequency.value, 47);
   audio.stopAmbience();
 });
+
+
+test('sector ambience crossfades instead of cutting the previous soundscape', async () => {
+  const context = fakeAudioContext();
+  const audio = new AudioManager(() => context);
+  audio.unlock();
+  audio.startAmbience('bunker');
+  const previousSources = [...audio.sources];
+  const previousNodes = [...audio.nodes];
+  assert.equal(audio.startAmbience('lab', .01), true);
+  assert.equal(previousSources.every(source => !source.stopped), true);
+  assert.equal(audio.sources.length, 3);
+  await new Promise(resolve => setTimeout(resolve, 140));
+  assert.equal(previousSources.every(source => source.stopped), true);
+  assert.equal(previousNodes.every(node => node.disconnected), true);
+  audio.stopAmbience();
+});
