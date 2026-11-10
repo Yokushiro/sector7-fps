@@ -90,7 +90,6 @@
 
     activate(level) {
       level.root.visible = true;
-      this.scene.add(level.root);
       this.solids.push(...level.solids);
       this.boxes.push(...level.boxes);
       this.current = level;
