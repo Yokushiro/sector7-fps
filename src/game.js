@@ -169,17 +169,18 @@ function end(w){
  if(state==='over'||state==='transition')return;
  $('evacTimer').hidden=true;
  if(w&&!outroShown&&currentMission.outroDialogue?.length){
-  state='dialogue';audioManager.stopMusic();audioManager.stopAmbience();document.exitPointerLock&&document.exitPointerLock();
+  state='dialogue';document.exitPointerLock&&document.exitPointerLock();
   dialogueSystem.start(currentMission.outroDialogue,()=>{outroShown=true;end(true)});
   return;
  }
  state='transition';
- audioManager.stopMusic();audioManager.stopAmbience();document.exitPointerLock&&document.exitPointerLock();
+ document.exitPointerLock&&document.exitPointerLock();
  const record=saveSystem.recordMissionResult({missionId:currentMission.id,won:w,kills,nextMissionOrder:currentMission.order+1});
  savedCampaign=record;
  $('saveInfo').textContent=`СОХРАНЕНИЕ · Побед: ${record.stats.wins} · Поражений: ${record.stats.losses} · Лучший результат: ${record.stats.bestKills} дронов`;
  const nextMission=w?missionSystem.getUnlockedMissions(record.campaign).find(mission=>mission.order>currentMission.order):null;
- if(w&&nextMission){loadMission(nextMission);return}
+ if(w&&nextMission){transitionToMission(nextMission);return}
+ audioManager.stopMusic();audioManager.stopAmbience();
  state='over';
  $('interactHint').hidden=true;
  $('ov').style.display='flex';
@@ -190,7 +191,7 @@ function end(w){
 
 /* ---------- управление ---------- */
 const dom=renderer.domElement;
-function loadMission(nextMission){
+function loadMission(nextMission,transition={}){
  try{
   for(const enemy of enemies){scene.remove(enemy.g);disposeRenderable(enemy.g)}enemies.length=0;
   for(const shot of proj){scene.remove(shot.m);shot.m.geometry.dispose();shot.m.material.dispose()}proj.length=0;
@@ -205,12 +206,24 @@ function loadMission(nextMission){
   interactionSystem=new S7InteractionSystem(activeLevel.interactables||[]);
   GROUND_Y=activeLevel.playerSpawn.y;
   jumpController.groundY=GROUND_Y;
-  P.pos.set(activeLevel.playerSpawn.x,GROUND_Y,activeLevel.playerSpawn.z);
-  P.yaw=activeLevel.playerSpawn.yaw||0;P.pitch=0;P.hp=100;P.velocityY=0;P.grounded=true;
-  $('hpf').style.width='100%';
-  weapon.ammo=weapon.magazineSize;weapon.reloadRemaining=0;weapon.cooldown=0;weapon.recoil=0;weapon.pitchKick=0;
-  weapon.group.rotation.set(0,0,0);weapon.onAmmoChange(weapon.ammo);
-  cam.position.copy(P.pos);cam.rotation.set(0,P.yaw,0);
+  const carried=transition.preservePlayer&&transition.player?transition.player:null;
+  if(carried){
+   P.pos.set(carried.x,carried.y,carried.z);
+   P.yaw=activeLevel.playerSpawn.yaw??carried.yaw;
+   P.pitch=carried.pitch;
+   P.hp=carried.hp;
+  }else{
+   P.pos.set(activeLevel.playerSpawn.x,GROUND_Y,activeLevel.playerSpawn.z);
+   P.yaw=activeLevel.playerSpawn.yaw||0;P.pitch=0;P.hp=100;
+  }
+  P.velocityY=0;P.grounded=true;
+  $('hpf').style.width=Math.max(0,P.hp)+'%';
+  if(!carried){
+   weapon.ammo=weapon.magazineSize;weapon.reloadRemaining=0;weapon.cooldown=0;weapon.recoil=0;weapon.pitchKick=0;
+   weapon.group.rotation.set(0,0,0);
+  }
+  weapon.onAmmoChange(weapon.ammo);
+  cam.position.copy(P.pos);cam.rotation.set(P.pitch+weapon.pitchKick,P.yaw,0);
   for(const key of Object.keys(keys))delete keys[key];
   kills=0;spawned=0;spawnT=0;hurt=0;mouse=false;fallback=false;missionCleared=false;combatCleared=false;outroShown=false;introShown=true;evacuationRemaining=0;$('evacTimer').hidden=true;
   $('missionTitle').textContent=`${currentMission.title} · ${currentMission.location}`;
@@ -219,16 +232,26 @@ function loadMission(nextMission){
   $('interactHint').hidden=true;
   $('ov').style.display='none';
   location.hash=currentMission.id;
-  audioManager.startAmbience(currentMission.audioProfile);
-  audioManager.startMusic();
-  state='dialogue';
-  dialogueSystem.start(currentMission.introDialogue,()=>{state='play';try{dom.requestPointerLock()}catch(e){fallback=true}});
+  audioManager.startAmbience(currentMission.audioProfile,carried?1.25:0);
+  state='play';
+  dialogueSystem.startRadio(currentMission.introDialogue);
+  try{dom.requestPointerLock()}catch(e){fallback=true}
  }catch(error){
   console.error('Campaign transition failed',error);
   state='over';$('ov').style.display='flex';
   $('ov').innerHTML='<div><h1>ОШИБКА ЗАГРУЗКИ СЕКТОРА</h1><p>Не удалось загрузить следующую локацию.</p><p>Перезапусти миссию, чтобы восстановить кампанию.</p></div>';
   $('ov').onclick=()=>location.reload();
  }
+}
+function transitionToMission(nextMission){
+ const player={x:P.pos.x,y:P.pos.y,z:P.pos.z,yaw:P.yaw,pitch:P.pitch,hp:P.hp};
+ state='transition';mouse=false;document.exitPointerLock&&document.exitPointerLock();
+ const fade=$('transitionFade');
+ fade.style.opacity='1';
+ setTimeout(()=>{
+  loadMission(nextMission,{preservePlayer:true,player});
+  requestAnimationFrame(()=>{fade.style.opacity='0'});
+ },300);
 }
 function useNearbyInteraction(){const nearby=interactionSystem.findNearby(P.pos);if(!nearby)return;if(nearby.id===activeLevel.requiredInteractionId&&!combatCleared){$('kl').textContent='СНАЧАЛА УНИЧТОЖЬ ОХРАНУ РЕАКТОРА';return}const item=interactionSystem.activate(nearby.id);if(!item)return;state='dialogue';mouse=false;$('interactHint').hidden=true;document.exitPointerLock&&document.exitPointerLock();dialogueSystem.start(item.dialogue,()=>{if(item.id===activeLevel.requiredInteractionId){missionCleared=true;activeLevel.openExit?.();evacuationRemaining=90;$('evacTimer').hidden=false;$('evacTimer').textContent='ЭВАКУАЦИЯ · 01:30';$('kl').textContent='ЯДРО ОТКЛЮЧЕНО · ИЩИ ЭВАКУАЦИОННЫЙ КОРИДОР'}state='play';try{dom.requestPointerLock()}catch(e){fallback=true}})}
 $('ov').onclick=()=>{if(state==='over'||state==='dialogue')return;$('ov').style.display='none';if(!introShown){if(!ac)ac=audioManager.unlock();if(ac){audioManager.startAmbience(currentMission.audioProfile);audioManager.startMusic()}introShown=true;state='dialogue';dialogueSystem.start(currentMission.introDialogue,()=>{state='play';try{dom.requestPointerLock()}catch(e){fallback=true}})}else{state='play';try{dom.requestPointerLock()}catch(e){fallback=true}}};
@@ -257,6 +280,7 @@ const graphicsSettings=new S7GraphicsSettings(renderer,comp,bloom,resize);
 /* ---------- цикл ---------- */
 let last=performance.now();
 function loop(now){requestAnimationFrame(loop);const dt=Math.min(.05,(now-last)/1000);last=now;tm+=dt;if(typeof activeLevel.update==='function')activeLevel.update(dt,tm);
+ dialogueSystem.update(dt);
  if(state==='play'){
   const f=(keys.KeyW?1:0)-(keys.KeyS?1:0),r=(keys.KeyD?1:0)-(keys.KeyA?1:0),sp=keys.ShiftLeft?7:4.6,mv=f||r;
   if(mv){const l=Math.hypot(f,r),sy=Math.sin(P.yaw),cy=Math.cos(P.yaw);P.pos.x+=(-sy*f+cy*r)/l*sp*dt;P.pos.z+=(-cy*f-sy*r)/l*sp*dt;collide(P.pos,.4)}
