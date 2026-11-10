@@ -78,7 +78,9 @@ test('streamed mission transitions reset combat state and avoid a page reload', 
 test('reactor shutdown starts a visible 90-second evacuation countdown', () => {
   const game = read('src/game.js');
   const html = read('index.html');
-  assert.match(game, /evacuationRemaining=90/);
+  assert.match(reactor, /evacuationSeconds: 90/);
+  assert.match(game, /const evacuationSeconds=Number\(activeLevel\.evacuationSeconds\)\|\|0/);
+  assert.match(game, /evacuationRemaining=evacuationSeconds/);
   assert.match(game, /evacuationRemaining=Math\.max\(0,evacuationRemaining-dt\)/);
   assert.match(game, /if\(evacuationRemaining<=0\)end\(false\)/);
   assert.match(game, /ЭВАКУАЦИЯ · 01:30/);
@@ -110,6 +112,18 @@ test('evacuation doors block the corridor until opened, then release collision',
   }
 });
 
+
+test('laboratory combat must be followed by the security console before the reactor route opens', () => {
+  const lab = read('src/levels/LabLevel.js');
+  const mission = read('src/campaign/MissionSystem.js');
+  const game = read('src/game.js');
+  assert.match(lab, /requiredInteractionId: 'lab-security-console'/);
+  assert.match(lab, /id: 'lab-security-console'/);
+  assert.match(lab, /ОТКЛЮЧИТЬ ВНЕШНИЙ КОНТУР/);
+  assert.match(mission, /отключи внешний контур защиты на центральной панели/i);
+  assert.match(game, /nearby\.id===activeLevel\.requiredInteractionId&&!combatCleared/);
+  assert.match(game, /ВНЕШНИЙ КОНТУР ОТКЛЮЧЁН · ШЛЮЗ В РЕАКТОР ОТКРЫТ/);
+});
 
 test('laboratory route enters from the bunker side and exits through the opposite corridor', () => {
   const lab = read('src/levels/LabLevel.js');
