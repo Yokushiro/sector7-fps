@@ -50,7 +50,7 @@ const bunkerLights=[];
         name: 'Заброшенный бункер',
         bounds: { halfSize: 27, height: H },
         exitZone: { x0: -2.1, x1: 2.1, z0: -25.2, z1: -23.1 },
-        playerSpawn: { x: 0, y: 1.7, z: 9 },
+        playerSpawn: { x: 0, y: 1.7, z: 22, yaw: 0 },
         enemySpawnPoints: [[-10,-10],[10,-10],[-10,10],[10,10],[0,-10.5]],
         openExit() { exitOpen = true; },
         update(dt, time) {
