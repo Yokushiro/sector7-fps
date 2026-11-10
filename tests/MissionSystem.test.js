@@ -35,3 +35,19 @@ test('unknown missions and objectives fail safely', () => {
   assert.equal(missions.getObjective('bunker-01', 'missing'), null);
   assert.equal(missions.isObjectiveComplete('bunker-01', 'missing', 10), false);
 });
+
+
+test('second mission unlocks only after campaign progress reaches its order', () => {
+  const missions = new MissionSystem();
+  assert.equal(missions.getMission('lab-02').objectives[0].target, 14);
+  assert.deepEqual(missions.getUnlockedMissions({ unlockedMission: 1 }).map(item => item.id), ['bunker-01']);
+  assert.deepEqual(missions.getUnlockedMissions({ unlockedMission: 2 }).map(item => item.id), ['bunker-01', 'lab-02']);
+});
+
+test('campaign selection prefers the first incomplete unlocked mission', () => {
+  const missions = new MissionSystem();
+  const save = { unlockedMission: 2, completedMissions: ['bunker-01'] };
+  assert.equal(missions.getMissionForCampaign(save).id, 'lab-02');
+  assert.equal(missions.getMissionForCampaign(save, 'bunker-01').id, 'bunker-01');
+  assert.equal(missions.getMissionForCampaign({ unlockedMission: 1, completedMissions: ['bunker-01'] }).id, 'bunker-01');
+});
