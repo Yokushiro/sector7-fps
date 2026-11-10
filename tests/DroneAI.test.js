@@ -118,3 +118,42 @@ test('drones steer away from nearby obstacles', () => {
   assert.ok(enemy.g.position.x < 2.8);
   assert.ok(Math.abs(enemy.g.position.z) > 0);
 });
+
+
+test('drones flank around cover when their line of sight is blocked', () => {
+  const ai = new DroneAI();
+  const enemy = makeEnemy('scout', 2, 5.5);
+  enemy.strafeSign = 1;
+  const startZ = enemy.g.position.z;
+  ai.update(
+    [enemy],
+    { pos: { x: 0, y: 1.7, z: 0 } },
+    0.1,
+    () => {},
+    { add() {} },
+    [],
+    () => {},
+    (min, max) => (min + max) / 2,
+    [{ x0: 4, x1: 6, z0: -1, z1: 1 }]
+  );
+  assert.notEqual(enemy.g.position.z, startZ);
+});
+
+test('drones can recover when spawned inside obstacle bounds', () => {
+  const ai = new DroneAI();
+  const enemy = makeEnemy('scout', 2, 5.5);
+  enemy.g.position.x = 3.5;
+  enemy.g.position.z = 0;
+  ai.update(
+    [enemy],
+    { pos: { x: 0, y: 1.7, z: 0 } },
+    0.1,
+    () => {},
+    { add() {} },
+    [],
+    () => {},
+    (min, max) => (min + max) / 2,
+    [{ x0: 3, x1: 4, z0: -1, z1: 1 }]
+  );
+  assert.ok(enemy.g.position.x < 3.5);
+});
