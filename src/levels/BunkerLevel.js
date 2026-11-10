@@ -33,7 +33,8 @@ const strips=new T.MeshStandardMaterial({color:0,emissive:0xcfeaff,emissiveInten
       return {
         name: 'Заброшенный бункер',
         bounds: { halfSize: S, height: H },
-        playerSpawn: { x: 0, y: 1.7, z: 9 }
+        playerSpawn: { x: 0, y: 1.7, z: 9 },
+        enemySpawnPoints: [[-10,-10],[10,-10],[-10,10],[10,10],[0,-10.5]]
       };
     }
   };
