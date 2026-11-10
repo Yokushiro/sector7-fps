@@ -71,7 +71,7 @@ let ac;function snd(f,d,type,v,noise){if(!ac)return;const t=ac.currentTime,o=ac.
 /* ---------- враги ---------- */
 const bodyM=new T.MeshStandardMaterial({color:0x2b3037,roughness:.28,metalness:.95,envMapIntensity:1.3});
 function spawn(){
- const pts=[[-10,-10],[10,-10],[-10,10],[10,10],[0,-10.5]];
+ const pts=activeLevel.enemySpawnPoints;
  let q;
  for(let i=0;i<8;i++){q=pts[Math.random()*pts.length|0];if(Math.hypot(q[0]-P.pos.x,q[1]-P.pos.z)>9)break}
  const sequence=currentMission.spawn.enemySequence;
