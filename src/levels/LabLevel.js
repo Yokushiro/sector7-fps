@@ -35,9 +35,28 @@
       const corridorLamp = new T.PointLight(0xff2638, 1.25, 18, 2);
       corridorLamp.position.set(0, 4.8, -20);
       scene.add(corridorLamp);
-      const exitDoor = box(0, 3, -28, 5.6, 6, .45, darkSteel);
+      // Incoming connector from the bunker stays open; its corridor geometry lines up at the same world coordinates.
+      // The laboratory's outgoing connector is on the opposite side, so the campaign keeps moving through the facility.
+      box(-8.15, H / 2, S + .5, 12.9, H, 1, wall);
+      box(8.15, H / 2, S + .5, 12.9, H, 1, wall);
+      box(0, H - .5, S + .5, 4.2, 1, 1, steel, false);
+      const exitCorridorFloor = new T.Mesh(new T.PlaneGeometry(5.2, 14), mat('floor', 2, 5, .3));
+      exitCorridorFloor.rotation.x = -Math.PI / 2;
+      exitCorridorFloor.position.set(0, .015, 21);
+      exitCorridorFloor.receiveShadow = true;
+      scene.add(exitCorridorFloor);
+      context.solids.push(exitCorridorFloor);
+      box(-2.8, 3, 21, .45, 6, 14, wall);
+      box(2.8, 3, 21, .45, 6, 14, wall);
+      box(0, H - .35, 21, 5.9, .5, 14, darkSteel, false);
+      const exitStrip = new T.Mesh(new T.BoxGeometry(.25, .12, 8), new T.MeshBasicMaterial({ color: 0x42d8ff }));
+      exitStrip.position.set(0, 7.1, 21);
+      scene.add(exitStrip);
+      const exitLamp = new T.PointLight(0x26cfff, 1.1, 18, 2);
+      exitLamp.position.set(0, 4.8, 21);
+      scene.add(exitLamp);
+      const exitDoor = box(0, 3, 28, 5.6, 6, .45, darkSteel);
       let exitOpen = false;
-      box(0, H / 2, S + .5, S * 2 + 2, H, 1, wall);
       box(-S - .5, H / 2, 0, 1, H, S * 2, wall);
       box(S + .5, H / 2, 0, 1, H, S * 2, wall);
 
@@ -140,7 +159,7 @@
       return {
         name: 'Исследовательский комплекс',
         bounds: { halfSize: 29, height: H },
-        exitZone: { x0: -2.1, x1: 2.1, z0: -28.0, z1: -26.3 },
+        exitZone: { x0: -2.1, x1: 2.1, z0: 26.3, z1: 28.0 },
         playerSpawn: { x: 0, y: 1.7, z: -26, yaw: Math.PI },
         enemySpawnPoints: [[-11, -11], [11, -11], [-11, 11], [11, 11], [0, -12.5], [-12.5, 0], [12.5, 0]],
         openExit() { exitOpen = true; const index = boxes.indexOf(exitDoor.userData.collisionBox); if (index >= 0) boxes.splice(index, 1); },
