@@ -34,8 +34,19 @@ function mat(k,rx,ry,m=0,tint=0xffffff){const key=k+rx+'_'+ry+m+tint;if(cache[ke
 const solids=[],boxes=[];
 function box(x,y,z,w,h,d,m,col=true,target=scene){const me=new T.Mesh(new T.BoxGeometry(w,h,d),m);me.position.set(x,y,z);me.castShadow=me.receiveShadow=true;target.add(me);solids.push(me);
  if(col)boxes.push({x0:x-w/2,x1:x+w/2,z0:z-d/2,z1:z+d/2});return me}
+const saveSystem=new S7SaveSystem();
+const missionSystem=new S7MissionSystem();
+const savedCampaign=saveSystem.load();
+const requestedMissionId=location.hash.slice(1);
+const currentMission=missionSystem.getMissionForCampaign(savedCampaign.campaign,requestedMissionId);
+if(!currentMission)throw new Error('No unlocked campaign missions are available');
+const missionObjective=currentMission.objectives.find(objective=>objective.type==='eliminate');
+if(!missionObjective)throw new Error('The active mission has no supported elimination objective');
+const GOAL=missionObjective.target;
+
 const levelManager=new S7LevelManager({THREE:T,scene,solids,boxes});
 levelManager.register(S7BunkerLevel);
+levelManager.register(S7LabLevel);
 const activeLevel=levelManager.load(currentMission.levelId,{mat,canvas,randomRange:R,box});
 const LEVEL_BOUNDS=activeLevel.bounds;
 
@@ -48,14 +59,6 @@ let state='menu',kills=0,spawned=0,spawnT=0,hurt=0,tm=0,mouse=false,fallback=fal
 const enemies=[],proj=[],sparks=[];
 const droneAI=new S7DroneAI();
 const $=id=>document.getElementById(id);
-const saveSystem=new S7SaveSystem();
-const missionSystem=new S7MissionSystem();
-const currentMission=missionSystem.getFirstMission();
-if(!currentMission)throw new Error('No campaign missions are configured');
-const missionObjective=currentMission.objectives.find(objective=>objective.type==='eliminate');
-if(!missionObjective)throw new Error('The active mission has no supported elimination objective');
-const GOAL=missionObjective.target;
-const savedCampaign=saveSystem.load();
 const savedStats=savedCampaign.stats;
 $('saveInfo').textContent=`СОХРАНЕНИЕ · Побед: ${savedStats.wins} · Поражений: ${savedStats.losses} · Лучший результат: ${savedStats.bestKills} дронов`;
 $('missionDescription').textContent=currentMission.description;
@@ -145,9 +148,11 @@ function hitWorld(hit){
 }
 function dmg(n){P.hp-=n;hurt=1;snd(70,.25,'sine',.6);$('hpf').style.width=Math.max(0,P.hp)+'%';if(P.hp<=0)end(false)}
 function end(w){if(state==='over')return;state='over';document.exitPointerLock&&document.exitPointerLock();
- const record=saveSystem.recordMissionResult({missionId:currentMission.id,won:w,kills});
+ const record=saveSystem.recordMissionResult({missionId:currentMission.id,won:w,kills,nextMissionOrder:currentMission.order+1});
  $('ov').style.display='flex';
- $('ov').innerHTML=`<div><h1>${w?'СЕКТОР ЗАЧИЩЕН':'ТЫ ПОГИБ'}</h1><p>Уничтожено дронов: ${kills} / ${GOAL}</p><p>Всего побед: ${record.stats.wins} · Поражений: ${record.stats.losses}</p><p>Лучший результат: ${record.stats.bestKills} дронов</p><p><b>Нажми, чтобы сыграть снова</b></p></div>`;$('ov').onclick=()=>location.reload()}
+ const nextMission=w?missionSystem.getUnlockedMissions(record.campaign).find(mission=>mission.order>currentMission.order):null;
+ $('ov').innerHTML=`<div><h1>${w?'СЕКТОР ЗАЧИЩЕН':'ТЫ ПОГИБ'}</h1><p>Уничтожено дронов: ${kills} / ${GOAL}</p><p>Всего побед: ${record.stats.wins} · Поражений: ${record.stats.losses}</p><p>Лучший результат: ${record.stats.bestKills} дронов</p>${nextMission?`<p>Следующая миссия: <b>${nextMission.title}</b></p><p><b>Нажми, чтобы продолжить кампанию</b></p>`:'<p><b>Нажми, чтобы сыграть снова</b></p>'}</div>`;
+ $('ov').onclick=()=>{if(nextMission)location.hash=nextMission.id;location.reload()}}
 
 /* ---------- управление ---------- */
 const dom=renderer.domElement;
