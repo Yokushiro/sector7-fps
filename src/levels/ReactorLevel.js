@@ -170,7 +170,7 @@
         bounds: { halfSize: 33, height: H },
         exitZone: { x0: -2.1, x1: 2.1, z0: -33.8, z1: -32.7 },
         requiredInteractionId: 'reactor-shutdown',
-        playerSpawn: { x: 0, y: 1.7, z: 28, yaw: Math.PI },
+        playerSpawn: { x: 0, y: 1.7, z: 28, yaw: 0 },
         enemySpawnPoints: [[-14, -14], [14, -14], [-14, 12], [14, 12], [0, -15], [-16, 0], [16, 0], [16, 16]],
         openExit() { exitOpen = true; const index = boxes.indexOf(exitDoor.userData.collisionBox); if (index >= 0) boxes.splice(index, 1); },
         update(dt, time) {
