@@ -157,6 +157,7 @@
         oscillator.start(time);
         oscillator.stop(time + duration + .025);
         this.musicSources.push(oscillator);
+        releaseVoice(oscillator, [oscillator, filter, gain]);
       };
 
       const kick = time => {
@@ -173,6 +174,7 @@
         oscillator.start(time);
         oscillator.stop(time + .18);
         this.musicSources.push(oscillator);
+        releaseVoice(oscillator, [oscillator, gain]);
       };
 
       const snare = time => {
@@ -193,6 +195,7 @@
         oscillator.start(time);
         oscillator.stop(time + .13);
         this.musicSources.push(oscillator);
+        releaseVoice(oscillator, [oscillator, filter, gain]);
       };
 
       const scheduleStep = (step, time) => {
