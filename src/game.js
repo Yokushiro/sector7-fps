@@ -67,6 +67,7 @@ function collide(p,r){for(const b of boxes){const cx=cl(p.x,b.x0,b.x1),cz=cl(p.z
  if(d2<r*r){if(d2>1e-6){const d=Math.sqrt(d2),k=(r-d)/d;p.x+=dx*k;p.z+=dz*k}else p.x+=r}}}
 
 /* ---------- звук ---------- */
+const audioManager=new S7AudioManager();
 let ac;function snd(f,d,type,v,noise){if(!ac)return;const t=ac.currentTime,o=ac.createGain();o.gain.setValueAtTime(v,t);o.gain.exponentialRampToValueAtTime(.001,t+d);let s;
  if(noise){const b=ac.createBuffer(1,Math.floor(ac.sampleRate*d),ac.sampleRate),a=b.getChannelData(0);for(let i=0;i<a.length;i++)a[i]=Math.random()*2-1;s=ac.createBufferSource();s.buffer=b;const fi=ac.createBiquadFilter();fi.type='lowpass';fi.frequency.value=f;s.connect(fi);fi.connect(o)}
  else{s=ac.createOscillator();s.type=type;s.frequency.setValueAtTime(f,t);s.frequency.exponentialRampToValueAtTime(Math.max(20,f/3),t+d);s.connect(o)}o.connect(ac.destination);s.start(t)}
@@ -156,7 +157,7 @@ function end(w){if(state==='over')return;state='over';document.exitPointerLock&&
 
 /* ---------- управление ---------- */
 const dom=renderer.domElement;
-$('ov').onclick=()=>{if(state==='over')return;if(!ac)ac=new (window.AudioContext||window.webkitAudioContext)();state='play';$('ov').style.display='none';
+$('ov').onclick=()=>{if(state==='over')return;if(!ac)ac=audioManager.unlock();if(ac)audioManager.startAmbience(currentMission.audioProfile);state='play';$('ov').style.display='none';
  try{dom.requestPointerLock()}catch(e){fallback=true}};
 document.addEventListener('pointerlockchange',()=>{locked=document.pointerLockElement===dom;if(!locked&&state==='play'&&!fallback){state='menu';$('msg').innerHTML='<b>Пауза — нажми, чтобы продолжить</b>';$('ov').style.display='flex'}});
 document.addEventListener('pointerlockerror',()=>{fallback=true});
