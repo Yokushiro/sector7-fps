@@ -48,3 +48,12 @@ test('reactor finale requires a console interaction after combat before the exit
   assert.match(game, /if\(!combatCleared&&spawned<GOAL/);
   assert.match(game, /activeLevel\.openExit\?\.\(\)/);
 });
+
+
+test('campaign advances to the next location in-place after the corridor exit', () => {
+  const game = read('src/game.js');
+  assert.match(game, /function loadMission\(nextMission\)/);
+  assert.match(game, /if\(w&&nextMission\)\{loadMission\(nextMission\);return\}/);
+  assert.match(game, /activeLevel=levelManager\.load\(currentMission\.levelId/);
+  assert.match(game, /location\.hash=currentMission\.id/);
+});
