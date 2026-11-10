@@ -21,7 +21,7 @@ canvas{display:block}
 </style></head><body>
 <div id="hud"><div id="cross"></div><div id="hit"></div><div id="kl">Дроны: 0 / 10</div>
 <div class="b" id="hp">ЗДОРОВЬЕ<div><div id="hpf"></div></div></div><div class="b" id="am"><small>ПЕРЕЗАРЯДКА: R</small><span id="ammo">30</span></div></div>
-<div id="ov"><div><h1>SECTOR 7</h1><p>Уничтожь 10 охранных дронов в заброшенном бункере.</p>
+<div id="ov"><div><h1>SECTOR 7</h1><p id="missionDescription">Уничтожь охранных дронов в заброшенном бункере.</p>
 <p>WASD — движение · Shift — бег · Мышь — прицел · ЛКМ — огонь<br>R — перезарядка · F — фонарь</p><p id="msg"><b>Нажми, чтобы начать</b></p><p id="saveInfo" style="font-size:13px;opacity:.65"></p></div></div>
 <script src="vendor/three.min.js"></script>
 <script src="vendor/EffectComposer.js"></script>
@@ -32,6 +32,7 @@ canvas{display:block}
 <script src="vendor/UnrealBloomPass.js"></script>
 <script src="src/core/PerformanceMonitor.js"></script>
 <script src="src/core/SaveSystem.js"></script>
+<script src="src/campaign/MissionSystem.js"></script>
 <script src="src/core/GraphicsSettings.js"></script>
 <script src="src/ai/DroneAI.js"></script>
 <script src="src/combat/WeaponSystem.js"></script>
