@@ -8,7 +8,12 @@
       const S=12,H=7;
 const fl=new T.Mesh(new T.PlaneGeometry(S*2,S*2),mat('floor',6,6,.3));fl.rotation.x=-Math.PI/2;fl.receiveShadow=true;scene.add(fl);solids.push(fl);
 box(0,H,0,S*2+2,.6,S*2+2,mat('concrete',6,2,0,0x889099),false);
-box(0,H/2,-S-.5,S*2+2,H,1,mat('concrete',6,2));box(0,H/2,S+.5,S*2+2,H,1,mat('concrete',6,2));
+box(-7.15,H/2,-S-.5,10.9,H,1,mat('concrete',6,2));box(7.15,H/2,-S-.5,10.9,H,1,mat('concrete',6,2));box(0,H-.5,-S-.5,4.2,1,1,mat('metal',2,1,.85));box(0,H/2,S+.5,S*2+2,H,1,mat('concrete',6,2));
+// Passageway to the lower laboratory wing: the doorway is part of the playable space, not a teleport.
+const corridorFloor=new T.Mesh(new T.PlaneGeometry(5.2,14),mat('floor',2,5,.3));corridorFloor.rotation.x=-Math.PI/2;corridorFloor.position.set(0,.015,-19);corridorFloor.receiveShadow=true;scene.add(corridorFloor);solids.push(corridorFloor);
+box(-2.8,3,-19,.45,6,14,mat('concrete',2,4));box(2.8,3,-19,.45,6,14,mat('concrete',2,4));box(0,H-.35,-19,5.9,.5,14,mat('metal',2,5,.8),false);
+const corridorLight=new T.Mesh(new T.BoxGeometry(.25,.12,8),new T.MeshBasicMaterial({color:0xffa34d}));corridorLight.position.set(0,6.1,-18);scene.add(corridorLight);const corridorLamp=new T.PointLight(0xff7b32,1.1,18,2);corridorLamp.position.set(0,4.8,-18);scene.add(corridorLamp);
+box(0,3,-26,5.6,6,.45,mat('metal',2,2,.9),false);
 box(-S-.5,H/2,0,1,H,S*2,mat('concrete',6,2));box(S+.5,H/2,0,1,H,S*2,mat('concrete',6,2));
 const mm=mat('metal',1,1,.85),mm2=mat('metal',2,1,.7,0xa9794f),mc=mat('concrete',1,3);
 box(0,.65,-1,7,1.3,.6,mc);box(-6.5,H/2-.3,0,1.2,H,1.2,mc);box(6.5,H/2-.3,0,1.2,H,1.2,mc);
@@ -32,7 +37,8 @@ const strips=new T.MeshStandardMaterial({color:0,emissive:0xcfeaff,emissiveInten
  const g=new T.BufferGeometry();g.setAttribute('position',new T.BufferAttribute(p,3));var dust=new T.Points(g,new T.PointsMaterial({size:.035,color:0xaac8e0,transparent:true,opacity:.45,depthWrite:false}));scene.add(dust)}
       return {
         name: 'Заброшенный бункер',
-        bounds: { halfSize: S, height: H },
+        bounds: { halfSize: 27, height: H },
+        exitZone: { x0: -2.1, x1: 2.1, z0: -25.2, z1: -23.1 },
         playerSpawn: { x: 0, y: 1.7, z: 9 },
         enemySpawnPoints: [[-10,-10],[10,-10],[-10,10],[10,10],[0,-10.5]],
         dust
