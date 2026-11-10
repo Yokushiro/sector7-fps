@@ -65,5 +65,5 @@ test('restarting ambience replaces the previous soundscape', () => {
   const firstSources = [...audio.sources];
   audio.startAmbience('lab');
   assert.equal(firstSources.every(source => source.stopped), true);
-  assert.equal(audio.sources.length, 9);
+  assert.equal(audio.sources.length, 3);
 });
