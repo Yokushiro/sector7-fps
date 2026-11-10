@@ -124,8 +124,9 @@ test('reactor entry continues from the laboratory exit while the evacuation corr
   const reactor = read('src/levels/ReactorLevel.js');
   assert.match(reactor, /entryFloor\.position\.set\(0, \.015, 25\)/);
   assert.match(reactor, /corridorFloor\.position\.set\(0, \.015, -25\)/);
-  assert.match(reactor, /playerSpawn: \{ x: 0, y: 1\.7, z: 28, yaw: Math\.PI \}/);
+  assert.match(reactor, /playerSpawn: \{ x: 0, y: 1\.7, z: 28, yaw: 0 \}/);
   assert.match(reactor, /exitZone: \{ x0: -2\.1, x1: 2\.1, z0: -33\.8, z1: -32\.7 \}/);
+  assert.match(reactor, /evacuationFloor\.position\.set\(0, \.015, -36\.5\)/);
 });
 
 test('sector handoff preserves player resources and uses a short fade instead of a loading screen', () => {
