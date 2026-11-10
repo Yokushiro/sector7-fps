@@ -72,9 +72,13 @@ function collide(p,r){for(const b of boxes){const cx=cl(p.x,b.x0,b.x1),cz=cl(p.z
 
 /* ---------- звук ---------- */
 const audioManager=new S7AudioManager();
-let ac;function snd(f,d,type,v,noise){if(!ac)return;const t=ac.currentTime,o=ac.createGain();o.gain.setValueAtTime(v,t);o.gain.exponentialRampToValueAtTime(.001,t+d);let s;
- if(noise){const b=ac.createBuffer(1,Math.floor(ac.sampleRate*d),ac.sampleRate),a=b.getChannelData(0);for(let i=0;i<a.length;i++)a[i]=Math.random()*2-1;s=ac.createBufferSource();s.buffer=b;const fi=ac.createBiquadFilter();fi.type='lowpass';fi.frequency.value=f;s.connect(fi);fi.connect(o)}
- else{s=ac.createOscillator();s.type=type;s.frequency.setValueAtTime(f,t);s.frequency.exponentialRampToValueAtTime(Math.max(20,f/3),t+d);s.connect(o)}o.connect(ac.destination);s.start(t)}
+let ac;function snd(f,d,type,v,noise){if(!ac)return;const t=ac.currentTime,o=ac.createGain();o.gain.setValueAtTime(v,t);o.gain.exponentialRampToValueAtTime(.0001,t+d);let s,filter;
+ if(noise){const b=ac.createBuffer(1,Math.max(1,Math.floor(ac.sampleRate*d)),ac.sampleRate),a=b.getChannelData(0);for(let i=0;i<a.length;i++)a[i]=Math.random()*2-1;s=ac.createBufferSource();s.buffer=b;filter=ac.createBiquadFilter();filter.type='lowpass';filter.frequency.value=f;s.connect(filter);filter.connect(o)}
+ else{s=ac.createOscillator();s.type=type;s.frequency.setValueAtTime(f,t);s.frequency.exponentialRampToValueAtTime(Math.max(20,f/3),t+d);s.connect(o)}
+ o.connect(ac.destination);
+ // One-shot SFX must end and release their graph; otherwise every shot leaves a quiet oscillator running forever.
+ s.onended=()=>{try{s.disconnect()}catch(e){};try{if(filter)filter.disconnect()}catch(e){};try{o.disconnect()}catch(e){}};
+ s.start(t);s.stop(t+d+.04)};
 
 /* ---------- враги ---------- */
 const bodyM=new T.MeshStandardMaterial({color:0x2b3037,roughness:.28,metalness:.95,envMapIntensity:1.3});
