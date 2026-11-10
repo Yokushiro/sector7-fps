@@ -91,7 +91,7 @@ function spawn(){
   attackMin:profile.attackMin,attackMax:profile.attackMax,
   strafeSign:R(0,1)<.5?-1:1,
   flankOffset:type==='sniper'?5.5:type==='heavy'?2.8:type==='assault'?3.2:4.2,
-  eye,flash:0
+  eye,eyeColor:profile.eyeColor,flash:0
  };
  let bodyGeometry;
  if(type==='sniper') bodyGeometry=new T.CylinderGeometry(.24,.34,1.2,16);
