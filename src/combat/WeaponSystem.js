@@ -48,7 +48,7 @@
       this.group.traverse(object=>{if(object.isMesh&&object!==this.flash)object.castShadow=false});
     }
 
-    fire(solids,enemies,raycaster,spark,onEnemyHit,onWorldHit,randomRange) {
+    fire(solids,enemies,spark,onEnemyHit,onWorldHit,randomRange) {
       if(this.reloadRemaining>0||this.cooldown>0)return false;
       if(this.ammo<=0){this.reload();return false;}
       this.ammo--;
