@@ -25,6 +25,10 @@ for(const z of[-S+1.2,S-1.2]){const p=new T.Mesh(new T.CylinderGeometry(.22,.22,
 const sg=canvas(512,(x,s)=>{x.fillStyle='#000';x.fillRect(0,0,s,s);x.fillStyle='#ff5a2a';x.font='bold 150px Bahnschrift,Arial';x.textAlign='center';x.fillText('SECTOR 7',256,230);x.font='60px Arial';x.fillStyle='#ffd0a0';x.fillText('ДОСТУП ЗАПРЕЩЁН',256,330)});
 const sm=new T.MeshBasicMaterial({map:new T.CanvasTexture(sg),color:new T.Color(2.4,2.4,2.4)});sm.map.encoding=T.sRGBEncoding;
 const sign=new T.Mesh(new T.PlaneGeometry(7,7),sm);sign.scale.y=.5;sign.position.set(0,4.2,-S+.02);scene.add(sign);
+// Архивный терминал с необязательной записью инженера.
+const terminalBase=new T.Mesh(new T.BoxGeometry(1.1,1.7,.8),mm);terminalBase.position.set(-7,.85,8);terminalBase.castShadow=true;scene.add(terminalBase);
+const terminalScreen=new T.Mesh(new T.PlaneGeometry(.82,.68),new T.MeshBasicMaterial({color:0x35dfff,emissive:0x126080,emissiveIntensity:1.8}));terminalScreen.position.set(-7,1.35,8.41);scene.add(terminalScreen);
+const terminalLamp=new T.PointLight(0x25cfff,.8,5,2);terminalLamp.position.set(-7,1.8,8.7);scene.add(terminalLamp);
 // свет
 scene.add(new T.HemisphereLight(0x3a5570,0x0a0a0a,.35));
 const strips=new T.MeshStandardMaterial({color:0,emissive:0xcfeaff,emissiveIntensity:4});
@@ -41,6 +45,16 @@ const strips=new T.MeshStandardMaterial({color:0,emissive:0xcfeaff,emissiveInten
         exitZone: { x0: -2.1, x1: 2.1, z0: -25.2, z1: -23.1 },
         playerSpawn: { x: 0, y: 1.7, z: 9 },
         enemySpawnPoints: [[-10,-10],[10,-10],[-10,10],[10,10],[0,-10.5]],
+        interactables: [{
+          id: 'bunker-log',
+          label: 'ПРОСМОТРЕТЬ АРХИВНУЮ ЗАПИСЬ',
+          x: -7,
+          z: 8,
+          dialogue: [
+            { speaker: 'АРХИВ / 07', text: 'Личный журнал инженера Ильи. Запись за 14 октября. Проект автономного ядра вышел за пределы расчётных параметров.' },
+            { speaker: 'ИЛЬЯ', text: 'Я просил остановить испытания. Руководство решило, что система сможет сама определить угрозы. Теперь она считает угрозой каждого человека.' }
+          ]
+        }],
         dust
       };
     }
