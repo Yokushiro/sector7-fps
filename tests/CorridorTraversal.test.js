@@ -91,6 +91,7 @@ test('each sector starts at the far end of its incoming corridor', () => {
   const lab = read('src/levels/LabLevel.js');
   const reactor = read('src/levels/ReactorLevel.js');
   assert.match(bunker, /entryFloor/);
+  assert.match(bunker, /exitZone: \{ x0: -2\.1, x1: 2\.1, z0: -27\.6, z1: -26\.2 \}/);
   assert.match(bunker, /playerSpawn:\s*\{\s*x:\s*0,\s*y:\s*1\.7,\s*z:\s*22,\s*yaw:\s*0\s*\}/);
   assert.match(lab, /playerSpawn:\s*\{\s*x:\s*0,\s*y:\s*1\.7,\s*z:\s*-26,\s*yaw:\s*Math\.PI\s*\}/);
   assert.match(reactor, /playerSpawn:\s*\{\s*x:\s*0,\s*y:\s*1\.7,\s*z:\s*28,\s*yaw:\s*Math\.PI\s*\}/);
@@ -127,6 +128,20 @@ test('reactor entry continues from the laboratory exit while the evacuation corr
   assert.match(reactor, /playerSpawn: \{ x: 0, y: 1\.7, z: 28, yaw: 0 \}/);
   assert.match(reactor, /exitZone: \{ x0: -2\.1, x1: 2\.1, z0: -33\.8, z1: -32\.7 \}/);
   assert.match(reactor, /evacuationFloor\.position\.set\(0, \.015, -36\.5\)/);
+});
+
+test('the next sector is prebuilt invisibly and its collision is isolated until activation', () => {
+  const manager = read('src/levels/LevelManager.js');
+  const game = read('src/game.js');
+  assert.match(manager, /prepare\(id, context\)/);
+  assert.match(manager, /rootGroup\.visible = false/);
+  assert.match(manager, /this\.prepared\.set\(id, level\)/);
+  assert.match(manager, /this\.solids\.push\(\.\.\.level\.solids\)/);
+  assert.match(game, /rootGroup/);
+  assert.match(game, /local\?\.s7Solids\|\|solids/);
+  assert.match(game, /function preloadNextMission\(\)/);
+  assert.match(game, /levelManager\.prepare\(nextDefinition\.levelId/);
+  assert.match(game, /setTimeout\(preloadNextMission,750\)/);
 });
 
 test('sector handoff preserves player resources and uses a short fade instead of a loading screen', () => {
