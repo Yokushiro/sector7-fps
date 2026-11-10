@@ -102,7 +102,7 @@ test('drones do not fire through solid level geometry', () => {
 test('drones steer away from nearby obstacles', () => {
   const ai = new DroneAI();
   const enemy = makeEnemy('scout', 2, 5.5);
-  enemy.g.position.x = 3.2;
+  enemy.g.position.x = 2.8;
   enemy.g.position.z = 0;
   ai.update(
     [enemy],
@@ -115,6 +115,6 @@ test('drones steer away from nearby obstacles', () => {
     (min, max) => (min + max) / 2,
     [{ x0: 3, x1: 4, z0: -1, z1: 1 }]
   );
-  assert.ok(enemy.g.position.x < 3.2);
+  assert.ok(enemy.g.position.x < 2.8);
   assert.ok(Math.abs(enemy.g.position.z) > 0);
 });
