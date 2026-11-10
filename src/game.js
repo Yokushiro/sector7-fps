@@ -118,7 +118,7 @@ function spawn(){
  g.traverse(o=>{o.userData.e=e;o.castShadow=true});
  g.position.set(q[0],1.3,q[1]);scene.add(g);enemies.push(e);spawned++;
 }
-function killE(e){scene.remove(e.g);enemies.splice(enemies.indexOf(e),1);for(let i=0;i<18;i++)spark(e.g.position,new T.Color(3,1.6,.5),6);snd(90,.4,'sawtooth',.4);kills++;$('kl').textContent=`Дроны: ${kills} / ${GOAL}`;if(kills>=GOAL)end(true)}
+function killE(e){scene.remove(e.g);enemies.splice(enemies.indexOf(e),1);for(let i=0;i<18;i++)spark(e.g.position,new T.Color(3,1.6,.5),6);snd(90,.4,'sawtooth',.4);kills++;$('kl').textContent=`Дроны: ${kills} / ${GOAL}`;if(missionSystem.isObjectiveComplete(currentMission.id,missionObjective.id,kills))end(true)}
 const spGeo=new T.BoxGeometry(.03,.03,.03);
 function spark(p,c,sp=4){const m=new T.Mesh(spGeo,new T.MeshBasicMaterial({color:c}));m.position.copy(p);scene.add(m);sparks.push({m,v:new T.Vector3(R(-1,1),R(0,1.4),R(-1,1)).multiplyScalar(sp),l:R(.3,.7)})}
 
