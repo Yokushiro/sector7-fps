@@ -9,6 +9,7 @@
       location: 'Заброшенный бункер',
       description: 'Уничтожь 10 охранных дронов в заброшенном бункере.',
       levelId: 'bunker-01',
+      audioProfile: 'bunker',
       objectives: [
         { id: 'eliminate-drones', type: 'eliminate', target: 10, label: 'Уничтожить охранных дронов' }
       ],
@@ -25,6 +26,7 @@
       location: 'Исследовательский комплекс',
       description: 'Проникни в исследовательский комплекс и уничтожь 14 боевых дронов.',
       levelId: 'lab-02',
+      audioProfile: 'lab',
       objectives: [
         { id: 'eliminate-lab-drones', type: 'eliminate', target: 14, label: 'Уничтожить боевых дронов' }
       ],
