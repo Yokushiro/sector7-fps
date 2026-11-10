@@ -59,3 +59,13 @@ test('storage failures do not crash the game', () => {
   assert.equal(save.loadStatus, 'unavailable');
   assert.equal(save.save(), false);
 });
+
+
+test('later mission victories unlock the following campaign slot', () => {
+  const save = new SaveSystem(memoryStorage());
+  save.load();
+  save.recordMissionResult({ missionId: 'bunker-01', won: true, kills: 10, nextMissionOrder: 2 });
+  const data = save.recordMissionResult({ missionId: 'lab-02', won: true, kills: 14, nextMissionOrder: 3 });
+  assert.equal(data.campaign.unlockedMission, 3);
+  assert.deepEqual(data.campaign.completedMissions, ['bunker-01', 'lab-02']);
+});
