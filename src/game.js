@@ -59,6 +59,7 @@ const GROUND_Y=activeLevel.playerSpawn.y;
 const P={pos:new T.Vector3(activeLevel.playerSpawn.x,GROUND_Y,activeLevel.playerSpawn.z),yaw:0,pitch:0,hp:100,velocityY:0,grounded:true};
 const jumpController=new S7JumpController(GROUND_Y);
 let state='menu',kills=0,spawned=0,spawnT=0,hurt=0,tm=0,mouse=false,fallback=false,locked=false;
+const keys=Object.create(null); // shared keyboard state for input handlers and the game loop
 const enemies=[],proj=[],sparks=[];
 const droneAI=new S7DroneAI();
 const $=id=>document.getElementById(id);
