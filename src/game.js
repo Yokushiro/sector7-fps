@@ -47,6 +47,7 @@ const GOAL=missionObjective.target;
 const levelManager=new S7LevelManager({THREE:T,scene,solids,boxes});
 levelManager.register(S7BunkerLevel);
 levelManager.register(S7LabLevel);
+levelManager.register(S7ReactorLevel);
 const activeLevel=levelManager.load(currentMission.levelId,{mat,canvas,randomRange:R,box});
 const LEVEL_BOUNDS=activeLevel.bounds;
 const dust=activeLevel.dust || {rotation:{y:0},position:{y:0}};
