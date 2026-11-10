@@ -4,9 +4,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches:
-      - main
-      - feature/sector7-2-core
+    branches: [main]
   workflow_dispatch:
 
 concurrency:
