@@ -79,10 +79,26 @@ let ac;function snd(f,d,type,v,noise){if(!ac)return;const t=ac.currentTime,o=ac.
 /* ---------- враги ---------- */
 const bodyM=new T.MeshStandardMaterial({color:0x2b3037,roughness:.28,metalness:.95,envMapIntensity:1.3});
 function spawn(){const pts=[[-10,-10],[10,-10],[-10,10],[10,10],[0,-10.5]];let q;for(let i=0;i<8;i++){q=pts[Math.random()*pts.length|0];if(Math.hypot(q[0]-P.pos.x,q[1]-P.pos.z)>9)break}
- const g=new T.Group(),m=bodyM.clone(),e={g,hp:60,m,t:R(0,9),cd:R(1,2),eye:new T.MeshBasicMaterial({color:new T.Color(3,.2,.1)})};
- const b=new T.Mesh(new T.CapsuleGeometry(.36,.7,8,20),m),h=new T.Mesh(new T.SphereGeometry(.27,28,18),m),ey=new T.Mesh(new T.SphereGeometry(.1,16,10),e.eye),
- ring=new T.Mesh(new T.TorusGeometry(.47,.035,10,32),new T.MeshBasicMaterial({color:new T.Color(.2,2,3)}));
- h.position.y=.78;h.userData.head=1;ey.position.set(0,.8,.22);ring.rotation.x=Math.PI/2;ring.position.y=.1;g.add(b,h,ey,ring);
+ const heavy=spawned%3===2;
+ const g=new T.Group(),m=bodyM.clone(),e={
+  g,type:heavy?'heavy':'scout',hp:heavy?105:60,m,t:R(0,9),
+  cd:R(heavy?1.8:1.2,heavy?2.6:1.9),attackMin:heavy?1.8:1.2,attackMax:heavy?2.6:1.9,
+  moveSpeed:heavy?1.65:2.65,preferredDistance:heavy?7:5.5,
+  projectileSpeed:heavy?11:14,damage:heavy?12:6,
+  spread:heavy?.22:.42,eye:new T.MeshBasicMaterial({color:new T.Color(3,.2,.1)})
+ };
+ const b=new T.Mesh(new T.CapsuleGeometry(heavy?.43:.36,heavy?.9:.7,8,20),m),
+ h=new T.Mesh(new T.SphereGeometry(heavy?.31:.27,28,18),m),
+ ey=new T.Mesh(new T.SphereGeometry(heavy?.12:.1,16,10),e.eye),
+ ring=new T.Mesh(new T.TorusGeometry(heavy?.56:.47,.035,10,32),new T.MeshBasicMaterial({color:new T.Color(heavy?2.5: .2,heavy?1.1:2,3)}));
+ h.position.y=heavy?.94:.78;h.userData.head=1;ey.position.set(0,heavy?.96:.8,.22);ring.rotation.x=Math.PI/2;ring.position.y=.1;g.add(b,h,ey,ring);
+ if(heavy){
+  const armor=new T.Mesh(new T.BoxGeometry(.95,.16,.42),m);
+  armor.position.set(0,.35,0);g.add(armor);
+  const left=new T.Mesh(new T.BoxGeometry(.18,.38,.34),m);
+  left.position.set(-.48,.28,0);g.add(left);
+  const right=left.clone();right.position.x=.48;g.add(right);
+ }
  g.traverse(o=>{o.userData.e=e;o.castShadow=true});g.position.set(q[0],1.3,q[1]);scene.add(g);enemies.push(e);spawned++}
 function killE(e){scene.remove(e.g);enemies.splice(enemies.indexOf(e),1);for(let i=0;i<18;i++)spark(e.g.position,new T.Color(3,1.6,.5),6);snd(90,.4,'sawtooth',.4);kills++;$('kl').textContent=`Дроны: ${kills} / ${GOAL}`;if(kills>=GOAL)end(true)}
 const spGeo=new T.BoxGeometry(.03,.03,.03);
@@ -153,7 +169,7 @@ function loop(now){requestAnimationFrame(loop);const dt=Math.min(.05,(now-last)/
   for(let i=proj.length-1;i>=0;i--){const p=proj[i];p.m.position.addScaledVector(p.v,dt);p.l-=dt;const dd=p.m.position.distanceTo(new T.Vector3(P.pos.x,Math.min(p.m.position.y,1.5),P.pos.z));
    let hit=p.l<=0||Math.abs(p.m.position.x)>S||Math.abs(p.m.position.z)>S||p.m.position.y<0;
    if(!hit)for(const b of boxes)if(p.m.position.y<2.4&&p.m.position.x>b.x0&&p.m.position.x<b.x1&&p.m.position.z>b.z0&&p.m.position.z<b.z1){hit=true;break}
-   if(dd<.55){dmg(8);hit=true}if(hit){scene.remove(p.m);proj.splice(i,1)}}
+   if(dd<.55){dmg(p.damage||8);hit=true}if(hit){scene.remove(p.m);proj.splice(i,1)}}
  }
  for(let i=sparks.length-1;i>=0;i--){const s=sparks[i];s.v.y-=9*dt;s.m.position.addScaledVector(s.v,dt);s.l-=dt;if(s.l<=0||s.m.position.y<.02){scene.remove(s.m);sparks.splice(i,1)}}
  hurt=Math.max(0,hurt-dt*1.6);dust.rotation.y+=dt*.01;dust.position.y=Math.sin(tm*.2)*.1;
