@@ -56,3 +56,12 @@ test('campaign UI systems load before the main game script', () => {
   }
   assert.doesNotMatch(source, /\\\\n<div id="dialogue"/);
 });
+
+
+test('resuming a paused mission does not replay its opening briefing', () => {
+  const filename = path.join(__dirname, '..', 'src/game.js');
+  const source = fs.readFileSync(filename, 'utf8');
+  assert.match(source, /introShown=false/);
+  assert.match(source, /if\(!introShown\).*introShown=true;state='dialogue'/);
+  assert.match(source, /else\{state='play';try\{dom\.requestPointerLock\(\)\}/);
+});
