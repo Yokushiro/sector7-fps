@@ -14,7 +14,7 @@ canvas{display:block}
 #hp{left:28px;width:260px}#hp div{height:10px;background:#0008;border:1px solid #9fd8ff66;margin-top:6px}
 #hpf{height:100%!important;border:0!important;margin:0!important;width:100%;background:linear-gradient(90deg,#ff6a2a,#ffd36a)}
 #am{right:28px;text-align:right;font-size:38px;line-height:1}#am small{font-size:14px;display:block;opacity:.7}
-#kl{position:absolute;top:calc(18px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);font-size:18px;text-shadow:0 0 8px #000}
+#kl{position:absolute;top:calc(18px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);font-size:18px;text-shadow:0 0 8px #000}\n#evacTimer{position:absolute;top:calc(52px + env(safe-area-inset-top,0px));right:28px;padding:7px 11px;background:#260b0be8;border:1px solid #ff5b3d99;color:#ffb18e;font-size:13px;letter-spacing:.12em;text-shadow:0 0 9px #ff402c}\n#evacTimer[hidden]{display:none}
 #ov{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;background:radial-gradient(#0a1a24cc,#000e);cursor:pointer}
 #ov h1{font-size:64px;margin:0 0 6px;letter-spacing:.18em;font-weight:700;color:#ffb26a;text-shadow:0 0 30px #ff6a2a88}
 #ov p{margin:6px 0;opacity:.85;line-height:1.5}
@@ -23,7 +23,7 @@ canvas{display:block}
 #dialogue[hidden]{display:none}#dialogueSpeaker{font-size:13px;letter-spacing:.18em;color:#ffad68;margin-bottom:10px}
 #dialogueText{font-size:17px;line-height:1.55;min-height:54px}#dialoguePrompt{text-align:right;font-size:11px;letter-spacing:.12em;color:#8db7c9;margin-top:14px}
 </style></head><body>
-<div id="hud"><div id="cross"></div><div id="hit"></div><div id="kl">Дроны: 0 / 10</div>
+<div id="hud"><div id="cross"></div><div id="hit"></div><div id="kl">Дроны: 0 / 10</div><div id="evacTimer" hidden></div>
 <div class="b" id="hp">ЗДОРОВЬЕ<div><div id="hpf"></div></div></div><div class="b" id="am"><small>ПЕРЕЗАРЯДКА: R</small><span id="ammo">30</span></div></div>
 <div id="ov"><div><h1>SECTOR 7</h1><p id="missionTitle" style="color:#ffb26a;letter-spacing:.12em"></p><p id="missionDescription">Уничтожь охранных дронов в заброшенном бункере.</p>
 <p>WASD — движение · Shift — бег · Space — прыжок<br>Мышь — прицел · ЛКМ — огонь · R — перезарядка · F — фонарь · E — взаимодействие<br>После зачистки следуй по коридору к выходу</p><p id="msg"><b>Нажми, чтобы начать</b></p><p id="saveInfo" style="font-size:13px;opacity:.65"></p></div></div>
