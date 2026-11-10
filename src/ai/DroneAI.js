@@ -7,10 +7,11 @@
         const dx = player.pos.x - group.position.x;
         const dz = player.pos.z - group.position.z;
         const distance = Math.hypot(dx, dz) || 1;
-        const strafing = distance < 8 ? 1 : 0;
-        const moveX = dx / distance * (distance > 6 ? 2.4 : -0.6)
+        const preferredDistance = enemy.preferredDistance || 6;
+        const strafing = distance < preferredDistance + 2 ? 1 : 0;
+        const moveX = dx / distance * (distance > preferredDistance ? (enemy.moveSpeed || 2.4) : -0.6)
           + (-dz / distance) * strafing * Math.sin(enemy.t * 0.7) * 2.2;
-        const moveZ = dz / distance * (distance > 6 ? 2.4 : -0.6)
+        const moveZ = dz / distance * (distance > preferredDistance ? (enemy.moveSpeed || 2.4) : -0.6)
           + (dx / distance) * strafing * Math.sin(enemy.t * 0.7) * 2.2;
 
         group.position.x += moveX * dt;
@@ -27,19 +28,19 @@
         enemy.cd -= dt;
         enemy.eye.color.setRGB(3 + Math.sin(enemy.t * 8), 0.2 + (enemy.cd < 0.4 ? 2 : 0), 0.1);
         if (enemy.cd <= 0 && distance < 20) {
-          enemy.cd = randomRange(1.4, 2.4);
+          enemy.cd = randomRange(enemy.attackMin || 1.4, enemy.attackMax || 2.4);
           const projectile = new THREE.Mesh(
             new THREE.SphereGeometry(0.11, 10, 8),
             new THREE.MeshBasicMaterial({ color: new THREE.Color(5, 2.2, 0.4) })
           );
           projectile.position.copy(group.position);
           const velocity = new THREE.Vector3(
-            player.pos.x + randomRange(-0.5, 0.5),
+            player.pos.x + randomRange(-(enemy.spread || 0.5), enemy.spread || 0.5),
             1.2 + randomRange(-0.3, 0.3),
             player.pos.z + randomRange(-0.5, 0.5)
-          ).sub(group.position).normalize().multiplyScalar(13);
+          ).sub(group.position).normalize().multiplyScalar(enemy.projectileSpeed || 13);
           scene.add(projectile);
-          projectiles.push({ m: projectile, v: velocity, l: 3 });
+          projectiles.push({ m: projectile, v: velocity, l: 3, damage: enemy.damage || 8 });
           sound(500, 0.12, 'square', 0.08);
         }
       }
