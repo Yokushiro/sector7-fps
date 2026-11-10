@@ -49,6 +49,7 @@ levelManager.register(S7BunkerLevel);
 levelManager.register(S7LabLevel);
 const activeLevel=levelManager.load(currentMission.levelId,{mat,canvas,randomRange:R,box});
 const LEVEL_BOUNDS=activeLevel.bounds;
+const dust=activeLevel.dust || {rotation:{y:0},position:{y:0}};
 
 
 const torch=new T.SpotLight(0xe8f4ff,1.6,28,.5,.6,1.2);torch.position.set(.2,-.1,0);torch.target.position.set(0,0,-5);cam.add(torch,torch.target);
