@@ -116,7 +116,7 @@ test('laboratory route enters from the bunker side and exits through the opposit
   assert.match(lab, /corridorFloor\.position\.set\(0, \.015, -21\)/);
   assert.match(lab, /exitCorridorFloor\.position\.set\(0, \.015, 21\)/);
   assert.match(lab, /const exitDoor = box\(0, 3, 28,/);
-  assert.match(lab, /exitZone: \{ x0: -2\.1, x1: 2\.1, z0: 26\.3, z1: 28\.0 \}/);
+  assert.match(lab, /exitZone: \{ x0: -2\.1, x1: 2\.1, z0: 28\.2, z1: 29\.5 \}/);
   assert.doesNotMatch(lab, /const exitDoor = box\(0, 3, -28,/);
 });
 
@@ -125,7 +125,7 @@ test('reactor entry continues from the laboratory exit while the evacuation corr
   assert.match(reactor, /entryFloor\.position\.set\(0, \.015, 25\)/);
   assert.match(reactor, /corridorFloor\.position\.set\(0, \.015, -25\)/);
   assert.match(reactor, /playerSpawn: \{ x: 0, y: 1\.7, z: 28, yaw: Math\.PI \}/);
-  assert.match(reactor, /exitZone: \{ x0: -2\.1, x1: 2\.1, z0: -31\.2, z1: -29\.1 \}/);
+  assert.match(reactor, /exitZone: \{ x0: -2\.1, x1: 2\.1, z0: -33\.8, z1: -32\.7 \}/);
 });
 
 test('sector handoff preserves player resources and uses a short fade instead of a loading screen', () => {
