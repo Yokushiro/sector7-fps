@@ -4,7 +4,7 @@
   const BunkerLevel = {
     id: 'bunker-01',
     build(context) {
-      const { THREE: T, scene, mat, box, canvas, randomRange: R } = context;
+      const { THREE: T, scene, mat, box, canvas, randomRange: R, solids, boxes } = context;
       const S=12,H=7;
 const fl=new T.Mesh(new T.PlaneGeometry(S*2,S*2),mat('floor',6,6,.3));fl.rotation.x=-Math.PI/2;fl.receiveShadow=true;scene.add(fl);solids.push(fl);
 box(0,H,0,S*2+2,.6,S*2+2,mat('concrete',6,2,0,0x889099),false);
@@ -34,7 +34,8 @@ const strips=new T.MeshStandardMaterial({color:0,emissive:0xcfeaff,emissiveInten
         name: 'Заброшенный бункер',
         bounds: { halfSize: S, height: H },
         playerSpawn: { x: 0, y: 1.7, z: 9 },
-        enemySpawnPoints: [[-10,-10],[10,-10],[-10,10],[10,10],[0,-10.5]]
+        enemySpawnPoints: [[-10,-10],[10,-10],[-10,10],[10,10],[0,-10.5]],
+        dust
       };
     }
   };
