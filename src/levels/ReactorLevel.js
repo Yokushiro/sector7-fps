@@ -50,6 +50,19 @@
       box(0, H - .35, -25, 5.9, .5, 14, dark, false);
       const exitDoor = box(0, 3.5, -32.5, 5.8, 7, .5, steel);
       let exitOpen = false;
+      // Short, illuminated evacuation vestibule beyond the final bulkhead gives the player a real place to emerge.
+      const evacuationFloor = new T.Mesh(new T.PlaneGeometry(5.2, 8), mat('floor', 2, 3, .2));
+      evacuationFloor.rotation.x = -Math.PI / 2;
+      evacuationFloor.position.set(0, .015, -36.5);
+      evacuationFloor.receiveShadow = true;
+      scene.add(evacuationFloor);
+      solids.push(evacuationFloor);
+      box(-2.8, 3.5, -36.5, .45, 7, 8, concrete);
+      box(2.8, 3.5, -36.5, .45, 7, 8, concrete);
+      box(0, H - .35, -36.5, 5.9, .5, 8, dark, false);
+      const evacuationLight = new T.PointLight(0x8cecff, 2.1, 20, 2);
+      evacuationLight.position.set(0, 5.2, -37.5);
+      scene.add(evacuationLight);
 
       // Reactor containment base and the luminous energy column.
       const base = new T.Mesh(new T.CylinderGeometry(5.2, 5.8, 1.15, 48), dark);
