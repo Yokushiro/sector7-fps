@@ -142,7 +142,7 @@
         bounds: { halfSize: 33, height: H },
         exitZone: { x0: -2.1, x1: 2.1, z0: -31.2, z1: -29.1 },
         requiredInteractionId: 'reactor-shutdown',
-        playerSpawn: { x: 0, y: 1.7, z: -31, yaw: Math.PI },
+        playerSpawn: { x: 0, y: 1.7, z: -28, yaw: Math.PI },
         enemySpawnPoints: [[-14, -14], [14, -14], [-14, 12], [14, 12], [0, -15], [-16, 0], [16, 0], [16, 16]],
         openExit() { exitOpen = true; },
         update(dt, time) {
