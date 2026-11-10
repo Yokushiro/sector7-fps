@@ -60,16 +60,6 @@ const strips=new T.MeshStandardMaterial({color:0,emissive:0xcfeaff,emissiveInten
 {const n=500,p=new Float32Array(n*3);for(let i=0;i<n;i++){p[i*3]=R(-S,S);p[i*3+1]=R(.2,H-1);p[i*3+2]=R(-S,S)}
  const g=new T.BufferGeometry();g.setAttribute('position',new T.BufferAttribute(p,3));var dust=new T.Points(g,new T.PointsMaterial({size:.035,color:0xaac8e0,transparent:true,opacity:.45,depthWrite:false}));scene.add(dust)}
 
-/* ---------- оружие ---------- */
-const gun=new T.Group(),gm=new T.MeshStandardMaterial({color:0x1a1d22,roughness:.3,metalness:.95,envMapIntensity:1.2}),gm2=new T.MeshStandardMaterial({color:0x3a3f46,roughness:.5,metalness:.8});
-function gp(g,m,x,y,z,rx=0){const me=new T.Mesh(g,m);me.position.set(x,y,z);me.rotation.x=rx;gun.add(me);return me}
-gp(new T.BoxGeometry(.075,.1,.46),gm,0,0,0);gp(new T.BoxGeometry(.06,.03,.34),gm2,0,.065,-.02);
-const br=gp(new T.CylinderGeometry(.016,.016,.34,12),gm2,0,.01,-.38,Math.PI/2);gp(new T.CylinderGeometry(.024,.02,.07,12),gm,0,.01,-.56,Math.PI/2);
-gp(new T.BoxGeometry(.05,.16,.07),gm,0,-.12,.08,.25);gp(new T.BoxGeometry(.055,.17,.09),gm2,0,-.13,-.1,-.1);
-gp(new T.BoxGeometry(.02,.012,.02),new T.MeshBasicMaterial({color:new T.Color(0,3,3)}),0,.088,-.14);
-const flash=new T.Mesh(new T.PlaneGeometry(.35,.35),new T.MeshBasicMaterial({color:new T.Color(6,3,1),transparent:true,opacity:0,blending:T.AdditiveBlending,depthWrite:false,side:T.DoubleSide}));flash.position.set(0,.01,-.66);gun.add(flash);
-const fl2=new T.PointLight(0xffa050,0,9,2);fl2.position.set(0,.05,-.7);gun.add(fl2);
-gun.position.set(.27,-.25,-.55);cam.add(gun);gun.traverse(o=>{if(o.isMesh&&o!==flash)o.castShadow=false});
 const torch=new T.SpotLight(0xe8f4ff,1.6,28,.5,.6,1.2);torch.position.set(.2,-.1,0);torch.target.position.set(0,0,-5);cam.add(torch,torch.target);
 
 /* ---------- состояние ---------- */
@@ -98,17 +88,26 @@ function killE(e){scene.remove(e.g);enemies.splice(enemies.indexOf(e),1);for(let
 const spGeo=new T.BoxGeometry(.03,.03,.03);
 function spark(p,c,sp=4){const m=new T.Mesh(spGeo,new T.MeshBasicMaterial({color:c}));m.position.copy(p);scene.add(m);sparks.push({m,v:new T.Vector3(R(-1,1),R(0,1.4),R(-1,1)).multiplyScalar(sp),l:R(.3,.7)})}
 
-/* ---------- стрельба ---------- */
-const ray=new T.Raycaster();
-function shoot(){if(rel>0||fireT>0)return;if(ammo<=0){reload();return}ammo--;fireT=.1;kick=.07;flash.material.opacity=1;flash.rotation.z=R(0,6);fl2.intensity=3;
- snd(2600,.2,0,.3,true);snd(140,.14,'sine',.5);
- ray.setFromCamera({x:R(-.004,.004),y:R(-.004,.004)},cam);const hs=ray.intersectObjects([...solids,...enemies.map(e=>e.g)],true);
- if(hs.length){const h=hs[0],e=h.object.userData.e;if(e){e.hp-=h.object.userData.head?45:22;e.m.emissive.setRGB(1,.6,.3);e.flash=.08;$('hit').style.opacity=1;setTimeout(()=>$('hit').style.opacity=0,90);snd(900,.06,'square',.15);
-   for(let i=0;i<6;i++)spark(h.point,new T.Color(3,1.5,.4));if(e.hp<=0)killE(e)}
-  else for(let i=0;i<5;i++)spark(h.point,new T.Color(3,2,1),3)}
- pitchKick=.012;$('ammo').textContent=ammo}
-let pitchKick=0;
-function reload(){if(rel>0||ammo===30)return;rel=1.5;snd(300,.15,'square',.1);setTimeout(()=>snd(200,.12,'square',.12),900)}
+/* ---------- боевая система ---------- */
+const weapon=new S7WeaponSystem({
+ THREE:T,
+ camera:cam,
+ sound:snd,
+ onAmmoChange:value=>{$('ammo').textContent=value}
+});
+function hitEnemy(enemy,hit){
+ enemy.hp-=hit.object.userData.head?45:22;
+ enemy.m.emissive.setRGB(1,.6,.3);
+ enemy.flash=.08;
+ $('hit').style.opacity=1;
+ setTimeout(()=>$('hit').style.opacity=0,90);
+ snd(900,.06,'square',.15);
+ for(let i=0;i<6;i++)spark(hit.point,new T.Color(3,1.5,.4));
+ if(enemy.hp<=0)killE(enemy);
+}
+function hitWorld(hit){
+ for(let i=0;i<5;i++)spark(hit.point,new T.Color(3,2,1),3);
+}
 function dmg(n){P.hp-=n;hurt=1;snd(70,.25,'sine',.6);$('hpf').style.width=Math.max(0,P.hp)+'%';if(P.hp<=0)end(false)}
 function end(w){state='over';document.exitPointerLock&&document.exitPointerLock();$('ov').style.display='flex';
  $('ov').innerHTML=`<div><h1>${w?'СЕКТОР ЗАЧИЩЕН':'ТЫ ПОГИБ'}</h1><p>Уничтожено дронов: ${kills} / ${GOAL}</p><p><b>Нажми, чтобы сыграть снова</b></p></div>`;$('ov').onclick=()=>location.reload()}
@@ -121,7 +120,7 @@ document.addEventListener('pointerlockchange',()=>{locked=document.pointerLockEl
 document.addEventListener('pointerlockerror',()=>{fallback=true});
 addEventListener('mousemove',e=>{if(state!=='play'||!(locked||fallback))return;P.yaw-=e.movementX*.0022;P.pitch=cl(P.pitch-e.movementY*.0022,-1.45,1.45)});
 addEventListener('mousedown',e=>{if(e.button===0)mouse=true});addEventListener('mouseup',()=>mouse=false);
-addEventListener('keydown',e=>{keys[e.code]=1;if(e.code==='KeyR')reload();if(e.code==='KeyF')torch.visible=!torch.visible;if(e.code==='F3')perfMonitor.toggle()});addEventListener('keyup',e=>keys[e.code]=0);
+addEventListener('keydown',e=>{keys[e.code]=1;if(e.code==='KeyR')weapon.reload();if(e.code==='KeyF')torch.visible=!torch.visible;if(e.code==='F3')perfMonitor.toggle()});addEventListener('keyup',e=>keys[e.code]=0);
 setTimeout(()=>{if(state==='menu'&&!$('ov').matches(':hover'))0},0);
 
 /* ---------- пост-обработка ---------- */
@@ -147,10 +146,8 @@ function loop(now){requestAnimationFrame(loop);const dt=Math.min(.05,(now-last)/
   if(mv){const l=Math.hypot(f,r),sy=Math.sin(P.yaw),cy=Math.cos(P.yaw);P.pos.x+=(-sy*f+cy*r)/l*sp*dt;P.pos.z+=(-cy*f-sy*r)/l*sp*dt;collide(P.pos,.4)}
   P.pos.y=1.7+(mv?Math.sin(tm*(keys.ShiftLeft?13:9))*.035:0);
   cam.position.copy(P.pos);cam.rotation.set(P.pitch+pitchKick,P.yaw,0);pitchKick*=.8;
-  if(mouse)shoot();fireT-=dt;kick*=.85;
-  if(rel>0){rel-=dt;gun.rotation.x=-Math.sin(Math.min(1,rel/1.5)*Math.PI)*.8;if(rel<=0){ammo=30;$('ammo').textContent=ammo;gun.rotation.x=0}}else gun.rotation.x=kick*1.5;
-  gun.position.set(.27+Math.sin(tm*4.5)*.004*mv,-.25+Math.sin(tm*9)*.006*mv,-.55+kick);
-  flash.material.opacity*=.6;fl2.intensity*=.55;
+  if(mouse)weapon.fire(solids,enemies,ray,spark,hitEnemy,hitWorld,R);
+  weapon.update(dt,tm,mv);
   spawnT-=dt;if(spawned<GOAL&&enemies.length<5&&spawnT<=0){spawn();spawnT=3.5}
   droneAI.update(enemies,P,dt,collide,scene,proj,snd,R);
   for(let i=proj.length-1;i>=0;i--){const p=proj[i];p.m.position.addScaledVector(p.v,dt);p.l-=dt;const dd=p.m.position.distanceTo(new T.Vector3(P.pos.x,Math.min(p.m.position.y,1.5),P.pos.z));
