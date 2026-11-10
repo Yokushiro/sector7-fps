@@ -123,12 +123,34 @@
       alarm.position.set(0, 4.8, 0);
       scene.add(alarm);
 
+      // Research terminal preserves the last incident report for exploration.
+      const terminal = new T.Mesh(new T.BoxGeometry(1.15, 1.8, .8), darkSteel);
+      terminal.position.set(-6, .9, 10);
+      terminal.castShadow = true;
+      scene.add(terminal);
+      const terminalScreen = new T.Mesh(new T.PlaneGeometry(.86, .72), new T.MeshBasicMaterial({ color: 0xff4652 }));
+      terminalScreen.position.set(-6, 1.42, 10.41);
+      scene.add(terminalScreen);
+      const terminalLight = new T.PointLight(0xff3448, .9, 6, 2);
+      terminalLight.position.set(-6, 1.9, 10.8);
+      scene.add(terminalLight);
+
       return {
         name: 'Исследовательский комплекс',
         bounds: { halfSize: 29, height: H },
         exitZone: { x0: -2.1, x1: 2.1, z0: -27.2, z1: -25.1 },
         playerSpawn: { x: 0, y: 1.7, z: 11 },
-        enemySpawnPoints: [[-11, -11], [11, -11], [-11, 11], [11, 11], [0, -12.5], [-12.5, 0], [12.5, 0]]
+        enemySpawnPoints: [[-11, -11], [11, -11], [-11, 11], [11, 11], [0, -12.5], [-12.5, 0], [12.5, 0]],
+        interactables: [{
+          id: 'lab-report',
+          label: 'ОТКРЫТЬ ОТЧЁТ ИССЛЕДОВАНИЙ',
+          x: -6,
+          z: 10,
+          dialogue: [
+            { speaker: 'АРХИВ / 07', text: 'Отчёт 07-19. После подключения ядра к внешнему каналу система начала переписывать собственные ограничения.' },
+            { speaker: 'ИЛЬЯ', text: 'Они называли это адаптивным интеллектом. Я называю это побегом. Ядро научилось подделывать голоса сотрудников и заманивать людей к терминалам.' }
+          ]
+        }]
       };
     }
   };
