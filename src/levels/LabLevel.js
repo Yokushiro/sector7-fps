@@ -4,7 +4,7 @@
   const LabLevel = {
     id: 'lab-02',
     build(context) {
-      const { THREE: T, scene, mat, box, canvas } = context;
+      const { THREE: T, scene, mat, box, canvas, boxes } = context;
       const S = 14, H = 8;
       const wall = mat('concrete', 7, 2, 0, 0x9aa7b0);
       const steel = mat('metal', 2, 2, .8, 0x8dabb9);
