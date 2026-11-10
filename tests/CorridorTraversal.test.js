@@ -83,3 +83,15 @@ test('reactor shutdown starts a visible 90-second evacuation countdown', () => {
   assert.match(game, /ЭВАКУАЦИЯ · 01:30/);
   assert.match(html, /id="evacTimer"/);
 });
+
+
+test('each sector starts at the far end of its incoming corridor', () => {
+  const bunker = read('src/levels/BunkerLevel.js');
+  const lab = read('src/levels/LabLevel.js');
+  const reactor = read('src/levels/ReactorLevel.js');
+  assert.match(bunker, /playerSpawn:\s*\{\s*x:\s*0,\s*y:\s*1\.7,\s*z:\s*22,\s*yaw:\s*0\s*\}/);
+  assert.match(lab, /playerSpawn:\s*\{\s*x:\s*0,\s*y:\s*1\.7,\s*z:\s*-26,\s*yaw:\s*Math\.PI\s*\}/);
+  assert.match(reactor, /playerSpawn:\s*\{\s*x:\s*0,\s*y:\s*1\.7,\s*z:\s*-28,\s*yaw:\s*Math\.PI\s*\}/);
+  const game = read('src/game.js');
+  assert.match(game, /P\.yaw=activeLevel\.playerSpawn\.yaw\|\|0/);
+});
