@@ -61,7 +61,7 @@ test('campaign advances to the next location in-place after the corridor exit', 
 
 test('streamed mission transitions reset combat state and avoid a page reload', () => {
   const game = read('src/game.js');
-  const start = game.indexOf('function loadMission(nextMission)');
+  const start = game.indexOf('function loadMission(nextMission,transition={})');
   const stop = game.indexOf('function useNearbyInteraction()', start);
   assert.ok(start >= 0 && stop > start);
   const transition = game.slice(start, stop);
