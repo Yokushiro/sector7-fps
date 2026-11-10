@@ -33,7 +33,8 @@
       box(-2.8, 3.5, -25, .45, 7, 14, concrete);
       box(2.8, 3.5, -25, .45, 7, 14, concrete);
       box(0, H - .35, -25, 5.9, .5, 14, dark, false);
-      box(0, 3.5, -32.5, 5.8, 7, .5, steel, false);
+      const exitDoor = box(0, 3.5, -32.5, 5.8, 7, .5, steel, false);
+      let exitOpen = false;
 
       // Reactor containment base and the luminous energy column.
       const base = new T.Mesh(new T.CylinderGeometry(5.2, 5.8, 1.15, 48), dark);
@@ -142,7 +143,9 @@
         requiredInteractionId: 'reactor-shutdown',
         playerSpawn: { x: 0, y: 1.7, z: 14 },
         enemySpawnPoints: [[-14, -14], [14, -14], [-14, 12], [14, 12], [0, -15], [-16, 0], [16, 0], [0, 14]],
+        openExit() { exitOpen = true; },
         update(dt, time) {
+          if (exitOpen) exitDoor.position.y += (10 - exitDoor.position.y) * Math.min(1, dt * 2.2);
           reactorRings.forEach((ring, index) => {
             ring.rotation.y = Math.sin(time * .45 + index) * .12;
             ring.rotation.z += dt * (index % 2 ? -.18 : .24);
