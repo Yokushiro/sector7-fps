@@ -33,7 +33,7 @@ function mat(k,rx,ry,m=0,tint=0xffffff){const key=k+rx+'_'+ry+m+tint;if(cache[ke
 /* ---------- уровень ---------- */
 const solids=[],boxes=[];
 function box(x,y,z,w,h,d,m,col=true,target=scene){const me=new T.Mesh(new T.BoxGeometry(w,h,d),m);me.position.set(x,y,z);me.castShadow=me.receiveShadow=true;target.add(me);solids.push(me);
- if(col)boxes.push({x0:x-w/2,x1:x+w/2,z0:z-d/2,z1:z+d/2});return me}
+ if(col){const collisionBox={x0:x-w/2,x1:x+w/2,z0:z-d/2,z1:z+d/2};boxes.push(collisionBox);me.userData.collisionBox=collisionBox}return me}
 const saveSystem=new S7SaveSystem();
 const missionSystem=new S7MissionSystem();
 let savedCampaign=saveSystem.load();
