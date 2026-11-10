@@ -76,6 +76,7 @@ test('streamed mission transitions reset combat state and avoid a page reload', 
 
 
 test('reactor shutdown starts a visible 90-second evacuation countdown', () => {
+  const reactor = read('src/levels/ReactorLevel.js');
   const game = read('src/game.js');
   const html = read('index.html');
   assert.match(reactor, /evacuationSeconds: 90/);
