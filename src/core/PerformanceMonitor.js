@@ -23,7 +23,7 @@
         pointerEvents: 'none',
         whiteSpace: 'pre'
       });
-      this.panel.textContent = 'SECTOR 7 PERFORMANCE\\nОжидание данных…';
+      this.panel.textContent = 'SECTOR 7 PERFORMANCE\nОжидание данных…';
       document.body.appendChild(this.panel);
     }
 
@@ -51,7 +51,7 @@
         'TEXTURES:  ' + String(info.memory.textures).padStart(4),
         '',
         'F3 — скрыть / показать'
-      ].join('\\n');
+      ].join('\n');
       this.frames = 0;
       this.windowStart = now;
     }
