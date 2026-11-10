@@ -9,6 +9,8 @@ test('campaign exposes the implemented bunker mission and its objective', () => 
   assert.equal(mission.levelId, 'bunker-01');
   assert.equal(mission.objectives[0].target, 10);
   assert.equal(mission.spawn.maxActive, 5);
+  assert.equal(mission.introDialogue.length, 3);
+  assert.equal(mission.introDialogue[0].speaker, 'НЕИЗВЕСТНЫЙ');
   assert.deepEqual(missions.getUnlockedMissions({ unlockedMission: 1 }).map(item => item.id), ['bunker-01']);
 });
 
@@ -17,9 +19,11 @@ test('mission definitions are returned as defensive copies', () => {
   const mission = missions.getMission('bunker-01');
   mission.objectives[0].target = 999;
   mission.spawn.enemySequence.pop();
+  mission.introDialogue[0].text = 'Изменённый текст';
   const original = missions.getMission('bunker-01');
   assert.equal(original.objectives[0].target, 10);
   assert.equal(original.spawn.enemySequence.length, 10);
+  assert.notEqual(original.introDialogue[0].text, 'Изменённый текст');
 });
 
 test('objective completion uses its configured target', () => {
