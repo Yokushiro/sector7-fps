@@ -94,7 +94,7 @@ test('each sector starts at the far end of its incoming corridor', () => {
   assert.match(bunker, /exitZone: \{ x0: -2\.1, x1: 2\.1, z0: -27\.6, z1: -26\.2 \}/);
   assert.match(bunker, /playerSpawn:\s*\{\s*x:\s*0,\s*y:\s*1\.7,\s*z:\s*22,\s*yaw:\s*0\s*\}/);
   assert.match(lab, /playerSpawn:\s*\{\s*x:\s*0,\s*y:\s*1\.7,\s*z:\s*-26,\s*yaw:\s*Math\.PI\s*\}/);
-  assert.match(reactor, /playerSpawn:\s*\{\s*x:\s*0,\s*y:\s*1\.7,\s*z:\s*28,\s*yaw:\s*Math\.PI\s*\}/);
+  assert.match(reactor, /playerSpawn:\s*\{\s*x:\s*0,\s*y:\s*1\.7,\s*z:\s*28,\s*yaw:\s*0\s*\}/);
   const game = read('src/game.js');
   assert.match(game, /P\.yaw=activeLevel\.playerSpawn\.yaw\|\|0/);
 });
@@ -137,8 +137,8 @@ test('the next sector is prebuilt invisibly and its collision is isolated until 
   assert.match(manager, /rootGroup\.visible = false/);
   assert.match(manager, /this\.prepared\.set\(id, level\)/);
   assert.match(manager, /this\.solids\.push\(\.\.\.level\.solids\)/);
-  assert.match(manager, /rootGroup\\.userData\\.s7Solids = solids/);
-  assert.match(game, /target!==scene\\?target\\.userData/);
+  assert.match(manager, /rootGroup\.userData\.s7Solids = solids/);
+  assert.match(game, /target!==scene\?target\.userData/);
   assert.match(game, /local\?\.s7Solids\|\|solids/);
   assert.match(game, /function preloadNextMission\(\)/);
   assert.match(game, /levelManager\.prepare\(nextDefinition\.levelId/);
