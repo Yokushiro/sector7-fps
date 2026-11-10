@@ -86,3 +86,14 @@ test('audio manager starts, controls and stops the original combat soundtrack', 
   assert.equal(audio.musicMaster, null);
   assert.equal(audio.musicTimer, null);
 });
+
+
+test('reactor mission uses a deeper, heavier ambience profile', () => {
+  const context = fakeAudioContext();
+  const audio = new AudioManager(() => context);
+  audio.unlock();
+  assert.equal(audio.startAmbience('reactor'), true);
+  assert.equal(context.sources[0].frequency.value, 31);
+  assert.equal(context.sources[1].frequency.value, 47);
+  audio.stopAmbience();
+});
