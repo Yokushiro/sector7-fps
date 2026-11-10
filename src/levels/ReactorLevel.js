@@ -59,6 +59,7 @@
       coreLight.position.set(0, 5, -1);
       scene.add(coreLight);
 
+      const reactorRings = [];
       for (let i = 0; i < 4; i++) {
         const ring = new T.Mesh(
           new T.TorusGeometry(2.15 + i * .55, .09, 12, 64),
@@ -73,6 +74,7 @@
         ring.rotation.x = Math.PI / 2;
         ring.position.set(0, 2.2 + i * 1.45, -1);
         scene.add(ring);
+        reactorRings.push(ring);
       }
 
       // Reinforced pylons, coolant conduits and warning beacons.
@@ -138,6 +140,14 @@
         exitZone: { x0: -2.1, x1: 2.1, z0: -31.2, z1: -29.1 },
         playerSpawn: { x: 0, y: 1.7, z: 14 },
         enemySpawnPoints: [[-14, -14], [14, -14], [-14, 12], [14, 12], [0, -15], [-16, 0], [16, 0], [0, 14]],
+        update(dt, time) {
+          reactorRings.forEach((ring, index) => {
+            ring.rotation.y = Math.sin(time * .45 + index) * .12;
+            ring.rotation.z += dt * (index % 2 ? -.18 : .24);
+          });
+          coreLight.intensity = 3.0 + Math.sin(time * 2.1) * .45;
+          coreMaterial.emissiveIntensity = 2.8 + Math.sin(time * 1.7) * .35;
+        },
         interactables: [{
           id: 'reactor-record',
           label: 'ПРОЧИТАТЬ ПОСЛЕДНИЙ ПРОТОКОЛ',
