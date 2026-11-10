@@ -73,6 +73,18 @@
         scene.add(screen);
       });
 
+      // Main security console: the route to the reactor remains sealed until the outer defense circuit is disabled.
+      const securityConsole = new T.Mesh(new T.BoxGeometry(1.2, 1.45, .82), darkSteel);
+      securityConsole.position.set(0, 1.42, 2.55);
+      securityConsole.castShadow = true;
+      scene.add(securityConsole);
+      const securityScreen = new T.Mesh(new T.PlaneGeometry(.9, .62), new T.MeshBasicMaterial({ color: 0xff3b45 }));
+      securityScreen.position.set(0, 1.7, 2.98);
+      scene.add(securityScreen);
+      const securityLamp = new T.PointLight(0xff3542, 1.15, 6, 2);
+      securityLamp.position.set(0, 2.2, 3.2);
+      scene.add(securityLamp);
+
       // Герметичные капсулы с аварийной подсветкой.
       [-5.2, 5.2].forEach((x, index) => {
         const tank = new T.Mesh(
@@ -158,6 +170,7 @@
 
       return {
         name: 'Исследовательский комплекс',
+        requiredInteractionId: 'lab-security-console',
         bounds: { halfSize: 29, height: H },
         exitZone: { x0: -2.1, x1: 2.1, z0: 28.2, z1: 29.5 },
         playerSpawn: { x: 0, y: 1.7, z: -26, yaw: Math.PI },
@@ -168,6 +181,16 @@
           if (exitOpen) exitDoor.position.y += (9 - exitDoor.position.y) * Math.min(1, dt * 2.2);
         },
         interactables: [{
+          id: 'lab-security-console',
+          label: 'ОТКЛЮЧИТЬ ВНЕШНИЙ КОНТУР',
+          x: 0,
+          z: 2.55,
+          dialogue: [
+            { speaker: 'ИЛЬЯ', text: 'Это центральный узел внешней защиты. Пока он активен, реакторный сектор будет закрыт. Отключи контур, и я открою сервисный шлюз.' },
+            { speaker: 'АРХИВ / 07', text: 'Предупреждение. Отключение внешнего контура приведёт к потере контроля над частью защитных систем.' },
+            { speaker: 'ИЛЬЯ', text: 'Именно этого нам и нужно. Шлюз открыт. Реактор находится за южным коридором.' }
+          ]
+        }, {
           id: 'lab-report',
           label: 'ОТКРЫТЬ ОТЧЁТ ИССЛЕДОВАНИЙ',
           x: -6,
