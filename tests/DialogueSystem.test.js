@@ -45,3 +45,28 @@ test('empty dialogue immediately invokes completion safely', () => {
   assert.equal(completed, 1);
   assert.equal(dialogue.isActive(), false);
 });
+
+
+test('radio dialogue advances automatically without requiring player input', () => {
+  const root = createElement();
+  root.classList = { values: new Set(), toggle(name, enabled) { if (enabled) this.values.add(name); else this.values.delete(name); }, remove(name) { this.values.delete(name); } };
+  const speaker = createElement();
+  const text = createElement();
+  const prompt = createElement();
+  const dialogue = new S7DialogueSystem({ rootElement: root, speakerElement: speaker, textElement: text, promptElement: prompt });
+  let completed = 0;
+  dialogue.startRadio([
+    { speaker: 'ИЛЬЯ', text: 'Продолжай движение. Впереди шлюз лаборатории.' },
+    { speaker: 'АРХИВ / 07', text: 'Внимание. Следующий сектор переведён в режим изоляции.' }
+  ], () => completed++);
+  assert.equal(root.hidden, false);
+  assert.equal(root.classList.values.has('radio'), true);
+  assert.equal(dialogue.mode, 'radio');
+  dialogue.update(10);
+  assert.equal(speaker.textContent, 'АРХИВ / 07');
+  assert.equal(completed, 0);
+  dialogue.update(10);
+  assert.equal(root.hidden, true);
+  assert.equal(root.classList.values.has('radio'), false);
+  assert.equal(completed, 1);
+});
