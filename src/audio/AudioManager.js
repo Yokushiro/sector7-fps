@@ -100,6 +100,138 @@
       this.master.gain.value = volume;
       return true;
     }
+    startMusic() {
+      const context = this.context;
+      if (!context) return false;
+      this.stopMusic();
+      const master = context.createGain();
+      master.gain.value = .24;
+      master.connect(context.destination);
+      this.musicMaster = master;
+      this.musicNodes = [];
+      this.musicSources = [];
+      this.musicStep = 0;
+      this.nextMusicTime = context.currentTime + .05;
+
+      const tempo = 148;
+      const stepDuration = 60 / tempo / 2;
+      const riff = [0, 0, 7, 0, 10, 0, 7, 3, 0, 0, 7, 0, 12, 10, 7, 3];
+      const bass = [0, 0, 0, 0, -5, -5, -5, -5, -3, -3, -3, -3, -7, -7, -2, -2];
+      const rootMidi = 40; // E2: низкий, тяжёлый металлический строй
+      const frequency = midi => 440 * Math.pow(2, (midi - 69) / 12);
+      const remember = node => { this.musicNodes.push(node); return node; };
+
+      const envelope = (gain, time, peak, duration) => {
+        const param = gain.gain;
+        param.cancelScheduledValues(time);
+        param.setValueAtTime(.0001, time);
+        param.linearRampToValueAtTime(peak, time + .008);
+        param.exponentialRampToValueAtTime(.0001, time + duration);
+      };
+
+      const tone = (midi, time, duration, volume, type, filterFrequency, detune = 0) => {
+        const oscillator = remember(context.createOscillator());
+        const filter = remember(context.createBiquadFilter());
+        const gain = remember(context.createGain());
+        oscillator.type = type;
+        oscillator.frequency.setValueAtTime(frequency(midi), time);
+        oscillator.detune.value = detune;
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(filterFrequency, time);
+        gain.gain.value = .0001;
+        oscillator.connect(filter);
+        filter.connect(gain);
+        gain.connect(master);
+        envelope(gain, time, volume, duration);
+        oscillator.start(time);
+        oscillator.stop(time + duration + .025);
+        this.musicSources.push(oscillator);
+      };
+
+      const kick = time => {
+        const oscillator = remember(context.createOscillator());
+        const gain = remember(context.createGain());
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(105, time);
+        oscillator.frequency.exponentialRampToValueAtTime(38, time + .13);
+        gain.gain.setValueAtTime(.0001, time);
+        gain.gain.linearRampToValueAtTime(.72, time + .004);
+        gain.gain.exponentialRampToValueAtTime(.0001, time + .16);
+        oscillator.connect(gain);
+        gain.connect(master);
+        oscillator.start(time);
+        oscillator.stop(time + .18);
+        this.musicSources.push(oscillator);
+      };
+
+      const snare = time => {
+        const oscillator = remember(context.createOscillator());
+        const gain = remember(context.createGain());
+        const filter = remember(context.createBiquadFilter());
+        oscillator.type = 'triangle';
+        oscillator.frequency.setValueAtTime(185, time);
+        oscillator.frequency.exponentialRampToValueAtTime(85, time + .09);
+        filter.type = 'highpass';
+        filter.frequency.setValueAtTime(650, time);
+        gain.gain.setValueAtTime(.0001, time);
+        gain.gain.linearRampToValueAtTime(.22, time + .003);
+        gain.gain.exponentialRampToValueAtTime(.0001, time + .11);
+        oscillator.connect(filter);
+        filter.connect(gain);
+        gain.connect(master);
+        oscillator.start(time);
+        oscillator.stop(time + .13);
+        this.musicSources.push(oscillator);
+      };
+
+      const scheduleStep = (step, time) => {
+        const note = riff[step];
+        if (note !== null && note !== undefined) {
+          const midi = rootMidi + note;
+          tone(midi, time, stepDuration * .88, .12, 'sawtooth', 1650, -7);
+          tone(midi + 12, time, stepDuration * .72, .055, 'square', 1150, 7);
+        }
+        tone(rootMidi - 12 + bass[step], time, stepDuration * .82, .14, 'sawtooth', 260);
+        if (step % 4 === 0) kick(time);
+        if (step % 8 === 4) snare(time);
+      };
+
+      const tick = () => {
+        if (!this.musicMaster || !this.context) return;
+        const horizon = context.currentTime + .12;
+        while (this.nextMusicTime < horizon) {
+          scheduleStep(this.musicStep, this.nextMusicTime);
+          this.nextMusicTime += stepDuration;
+          this.musicStep = (this.musicStep + 1) % riff.length;
+        }
+      };
+      tick();
+      this.musicTimer = setInterval(tick, 25);
+      return true;
+    }
+
+    stopMusic() {
+      if (this.musicTimer) clearInterval(this.musicTimer);
+      this.musicTimer = null;
+      for (const source of this.musicSources || []) {
+        try { source.stop(); } catch (error) {}
+      }
+      for (const node of this.musicNodes || []) {
+        try { if (typeof node.disconnect === 'function') node.disconnect(); } catch (error) {}
+      }
+      if (this.musicMaster) {
+        try { this.musicMaster.disconnect(); } catch (error) {}
+      }
+      this.musicSources = [];
+      this.musicNodes = [];
+      this.musicMaster = null;
+    }
+
+    setMusicVolume(value) {
+      if (!this.musicMaster) return false;
+      this.musicMaster.gain.value = Math.max(0, Math.min(1, Number(value) || 0));
+      return true;
+    }
   }
 
   S7AudioManager.PROFILES = Object.keys(PROFILES);
