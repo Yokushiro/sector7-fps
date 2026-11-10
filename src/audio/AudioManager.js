@@ -40,8 +40,6 @@
       const lowpass = context.createBiquadFilter();
       lowpass.type = 'lowpass';
       lowpass.frequency.value = profile.cutoff;
-      lowpass.connect(master);
-
       const fundamental = context.createOscillator();
       fundamental.type = 'sine';
       fundamental.frequency.value = profile.base;
