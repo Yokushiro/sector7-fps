@@ -157,3 +157,25 @@ test('drones can recover when spawned inside obstacle bounds', () => {
   );
   assert.ok(enemy.g.position.x < 3.5);
 });
+
+
+test('drone eye lights retain their archetype colors', () => {
+  const ai = new DroneAI();
+  const enemy = makeEnemy('sniper', 1.25, 10);
+  let color;
+  enemy.eyeColor = 0x9a6bff;
+  enemy.eye.color.setRGB = (red, green, blue) => { color = [red, green, blue]; };
+  ai.update(
+    [enemy],
+    { pos: { x: 0, y: 1.7, z: 0 } },
+    0.1,
+    () => {},
+    { add() {} },
+    [],
+    () => {},
+    (min, max) => (min + max) / 2
+  );
+  assert.ok(color[0] > 0.5 && color[0] < 0.7);
+  assert.ok(color[1] > 0.3 && color[1] < 0.5);
+  assert.ok(color[2] > 0.9);
+});
