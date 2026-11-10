@@ -165,16 +165,70 @@ function hitWorld(hit){
  for(let i=0;i<5;i++)spark(hit.point,new T.Color(3,2,1),3);
 }
 function dmg(n){P.hp-=n;hurt=1;snd(70,.25,'sine',.6);$('hpf').style.width=Math.max(0,P.hp)+'%';if(P.hp<=0)end(false)}
-function end(w){if(state==='over')return;if(w&&!outroShown&&currentMission.outroDialogue?.length){state='dialogue';audioManager.stopMusic();audioManager.stopAmbience();document.exitPointerLock&&document.exitPointerLock();dialogueSystem.start(currentMission.outroDialogue,()=>{outroShown=true;end(true)});return}state='over';audioManager.stopMusic();audioManager.stopAmbience();document.exitPointerLock&&document.exitPointerLock();
+function end(w){
+ if(state==='over'||state==='transition')return;
+ if(w&&!outroShown&&currentMission.outroDialogue?.length){
+  state='dialogue';audioManager.stopMusic();audioManager.stopAmbience();document.exitPointerLock&&document.exitPointerLock();
+  dialogueSystem.start(currentMission.outroDialogue,()=>{outroShown=true;end(true)});
+  return;
+ }
+ state='transition';
+ audioManager.stopMusic();audioManager.stopAmbience();document.exitPointerLock&&document.exitPointerLock();
  const record=saveSystem.recordMissionResult({missionId:currentMission.id,won:w,kills,nextMissionOrder:currentMission.order+1});
- $('ov').style.display='flex';
+ savedCampaign=record;
+ $('saveInfo').textContent=`СОХРАНЕНИЕ · Побед: ${record.stats.wins} · Поражений: ${record.stats.losses} · Лучший результат: ${record.stats.bestKills} дронов`;
  const nextMission=w?missionSystem.getUnlockedMissions(record.campaign).find(mission=>mission.order>currentMission.order):null;
- const resultTitle=!w?'ТЫ ПОГИБ':nextMission?'СЕКТОР ЗАЧИЩЕН':'КАМПАНИЯ ЗАВЕРШЕНА';
- $('ov').innerHTML=`<div><h1>${resultTitle}</h1><p>Уничтожено дронов: ${kills} / ${GOAL}</p><p>Всего побед: ${record.stats.wins} · Поражений: ${record.stats.losses}</p><p>Лучший результат: ${record.stats.bestKills} дронов</p>${nextMission?`<p>Следующая миссия: <b>${nextMission.title}</b></p><p><b>Нажми, чтобы продолжить кампанию</b></p>`:'<p><b>Нажми, чтобы сыграть снова</b></p>'}</div>`;
- $('ov').onclick=()=>{location.hash=nextMission?nextMission.id:'';location.reload()}}
+ if(w&&nextMission){loadMission(nextMission);return}
+ state='over';
+ $('interactHint').hidden=true;
+ $('ov').style.display='flex';
+ const resultTitle=!w?'ТЫ ПОГИБ':'КАМПАНИЯ ЗАВЕРШЕНА';
+ $('ov').innerHTML=`<div><h1>${resultTitle}</h1><p>Уничтожено дронов: ${kills} / ${GOAL}</p><p>Всего побед: ${record.stats.wins} · Поражений: ${record.stats.losses}</p><p>Лучший результат: ${record.stats.bestKills} дронов</p><p><b>${w?'Кампания завершена. Нажми, чтобы пройти её снова.':'Нажми, чтобы продолжить с последней незавершённой миссии.'}</b></p></div>`;
+ $('ov').onclick=()=>{location.hash='';location.reload()};
+}
 
 /* ---------- управление ---------- */
 const dom=renderer.domElement;
+function loadMission(nextMission){
+ try{
+  for(const enemy of enemies){scene.remove(enemy.g);disposeRenderable(enemy.g)}enemies.length=0;
+  for(const shot of proj){scene.remove(shot.m);shot.m.geometry.dispose();shot.m.material.dispose()}proj.length=0;
+  for(const particle of sparks){scene.remove(particle.m);particle.m.material.dispose()}sparks.length=0;
+  currentMission=nextMission;
+  missionObjective=currentMission.objectives.find(objective=>objective.type==='eliminate');
+  if(!missionObjective)throw new Error('The next mission has no supported elimination objective');
+  GOAL=missionObjective.target;
+  activeLevel=levelManager.load(currentMission.levelId,{mat,canvas,randomRange:R,box});
+  LEVEL_BOUNDS=activeLevel.bounds;
+  dust=activeLevel.dust||{rotation:{y:0},position:{y:0}};
+  interactionSystem=new S7InteractionSystem(activeLevel.interactables||[]);
+  GROUND_Y=activeLevel.playerSpawn.y;
+  jumpController.groundY=GROUND_Y;
+  P.pos.set(activeLevel.playerSpawn.x,GROUND_Y,activeLevel.playerSpawn.z);
+  P.yaw=0;P.pitch=0;P.hp=100;P.velocityY=0;P.grounded=true;
+  $('hpf').style.width='100%';
+  weapon.ammo=weapon.magazineSize;weapon.reloadRemaining=0;weapon.cooldown=0;weapon.recoil=0;weapon.pitchKick=0;
+  weapon.group.rotation.set(0,0,0);weapon.onAmmoChange(weapon.ammo);
+  cam.position.copy(P.pos);cam.rotation.set(0,0,0);
+  for(const key of Object.keys(keys))delete keys[key];
+  kills=0;spawned=0;spawnT=0;hurt=0;mouse=false;fallback=false;missionCleared=false;combatCleared=false;outroShown=false;introShown=true;
+  $('missionTitle').textContent=`${currentMission.title} · ${currentMission.location}`;
+  $('missionDescription').textContent=currentMission.description;
+  $('kl').textContent=`Дроны: 0 / ${GOAL}`;
+  $('interactHint').hidden=true;
+  $('ov').style.display='none';
+  location.hash=currentMission.id;
+  audioManager.startAmbience(currentMission.audioProfile);
+  audioManager.startMusic();
+  state='dialogue';
+  dialogueSystem.start(currentMission.introDialogue,()=>{state='play';try{dom.requestPointerLock()}catch(e){fallback=true}});
+ }catch(error){
+  console.error('Campaign transition failed',error);
+  state='over';$('ov').style.display='flex';
+  $('ov').innerHTML='<div><h1>ОШИБКА ЗАГРУЗКИ СЕКТОРА</h1><p>Не удалось загрузить следующую локацию.</p><p>Перезапусти миссию, чтобы восстановить кампанию.</p></div>';
+  $('ov').onclick=()=>location.reload();
+ }
+}
 function useNearbyInteraction(){const nearby=interactionSystem.findNearby(P.pos);if(!nearby)return;if(nearby.id===activeLevel.requiredInteractionId&&!combatCleared){$('kl').textContent='СНАЧАЛА УНИЧТОЖЬ ОХРАНУ РЕАКТОРА';return}const item=interactionSystem.activate(nearby.id);if(!item)return;state='dialogue';mouse=false;$('interactHint').hidden=true;document.exitPointerLock&&document.exitPointerLock();dialogueSystem.start(item.dialogue,()=>{if(item.id===activeLevel.requiredInteractionId){missionCleared=true;activeLevel.openExit?.();$('kl').textContent='ЯДРО ОТКЛЮЧЕНО · ИЩИ ЭВАКУАЦИОННЫЙ КОРИДОР'}state='play';try{dom.requestPointerLock()}catch(e){fallback=true}})}
 $('ov').onclick=()=>{if(state==='over'||state==='dialogue')return;$('ov').style.display='none';if(!introShown){if(!ac)ac=audioManager.unlock();if(ac){audioManager.startAmbience(currentMission.audioProfile);audioManager.startMusic()}introShown=true;state='dialogue';dialogueSystem.start(currentMission.introDialogue,()=>{state='play';try{dom.requestPointerLock()}catch(e){fallback=true}})}else{state='play';try{dom.requestPointerLock()}catch(e){fallback=true}}};
 document.addEventListener('pointerlockchange',()=>{locked=document.pointerLockElement===dom;if(!locked&&state==='play'&&!fallback){state='menu';$('msg').innerHTML='<b>Пауза — нажми, чтобы продолжить</b>';$('ov').style.display='flex'}});
