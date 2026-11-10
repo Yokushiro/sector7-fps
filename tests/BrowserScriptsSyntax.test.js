@@ -14,6 +14,7 @@ const scripts = [
   'src/audio/AudioManager.js',
   'src/ai/DroneAI.js',
   'src/combat/WeaponSystem.js',
+  'src/core/JumpController.js',
   'src/core/GraphicsSettings.js',
   'src/core/PerformanceMonitor.js'
 ];
