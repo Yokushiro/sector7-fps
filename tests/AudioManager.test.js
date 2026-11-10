@@ -7,8 +7,9 @@ function fakeAudioContext() {
   const nodes = [];
   const makeNode = () => {
     const node = {
-      gain: { value: 0 },
-      frequency: { value: 0 },
+      gain: { value: 0, setValueAtTime() {}, linearRampToValueAtTime() {}, exponentialRampToValueAtTime() {}, cancelScheduledValues() {} },
+      frequency: { value: 0, setValueAtTime() {}, exponentialRampToValueAtTime() {} },
+      detune: { value: 0 },
       connect() {},
       disconnect() { this.disconnected = true; },
       start() { this.started = true; },
@@ -19,6 +20,7 @@ function fakeAudioContext() {
   };
   return {
     state: 'running',
+    currentTime: 0,
     sampleRate: 100,
     destination: {},
     sources,
