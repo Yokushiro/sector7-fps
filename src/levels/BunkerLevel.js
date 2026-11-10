@@ -52,7 +52,7 @@ const bunkerLights=[];
         exitZone: { x0: -2.1, x1: 2.1, z0: -27.6, z1: -26.2 },
         playerSpawn: { x: 0, y: 1.7, z: 22, yaw: 0 },
         enemySpawnPoints: [[-10,-10],[10,-10],[-10,10],[10,10],[0,-10.5]],
-        openExit() { exitOpen = true; const index = boxes.indexOf(exitDoor.userData.collisionBox); if (index >= 0) boxes.splice(index, 1); },
+        openExit() { exitOpen = true; context.removeCollisionBox(exitDoor.userData.collisionBox); },
         update(dt, time) {
           bunkerLights.forEach((light, index) => { light.intensity = .68 + Math.sin(time * 2.1 + index * 1.4) * .08; });
           if (exitOpen) exitDoor.position.y += (8 - exitDoor.position.y) * Math.min(1, dt * 2.2);
