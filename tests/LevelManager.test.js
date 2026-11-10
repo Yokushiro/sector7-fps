@@ -180,3 +180,25 @@ test('preparing the next sector does not unload the currently active sector', ()
   assert.equal(scene.children.length, 2);
   assert.equal(manager.getPrepared('next').root.visible, false);
 });
+
+
+test('opening a preloaded level door removes collision from both local and active arrays', () => {
+  const scene = new Group();
+  const solids = [];
+  const boxes = [];
+  const manager = new LevelManager({ THREE: fakeThree, scene, solids, boxes });
+  const doorCollision = { x0: -1, x1: 1, z0: -2, z1: -1 };
+  manager.register({
+    id: 'door-room',
+    build(context) {
+      context.boxes.push(doorCollision);
+      return { openExit() { context.removeCollisionBox(doorCollision); } };
+    }
+  });
+  manager.prepare('door-room', { box() {} });
+  const level = manager.load('door-room', { box() {} });
+  assert.deepEqual(boxes, [doorCollision]);
+  level.openExit();
+  assert.deepEqual(level.boxes, []);
+  assert.deepEqual(boxes, []);
+});
