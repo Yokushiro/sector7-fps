@@ -26,11 +26,15 @@ test('level manager registers and loads a level into an isolated scene group', (
   const solids = [];
   const boxes = [];
   const manager = new LevelManager({ THREE: fakeThree, scene, solids, boxes });
+  let builtSolids;
+  let builtBoxes;
   manager.register({
     id: 'test-room',
     build(context) {
-      assert.equal(context.solids, solids);
-      assert.equal(context.boxes, boxes);
+      builtSolids = context.solids;
+      builtBoxes = context.boxes;
+      assert.notEqual(context.solids, solids);
+      assert.notEqual(context.boxes, boxes);
       const object = { geometry: { disposed: false, dispose() { this.disposed = true; } } };
       context.scene.add(object);
       context.solids.push(object);
@@ -46,6 +50,8 @@ test('level manager registers and loads a level into an isolated scene group', (
   assert.equal(scene.children.length, 1);
   assert.equal(solids.length, 1);
   assert.equal(boxes.length, 0);
+  assert.equal(builtSolids.length, 1);
+  assert.equal(builtBoxes.length, 0);
 });
 
 test('loading another level unloads the previous level and clears collision data', () => {
@@ -121,4 +127,56 @@ test('streaming disposes unique materials and textures but preserves shared PBR 
   assert.equal(texture.disposed, true);
   assert.equal(uniqueMaterial.disposed, true);
   assert.equal(sharedMaterial.disposed, false);
+});
+
+
+test('prepared sectors stay hidden and activate without rebuilding or exposing collision early', () => {
+  const scene = new Group();
+  const solids = [];
+  const boxes = [];
+  const manager = new LevelManager({ THREE: fakeThree, scene, solids, boxes });
+  let builds = 0;
+  const preparedSolid = {};
+  const preparedBox = { x0: 0, x1: 1, z0: 0, z1: 1 };
+  manager.register({
+    id: 'preloaded',
+    build(context) {
+      builds++;
+      context.scene.add({ geometry: { dispose() {} } });
+      context.solids.push(preparedSolid);
+      context.boxes.push(preparedBox);
+      return { name: 'Preloaded sector' };
+    }
+  });
+  const prepared = manager.prepare('preloaded', { box() {} });
+  assert.equal(prepared.root.visible, false);
+  assert.equal(scene.children.length, 1);
+  assert.equal(solids.length, 0);
+  assert.equal(boxes.length, 0);
+  assert.equal(manager.getCurrent(), null);
+  const active = manager.load('preloaded', { box() {} });
+  assert.equal(active, prepared);
+  assert.equal(active.root.visible, true);
+  assert.equal(builds, 1);
+  assert.deepEqual(solids, [preparedSolid]);
+  assert.deepEqual(boxes, [preparedBox]);
+  assert.equal(manager.getPrepared('preloaded'), null);
+});
+
+test('preparing the next sector does not unload the currently active sector', () => {
+  const scene = new Group();
+  const solids = [];
+  const boxes = [];
+  const manager = new LevelManager({ THREE: fakeThree, scene, solids, boxes });
+  manager.register({ id: 'active', build(context) { context.solids.push({ active: true }); } });
+  manager.register({ id: 'next', build(context) { context.solids.push({ prepared: true }); } });
+  manager.load('active', { box() {} });
+  const active = manager.getCurrent();
+  const activeSolid = solids[0];
+  manager.prepare('next', { box() {} });
+  assert.equal(manager.getCurrent(), active);
+  assert.equal(solids.length, 1);
+  assert.equal(solids[0], activeSolid);
+  assert.equal(scene.children.length, 2);
+  assert.equal(manager.getPrepared('next').root.visible, false);
 });
