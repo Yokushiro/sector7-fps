@@ -7,7 +7,7 @@ function read(relativePath) {
   return fs.readFileSync(path.join(__dirname, '..', relativePath), 'utf8');
 }
 
-test('bunker and laboratory both provide traversable corridor exits', () => {
+test('all campaign locations provide traversable corridor exits', () => {
   for (const levelPath of ['src/levels/BunkerLevel.js', 'src/levels/LabLevel.js', 'src/levels/ReactorLevel.js']) {
     const source = read(levelPath);
     assert.match(source, /corridorFloor/);
@@ -15,6 +15,7 @@ test('bunker and laboratory both provide traversable corridor exits', () => {
     assert.match(source, /bounds:\s*\{\s*halfSize:\s*(27|29|33)/);
     assert.match(source, /interactables:\s*\[/);
     assert.match(source, /update\(dt, time\)/);
+    assert.match(source, /openExit\(\)/);
   }
 });
 
@@ -45,4 +46,5 @@ test('reactor finale requires a console interaction after combat before the exit
   assert.match(game, /nearby\.id===activeLevel\.requiredInteractionId&&!combatCleared/);
   assert.match(game, /if\(item\.id===activeLevel\.requiredInteractionId\)\{missionCleared=true/);
   assert.match(game, /if\(!combatCleared&&spawned<GOAL/);
+  assert.match(game, /activeLevel\.openExit\?\.\(\)/);
 });
