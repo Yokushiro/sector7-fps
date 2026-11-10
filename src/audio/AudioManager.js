@@ -120,6 +120,17 @@
       const rootMidi = 40; // E2: низкий, тяжёлый металлический строй
       const frequency = midi => 440 * Math.pow(2, (midi - 69) / 12);
       const remember = node => { this.musicNodes.push(node); return node; };
+      const releaseVoice = (source, nodes) => {
+        source.onended = () => {
+          for (const node of nodes) {
+            try { node.disconnect(); } catch (error) {}
+            const index = this.musicNodes.indexOf(node);
+            if (index !== -1) this.musicNodes.splice(index, 1);
+          }
+          const sourceIndex = this.musicSources.indexOf(source);
+          if (sourceIndex !== -1) this.musicSources.splice(sourceIndex, 1);
+        };
+      };
 
       const envelope = (gain, time, peak, duration) => {
         const param = gain.gain;
