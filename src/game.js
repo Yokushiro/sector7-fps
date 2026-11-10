@@ -171,7 +171,7 @@ function end(w){if(state==='over')return;if(w&&!outroShown&&currentMission.outro
  const nextMission=w?missionSystem.getUnlockedMissions(record.campaign).find(mission=>mission.order>currentMission.order):null;
  const resultTitle=!w?'ТЫ ПОГИБ':nextMission?'СЕКТОР ЗАЧИЩЕН':'КАМПАНИЯ ЗАВЕРШЕНА';
  $('ov').innerHTML=`<div><h1>${resultTitle}</h1><p>Уничтожено дронов: ${kills} / ${GOAL}</p><p>Всего побед: ${record.stats.wins} · Поражений: ${record.stats.losses}</p><p>Лучший результат: ${record.stats.bestKills} дронов</p>${nextMission?`<p>Следующая миссия: <b>${nextMission.title}</b></p><p><b>Нажми, чтобы продолжить кампанию</b></p>`:'<p><b>Нажми, чтобы сыграть снова</b></p>'}</div>`;
- $('ov').onclick=()=>{if(nextMission)location.hash=nextMission.id;location.reload()}}
+ $('ov').onclick=()=>{location.hash=nextMission?nextMission.id:'';location.reload()}}
 
 /* ---------- управление ---------- */
 const dom=renderer.domElement;
