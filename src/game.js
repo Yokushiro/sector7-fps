@@ -58,7 +58,7 @@ const torch=new T.SpotLight(0xe8f4ff,1.6,28,.5,.6,1.2);torch.position.set(.2,-.1
 const GROUND_Y=activeLevel.playerSpawn.y;
 const P={pos:new T.Vector3(activeLevel.playerSpawn.x,GROUND_Y,activeLevel.playerSpawn.z),yaw:0,pitch:0,hp:100,velocityY:0,grounded:true};
 const jumpController=new S7JumpController(GROUND_Y);
-let state='menu',kills=0,spawned=0,spawnT=0,hurt=0,tm=0,mouse=false,fallback=false,locked=false;
+let state='menu',kills=0,spawned=0,spawnT=0,hurt=0,tm=0,mouse=false,fallback=false,locked=false,missionCleared=false;
 const keys=Object.create(null); // shared keyboard state for input handlers and the game loop
 const enemies=[],proj=[],sparks=[];
 const droneAI=new S7DroneAI();
@@ -137,7 +137,7 @@ function spawn(){
  g.position.set(q[0],1.3,q[1]);scene.add(g);enemies.push(e);spawned++;
 }
 function disposeRenderable(root){const geometries=new Set(),materials=new Set();root.traverse(o=>{if(o.geometry)geometries.add(o.geometry);if(o.material){for(const material of(Array.isArray(o.material)?o.material:[o.material]))materials.add(material)}});geometries.forEach(geometry=>geometry.dispose());materials.forEach(material=>material.dispose())}
-function killE(e){scene.remove(e.g);disposeRenderable(e.g);enemies.splice(enemies.indexOf(e),1);for(let i=0;i<18;i++)spark(e.g.position,new T.Color(3,1.6,.5),6);snd(90,.4,'sawtooth',.4);kills++;$('kl').textContent=`Дроны: ${kills} / ${GOAL}`;if(missionSystem.isObjectiveComplete(currentMission.id,missionObjective.id,kills))end(true)}
+function killE(e){scene.remove(e.g);disposeRenderable(e.g);enemies.splice(enemies.indexOf(e),1);for(let i=0;i<18;i++)spark(e.g.position,new T.Color(3,1.6,.5),6);snd(90,.4,'sawtooth',.4);kills++;$('kl').textContent=`Дроны: ${kills} / ${GOAL}`;if(missionSystem.isObjectiveComplete(currentMission.id,missionObjective.id,kills)){missionCleared=true;$('kl').textContent='СЕКТОР ЗАЧИЩЕН · ИЩИ ВЫХОД В КОРИДОРЕ'}}
 const spGeo=new T.BoxGeometry(.03,.03,.03);
 function spark(p,c,sp=4){const m=new T.Mesh(spGeo,new T.MeshBasicMaterial({color:c}));m.position.copy(p);scene.add(m);sparks.push({m,v:new T.Vector3(R(-1,1),R(0,1.4),R(-1,1)).multiplyScalar(sp),l:R(.3,.7)})}
 
@@ -204,10 +204,11 @@ function loop(now){requestAnimationFrame(loop);const dt=Math.min(.05,(now-last)/
   if(jumpController.update(P,dt))snd(75,.09,'sine',.08);
   if(P.grounded)P.pos.y=GROUND_Y+(mv?Math.sin(tm*(keys.ShiftLeft?13:9))*.035:0);
   cam.position.copy(P.pos);cam.rotation.set(P.pitch+weapon.pitchKick,P.yaw,0);
-  if(mouse)weapon.fire(solids,enemies,spark,hitEnemy,hitWorld,R);
+  if(mouse&&!missionCleared)weapon.fire(solids,enemies,spark,hitEnemy,hitWorld,R);
   weapon.update(dt,tm,mv);
-  spawnT-=dt;if(spawned<GOAL&&enemies.length<currentMission.spawn.maxActive&&spawnT<=0){spawn();spawnT=currentMission.spawn.interval}
+  spawnT-=dt;if(!missionCleared&&spawned<GOAL&&enemies.length<currentMission.spawn.maxActive&&spawnT<=0){spawn();spawnT=currentMission.spawn.interval}
   droneAI.update(enemies,P,dt,collide,scene,proj,snd,R,boxes);
+  const exit=activeLevel.exitZone;if(missionCleared&&exit&&P.pos.x>=exit.x0&&P.pos.x<=exit.x1&&P.pos.z>=exit.z0&&P.pos.z<=exit.z1)end(true);
   for(let i=proj.length-1;i>=0;i--){const p=proj[i];p.m.position.addScaledVector(p.v,dt);p.l-=dt;const dd=p.m.position.distanceTo(P.pos);
    let hit=p.l<=0||Math.abs(p.m.position.x)>LEVEL_BOUNDS.halfSize||Math.abs(p.m.position.z)>LEVEL_BOUNDS.halfSize||p.m.position.y<0;
    if(!hit)for(const b of boxes)if(p.m.position.y<2.4&&p.m.position.x>b.x0&&p.m.position.x<b.x1&&p.m.position.z>b.z0&&p.m.position.z<b.z1){hit=true;break}
