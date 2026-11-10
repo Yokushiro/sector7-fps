@@ -1,6 +1,27 @@
 (function(){
   class S7DroneAI {
-    update(enemies, player, dt, collide, scene, projectiles, sound, randomRange) {
+    update(enemies, player, dt, collide, scene, projectiles, sound, randomRange, obstacles = []) {
+      const hasLineOfSight = (from, to) => {
+        const dx = to.x - from.x, dz = to.z - from.z;
+        for (const box of obstacles) {
+          let tMin = 0, tMax = 1;
+          for (const [origin, delta, min, max] of [
+            [from.x, dx, box.x0, box.x1],
+            [from.z, dz, box.z0, box.z1]
+          ]) {
+            if (Math.abs(delta) < 1e-8) {
+              if (origin < min || origin > max) { tMin = 2; break; }
+            } else {
+              let t1 = (min - origin) / delta, t2 = (max - origin) / delta;
+              if (t1 > t2) [t1, t2] = [t2, t1];
+              tMin = Math.max(tMin, t1);
+              tMax = Math.min(tMax, t2);
+            }
+          }
+          if (tMin <= tMax && tMin > 0.04 && tMin < 0.96) return false;
+        }
+        return true;
+      };
       for (const enemy of enemies) {
         const group = enemy.g;
         enemy.t += dt;
@@ -9,10 +30,25 @@
         const distance = Math.hypot(dx, dz) || 1;
         const preferredDistance = enemy.preferredDistance || 6;
         const strafing = distance < preferredDistance + 2 ? 1 : 0;
-        const moveX = dx / distance * (distance > preferredDistance ? (enemy.moveSpeed || 2.4) : -0.6)
-          + (-dz / distance) * strafing * Math.sin(enemy.t * 0.7) * 2.2;
-        const moveZ = dz / distance * (distance > preferredDistance ? (enemy.moveSpeed || 2.4) : -0.6)
-          + (dx / distance) * strafing * Math.sin(enemy.t * 0.7) * 2.2;
+        const lateral = (enemy.strafeSign || 1) * strafing * Math.sin(enemy.t * 0.7) * 2.2;
+        let moveX = dx / distance * (distance > preferredDistance ? (enemy.moveSpeed || 2.4) : -0.6)
+          - (dz / distance) * lateral;
+        let moveZ = dz / distance * (distance > preferredDistance ? (enemy.moveSpeed || 2.4) : -0.6)
+          + (dx / distance) * lateral;
+
+        // Steer around nearby cover instead of repeatedly pushing into it.
+        for (const box of obstacles) {
+          const closestX = Math.max(box.x0, Math.min(box.x1, group.position.x));
+          const closestZ = Math.max(box.z0, Math.min(box.z1, group.position.z));
+          const awayX = group.position.x - closestX;
+          const awayZ = group.position.z - closestZ;
+          const awayDistance = Math.hypot(awayX, awayZ);
+          if (awayDistance > 0.001 && awayDistance < 1.35) {
+            const strength = (1.35 - awayDistance) * 3.2;
+            moveX += awayX / awayDistance * strength;
+            moveZ += awayZ / awayDistance * strength;
+          }
+        }
 
         group.position.x += moveX * dt;
         group.position.z += moveZ * dt;
@@ -27,7 +63,7 @@
 
         enemy.cd -= dt;
         enemy.eye.color.setRGB(3 + Math.sin(enemy.t * 8), 0.2 + (enemy.cd < 0.4 ? 2 : 0), 0.1);
-        if (enemy.cd <= 0 && distance < 20) {
+        if (enemy.cd <= 0 && distance < 20 && hasLineOfSight(group.position, player.pos)) {
           enemy.cd = randomRange(enemy.attackMin || 1.4, enemy.attackMax || 2.4);
           const projectile = new THREE.Mesh(
             new THREE.SphereGeometry(0.11, 10, 8),
