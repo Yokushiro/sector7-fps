@@ -30,7 +30,7 @@ class FakeRaycaster {
   intersectObjects() { return []; }
 }
 class FakePointLight {
-  constructor(color, intensity) { this.intensity = intensity; }
+  constructor(color, intensity) { this.intensity = intensity; this.position = { set() {} }; }
 }
 const THREE = {
   Group: FakeGroup,
