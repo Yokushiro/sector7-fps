@@ -1,7 +1,7 @@
 {
   "name": "sector7-fps",
   "version": "1.0.3",
-  "description": "SECTOR 7 — мини-FPS на Three.js (Electron)",
+  "description": "SECTOR 7 — сюжетный FPS на Three.js и Electron",
   "author": "Лев Афанасьев",
   "license": "MIT",
   "main": "main.js",
