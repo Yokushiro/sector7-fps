@@ -55,7 +55,7 @@ const dust=activeLevel.dust || {rotation:{y:0},position:{y:0}};
 const torch=new T.SpotLight(0xe8f4ff,1.6,28,.5,.6,1.2);torch.position.set(.2,-.1,0);torch.target.position.set(0,0,-5);cam.add(torch,torch.target);
 
 /* ---------- состояние ---------- */
-const P={pos:new T.Vector3(activeLevel.playerSpawn.x,activeLevel.playerSpawn.y,activeLevel.playerSpawn.z),yaw:0,pitch:0,hp:100},keys={};
+const GROUND_Y=activeLevel.playerSpawn.y;\nconst P={pos:new T.Vector3(activeLevel.playerSpawn.x,GROUND_Y,activeLevel.playerSpawn.z),yaw:0,pitch:0,hp:100,velocityY:0,grounded:true};\nconst JUMP_SPEED=6.6,GRAVITY=19;
 let state='menu',kills=0,spawned=0,spawnT=0,hurt=0,tm=0,mouse=false,fallback=false,locked=false;
 const enemies=[],proj=[],sparks=[];
 const droneAI=new S7DroneAI();
@@ -162,13 +162,13 @@ function end(w){if(state==='over')return;state='over';document.exitPointerLock&&
 
 /* ---------- управление ---------- */
 const dom=renderer.domElement;
-$('ov').onclick=()=>{if(state==='over')return;if(!ac)ac=audioManager.unlock();if(ac)audioManager.startAmbience(currentMission.audioProfile);state='play';$('ov').style.display='none';
+$('ov').onclick=()=>{if(state==='over')return;if(!ac)ac=audioManager.unlock();if(ac){audioManager.startAmbience(currentMission.audioProfile);audioManager.startMusic()}state='play';$('ov').style.display='none';
  try{dom.requestPointerLock()}catch(e){fallback=true}};
 document.addEventListener('pointerlockchange',()=>{locked=document.pointerLockElement===dom;if(!locked&&state==='play'&&!fallback){state='menu';$('msg').innerHTML='<b>Пауза — нажми, чтобы продолжить</b>';$('ov').style.display='flex'}});
 document.addEventListener('pointerlockerror',()=>{fallback=true});
 addEventListener('mousemove',e=>{if(state!=='play'||!(locked||fallback))return;P.yaw-=e.movementX*.0022;P.pitch=cl(P.pitch-e.movementY*.0022,-1.45,1.45)});
 addEventListener('mousedown',e=>{if(e.button===0)mouse=true});addEventListener('mouseup',()=>mouse=false);
-addEventListener('keydown',e=>{keys[e.code]=1;if(e.code==='KeyR')weapon.reload();if(e.code==='KeyF')torch.visible=!torch.visible;if(e.code==='F3')perfMonitor.toggle()});addEventListener('keyup',e=>keys[e.code]=0);
+addEventListener('keydown',e=>{keys[e.code]=1;if(e.code==='Space'){e.preventDefault();if(state==='play'&&P.grounded){P.velocityY=JUMP_SPEED;P.grounded=false}}if(e.code==='KeyR')weapon.reload();if(e.code==='KeyF')torch.visible=!torch.visible;if(e.code==='F3')perfMonitor.toggle()});addEventListener('keyup',e=>keys[e.code]=0);
 setTimeout(()=>{if(state==='menu'&&!$('ov').matches(':hover'))0},0);
 
 /* ---------- пост-обработка ---------- */
@@ -192,13 +192,13 @@ function loop(now){requestAnimationFrame(loop);const dt=Math.min(.05,(now-last)/
  if(state==='play'){
   const f=(keys.KeyW?1:0)-(keys.KeyS?1:0),r=(keys.KeyD?1:0)-(keys.KeyA?1:0),sp=keys.ShiftLeft?7:4.6,mv=f||r;
   if(mv){const l=Math.hypot(f,r),sy=Math.sin(P.yaw),cy=Math.cos(P.yaw);P.pos.x+=(-sy*f+cy*r)/l*sp*dt;P.pos.z+=(-cy*f-sy*r)/l*sp*dt;collide(P.pos,.4)}
-  P.pos.y=1.7+(mv?Math.sin(tm*(keys.ShiftLeft?13:9))*.035:0);
+  if(!P.grounded){P.velocityY-=GRAVITY*dt;P.pos.y+=P.velocityY*dt;if(P.pos.y<=GROUND_Y){P.pos.y=GROUND_Y;P.velocityY=0;P.grounded=true}}\n  else P.pos.y=GROUND_Y+(mv?Math.sin(tm*(keys.ShiftLeft?13:9))*.035:0);
   cam.position.copy(P.pos);cam.rotation.set(P.pitch+weapon.pitchKick,P.yaw,0);
   if(mouse)weapon.fire(solids,enemies,spark,hitEnemy,hitWorld,R);
   weapon.update(dt,tm,mv);
   spawnT-=dt;if(spawned<GOAL&&enemies.length<currentMission.spawn.maxActive&&spawnT<=0){spawn();spawnT=currentMission.spawn.interval}
   droneAI.update(enemies,P,dt,collide,scene,proj,snd,R,boxes);
-  for(let i=proj.length-1;i>=0;i--){const p=proj[i];p.m.position.addScaledVector(p.v,dt);p.l-=dt;const dd=p.m.position.distanceTo(new T.Vector3(P.pos.x,Math.min(p.m.position.y,1.5),P.pos.z));
+  for(let i=proj.length-1;i>=0;i--){const p=proj[i];p.m.position.addScaledVector(p.v,dt);p.l-=dt;const dd=p.m.position.distanceTo(P.pos);
    let hit=p.l<=0||Math.abs(p.m.position.x)>LEVEL_BOUNDS.halfSize||Math.abs(p.m.position.z)>LEVEL_BOUNDS.halfSize||p.m.position.y<0;
    if(!hit)for(const b of boxes)if(p.m.position.y<2.4&&p.m.position.x>b.x0&&p.m.position.x<b.x1&&p.m.position.z>b.z0&&p.m.position.z<b.z1){hit=true;break}
    if(dd<.55){dmg(p.damage||8);hit=true}if(hit){scene.remove(p.m);p.m.geometry.dispose();p.m.material.dispose();proj.splice(i,1)}}
