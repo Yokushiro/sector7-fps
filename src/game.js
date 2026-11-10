@@ -22,7 +22,7 @@ const cv={
 const cache={};
 function mat(k,rx,ry,m=0,tint=0xffffff){const key=k+rx+'_'+ry+m+tint;if(cache[key])return cache[key];
  const t=new T.CanvasTexture(cv[k]);t.wrapS=t.wrapT=T.RepeatWrapping;t.repeat.set(rx,ry);t.anisotropy=8;t.encoding=T.sRGBEncoding;
- return cache[key]=new T.MeshStandardMaterial({map:t,bumpMap:t,bumpScale:2.2,roughnessMap:t,roughness:1,metalness:m,color:tint,envMapIntensity:.6})}
+ const material=new T.MeshStandardMaterial({map:t,bumpMap:t,bumpScale:2.2,roughnessMap:t,roughness:1,metalness:m,color:tint,envMapIntensity:.6});material.userData.sector7Shared=true;return cache[key]=material}
 
 /* ---------- окружение (IBL) ---------- */
 {const es=new T.Scene(),g=canvas(256,(x,s)=>{const gr=x.createLinearGradient(0,0,0,s);gr.addColorStop(0,'#2a3b4d');gr.addColorStop(.5,'#10161d');gr.addColorStop(1,'#050607');x.fillStyle=gr;x.fillRect(0,0,s,s)});
