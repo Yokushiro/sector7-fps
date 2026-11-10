@@ -29,3 +29,9 @@ test('all browser game scripts are valid classic JavaScript', () => {
     );
   }
 });
+
+test('game input state is declared before keyboard handlers use it', () => {
+  const filename = path.join(__dirname, '..', 'src/game.js');
+  const source = fs.readFileSync(filename, 'utf8');
+  assert.match(source, /const keys\s*=\s*Object\.create\(null\)/);
+});
