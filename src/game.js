@@ -59,7 +59,7 @@ const torch=new T.SpotLight(0xe8f4ff,1.6,28,.5,.6,1.2);torch.position.set(.2,-.1
 const GROUND_Y=activeLevel.playerSpawn.y;
 const P={pos:new T.Vector3(activeLevel.playerSpawn.x,GROUND_Y,activeLevel.playerSpawn.z),yaw:0,pitch:0,hp:100,velocityY:0,grounded:true};
 const jumpController=new S7JumpController(GROUND_Y);
-let state='menu',kills=0,spawned=0,spawnT=0,hurt=0,tm=0,mouse=false,fallback=false,locked=false,missionCleared=false,combatCleared=false,outroShown=false;
+let state='menu',kills=0,spawned=0,spawnT=0,hurt=0,tm=0,mouse=false,fallback=false,locked=false,missionCleared=false,combatCleared=false,outroShown=false,introShown=false;
 const keys=Object.create(null); // shared keyboard state for input handlers and the game loop
 const enemies=[],proj=[],sparks=[];
 const droneAI=new S7DroneAI();
@@ -176,8 +176,7 @@ function end(w){if(state==='over')return;if(w&&!outroShown&&currentMission.outro
 /* ---------- управление ---------- */
 const dom=renderer.domElement;
 function useNearbyInteraction(){const nearby=interactionSystem.findNearby(P.pos);if(!nearby)return;if(nearby.id===activeLevel.requiredInteractionId&&!combatCleared){$('kl').textContent='СНАЧАЛА УНИЧТОЖЬ ОХРАНУ РЕАКТОРА';return}const item=interactionSystem.activate(nearby.id);if(!item)return;state='dialogue';mouse=false;$('interactHint').hidden=true;document.exitPointerLock&&document.exitPointerLock();dialogueSystem.start(item.dialogue,()=>{if(item.id===activeLevel.requiredInteractionId){missionCleared=true;activeLevel.openExit?.();$('kl').textContent='ЯДРО ОТКЛЮЧЕНО · ИЩИ ЭВАКУАЦИОННЫЙ КОРИДОР'}state='play';try{dom.requestPointerLock()}catch(e){fallback=true}})}
-$('ov').onclick=()=>{if(state==='over'||state==='dialogue')return;if(!ac)ac=audioManager.unlock();if(ac){audioManager.startAmbience(currentMission.audioProfile);audioManager.startMusic()}state='dialogue';$('ov').style.display='none';
- dialogueSystem.start(currentMission.introDialogue,()=>{state='play';try{dom.requestPointerLock()}catch(e){fallback=true}})};
+$('ov').onclick=()=>{if(state==='over'||state==='dialogue')return;$('ov').style.display='none';if(!introShown){if(!ac)ac=audioManager.unlock();if(ac){audioManager.startAmbience(currentMission.audioProfile);audioManager.startMusic()}introShown=true;state='dialogue';dialogueSystem.start(currentMission.introDialogue,()=>{state='play';try{dom.requestPointerLock()}catch(e){fallback=true}})}else{state='play';try{dom.requestPointerLock()}catch(e){fallback=true}}};
 document.addEventListener('pointerlockchange',()=>{locked=document.pointerLockElement===dom;if(!locked&&state==='play'&&!fallback){state='menu';$('msg').innerHTML='<b>Пауза — нажми, чтобы продолжить</b>';$('ov').style.display='flex'}});
 document.addEventListener('pointerlockerror',()=>{fallback=true});
 addEventListener('mousemove',e=>{if(state!=='play'||!(locked||fallback))return;P.yaw-=e.movementX*.0022;P.pitch=cl(P.pitch-e.movementY*.0022,-1.45,1.45)});
