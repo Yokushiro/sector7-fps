@@ -53,7 +53,7 @@
       this.panel.id = 's7-graphics-panel';
       this.panel.innerHTML = `
         <h2>ГРАФИКА</h2>
-        <div class="s7-row"><label for="s7-quality">Качество</label><select id="s7-quality"><option value="low">Низкое</option><option value="medium">Среднее</option><option value="high">Высокое</option><option value="custom">Вручную</option></select></div>
+        <div class="s7-row"><label for="s7-quality">Качество</label><select id="s7-quality"><option value="low">Низкое</option><option value="medium">Среднее</option><option value="high">Высокое</option><option value="custom" disabled>Вручную</option></select></div>
         <div class="s7-row"><label for="s7-resolution">Масштаб рендеринга</label><select id="s7-resolution"><option value="1">100%</option><option value="1.25">125%</option><option value="1.5">150%</option><option value="1.75">175%</option><option value="2">200%</option></select></div>
         <div class="s7-row"><label for="s7-shadows">Динамические тени</label><input id="s7-shadows" type="checkbox"></div>
         <div class="s7-row"><label for="s7-bloom">Свечение (Bloom)</label><input id="s7-bloom" type="checkbox"></div>
