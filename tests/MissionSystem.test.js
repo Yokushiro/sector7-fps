@@ -11,6 +11,7 @@ test('campaign exposes the implemented bunker mission and its objective', () => 
   assert.equal(mission.spawn.maxActive, 5);
   assert.equal(mission.introDialogue.length, 3);
   assert.equal(mission.introDialogue[0].speaker, 'НЕИЗВЕСТНЫЙ');
+  assert.equal(mission.outroDialogue.length, 2);
   assert.deepEqual(missions.getUnlockedMissions({ unlockedMission: 1 }).map(item => item.id), ['bunker-01']);
 });
 
@@ -20,10 +21,12 @@ test('mission definitions are returned as defensive copies', () => {
   mission.objectives[0].target = 999;
   mission.spawn.enemySequence.pop();
   mission.introDialogue[0].text = 'Изменённый текст';
+  mission.outroDialogue[0].text = 'Изменённый финал';
   const original = missions.getMission('bunker-01');
   assert.equal(original.objectives[0].target, 10);
   assert.equal(original.spawn.enemySequence.length, 10);
   assert.notEqual(original.introDialogue[0].text, 'Изменённый текст');
+  assert.notEqual(original.outroDialogue[0].text, 'Изменённый финал');
 });
 
 test('objective completion uses its configured target', () => {
@@ -46,6 +49,7 @@ test('second mission unlocks only after campaign progress reaches its order', ()
   assert.equal(missions.getMission('lab-02').objectives[0].target, 14);
   assert.equal(missions.getMission('reactor-03').objectives[0].target, 18);
   assert.equal(missions.getMission('reactor-03').introDialogue.length, 3);
+  assert.equal(missions.getMission('reactor-03').outroDialogue.length, 3);
   assert.deepEqual(missions.getUnlockedMissions({ unlockedMission: 1 }).map(item => item.id), ['bunker-01']);
   assert.deepEqual(missions.getUnlockedMissions({ unlockedMission: 2 }).map(item => item.id), ['bunker-01', 'lab-02']);
   assert.deepEqual(missions.getUnlockedMissions({ unlockedMission: 3 }).map(item => item.id), ['bunker-01', 'lab-02', 'reactor-03']);
