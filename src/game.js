@@ -65,13 +65,21 @@ const torch=new T.SpotLight(0xe8f4ff,1.6,28,.5,.6,1.2);torch.position.set(.2,-.1
 /* ---------- состояние ---------- */
 const P={pos:new T.Vector3(0,1.7,9),yaw:0,pitch:0,hp:100},keys={};
 let state='menu',kills=0,spawned=0,spawnT=0,hurt=0,tm=0,mouse=false,fallback=false,locked=false;
-const GOAL=10,enemies=[],proj=[],sparks=[];
+const enemies=[],proj=[],sparks=[];
 const droneAI=new S7DroneAI();
 const $=id=>document.getElementById(id);
 const saveSystem=new S7SaveSystem();
+const missionSystem=new S7MissionSystem();
+const currentMission=missionSystem.getFirstMission();
+if(!currentMission)throw new Error('No campaign missions are configured');
+const missionObjective=currentMission.objectives.find(objective=>objective.type==='eliminate');
+if(!missionObjective)throw new Error('The active mission has no supported elimination objective');
+const GOAL=missionObjective.target;
 const savedCampaign=saveSystem.load();
 const savedStats=savedCampaign.stats;
 $('saveInfo').textContent=`СОХРАНЕНИЕ · Побед: ${savedStats.wins} · Поражений: ${savedStats.losses} · Лучший результат: ${savedStats.bestKills} дронов`;
+$('missionDescription').textContent=currentMission.description;
+$('kl').textContent=`Дроны: 0 / ${GOAL}`;
 function collide(p,r){for(const b of boxes){const cx=cl(p.x,b.x0,b.x1),cz=cl(p.z,b.z0,b.z1),dx=p.x-cx,dz=p.z-cz,d2=dx*dx+dz*dz;
  if(d2<r*r){if(d2>1e-6){const d=Math.sqrt(d2),k=(r-d)/d;p.x+=dx*k;p.z+=dz*k}else p.x+=r}}}
 
@@ -86,7 +94,7 @@ function spawn(){
  const pts=[[-10,-10],[10,-10],[-10,10],[10,10],[0,-10.5]];
  let q;
  for(let i=0;i<8;i++){q=pts[Math.random()*pts.length|0];if(Math.hypot(q[0]-P.pos.x,q[1]-P.pos.z)>9)break}
- const sequence=['scout','assault','heavy','scout','sniper','assault','scout','heavy','sniper','scout'];
+ const sequence=currentMission.spawn.enemySequence;
  const type=sequence[spawned%sequence.length],profile=S7DroneAI.PROFILES[type];
  const g=new T.Group(),m=bodyM.clone();
  m.color.setHex(profile.bodyColor);
@@ -157,7 +165,7 @@ function hitWorld(hit){
 }
 function dmg(n){P.hp-=n;hurt=1;snd(70,.25,'sine',.6);$('hpf').style.width=Math.max(0,P.hp)+'%';if(P.hp<=0)end(false)}
 function end(w){if(state==='over')return;state='over';document.exitPointerLock&&document.exitPointerLock();
- const record=saveSystem.recordMissionResult({missionId:'bunker-01',won:w,kills});
+ const record=saveSystem.recordMissionResult({missionId:currentMission.id,won:w,kills});
  $('ov').style.display='flex';
  $('ov').innerHTML=`<div><h1>${w?'СЕКТОР ЗАЧИЩЕН':'ТЫ ПОГИБ'}</h1><p>Уничтожено дронов: ${kills} / ${GOAL}</p><p>Всего побед: ${record.stats.wins} · Поражений: ${record.stats.losses}</p><p>Лучший результат: ${record.stats.bestKills} дронов</p><p><b>Нажми, чтобы сыграть снова</b></p></div>`;$('ov').onclick=()=>location.reload()}
 
@@ -197,7 +205,7 @@ function loop(now){requestAnimationFrame(loop);const dt=Math.min(.05,(now-last)/
   cam.position.copy(P.pos);cam.rotation.set(P.pitch+weapon.pitchKick,P.yaw,0);
   if(mouse)weapon.fire(solids,enemies,spark,hitEnemy,hitWorld,R);
   weapon.update(dt,tm,mv);
-  spawnT-=dt;if(spawned<GOAL&&enemies.length<5&&spawnT<=0){spawn();spawnT=3.5}
+  spawnT-=dt;if(spawned<GOAL&&enemies.length<currentMission.spawn.maxActive&&spawnT<=0){spawn();spawnT=currentMission.spawn.interval}
   droneAI.update(enemies,P,dt,collide,scene,proj,snd,R);
   for(let i=proj.length-1;i>=0;i--){const p=proj[i];p.m.position.addScaledVector(p.v,dt);p.l-=dt;const dd=p.m.position.distanceTo(new T.Vector3(P.pos.x,Math.min(p.m.position.y,1.5),P.pos.z));
    let hit=p.l<=0||Math.abs(p.m.position.x)>S||Math.abs(p.m.position.z)>S||p.m.position.y<0;
