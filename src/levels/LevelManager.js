@@ -39,7 +39,9 @@
         ...context,
         THREE: this.THREE,
         scene: rootGroup,
-        box: (...args) => context.box(...args, rootGroup)
+        box: (...args) => typeof args[7] === 'boolean'
+          ? context.box(...args, rootGroup)
+          : context.box(...args, true, rootGroup)
       };
       try {
         const metadata = definition.build(buildContext) || {};
