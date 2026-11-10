@@ -18,11 +18,15 @@ canvas{display:block}
 #ov{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;background:radial-gradient(#0a1a24cc,#000e);cursor:pointer}
 #ov h1{font-size:64px;margin:0 0 6px;letter-spacing:.18em;font-weight:700;color:#ffb26a;text-shadow:0 0 30px #ff6a2a88}
 #ov p{margin:6px 0;opacity:.85;line-height:1.5}
+#dialogue{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);width:min(760px,calc(100% - 36px));padding:20px 24px 16px;background:linear-gradient(135deg,#07131deb,#101b25ed);border:1px solid #6c9bb566;box-shadow:0 12px 50px #000b,inset 0 0 28px #1c4a6322;z-index:5;color:#d8f4ff;cursor:pointer}
+#dialogue[hidden]{display:none}#dialogueSpeaker{font-size:13px;letter-spacing:.18em;color:#ffad68;margin-bottom:10px}
+#dialogueText{font-size:17px;line-height:1.55;min-height:54px}#dialoguePrompt{text-align:right;font-size:11px;letter-spacing:.12em;color:#8db7c9;margin-top:14px}
 </style></head><body>
 <div id="hud"><div id="cross"></div><div id="hit"></div><div id="kl">Дроны: 0 / 10</div>
 <div class="b" id="hp">ЗДОРОВЬЕ<div><div id="hpf"></div></div></div><div class="b" id="am"><small>ПЕРЕЗАРЯДКА: R</small><span id="ammo">30</span></div></div>
 <div id="ov"><div><h1>SECTOR 7</h1><p id="missionDescription">Уничтожь охранных дронов в заброшенном бункере.</p>
 <p>WASD — движение · Shift — бег · Space — прыжок<br>Мышь — прицел · ЛКМ — огонь · R — перезарядка · F — фонарь</p><p id="msg"><b>Нажми, чтобы начать</b></p><p id="saveInfo" style="font-size:13px;opacity:.65"></p></div></div>
+<div id="dialogue" hidden role="dialog" aria-live="polite"><div id="dialogueSpeaker"></div><div id="dialogueText"></div><div id="dialoguePrompt"></div></div>
 <script src="vendor/three.min.js"></script>
 <script src="vendor/EffectComposer.js"></script>
 <script src="vendor/CopyShader.js"></script>
@@ -33,6 +37,7 @@ canvas{display:block}
 <script src="src/core/PerformanceMonitor.js"></script>
 <script src="src/core/SaveSystem.js"></script>
 <script src="src/campaign/MissionSystem.js"></script>
+<script src="src/campaign/DialogueSystem.js"></script>
 <script src="src/levels/LevelManager.js"></script>
 <script src="src/levels/BunkerLevel.js"></script>
 <script src="src/levels/LabLevel.js"></script>
