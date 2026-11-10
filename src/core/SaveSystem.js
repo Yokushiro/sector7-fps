@@ -62,7 +62,8 @@
         this.data.stats.wins++;
         if(!this.data.campaign.completedMissions.includes(result.missionId))
           this.data.campaign.completedMissions.push(result.missionId);
-        this.data.campaign.unlockedMission=Math.max(this.data.campaign.unlockedMission,2);
+        const nextMissionOrder=Math.max(2,finiteNonNegative(result.nextMissionOrder));
+        this.data.campaign.unlockedMission=Math.max(this.data.campaign.unlockedMission,nextMissionOrder);
       }else this.data.stats.losses++;
       this.save();
       return this.getData();
