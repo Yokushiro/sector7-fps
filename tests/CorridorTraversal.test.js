@@ -14,6 +14,7 @@ test('bunker and laboratory both provide traversable corridor exits', () => {
     assert.match(source, /exitZone:\s*\{/);
     assert.match(source, /bounds:\s*\{\s*halfSize:\s*(27|29|33)/);
     assert.match(source, /interactables:\s*\[/);
+    assert.match(source, /update\(dt, time\)/);
   }
 });
 
