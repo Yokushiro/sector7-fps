@@ -19,9 +19,20 @@
   "build": {
     "appId": "com.lev.sector7",
     "productName": "SECTOR 7",
-    "files": ["main.js", "index.html"],
-    "directories": { "output": "dist" },
-    "win": { "target": ["portable", "nsis"] },
+    "files": [
+      "main.js",
+      "index.html",
+      "node_modules/three/**"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": [
+        "portable",
+        "nsis"
+      ]
+    },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
