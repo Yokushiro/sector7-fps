@@ -33,7 +33,7 @@
       box(-2.8, 3.5, -25, .45, 7, 14, concrete);
       box(2.8, 3.5, -25, .45, 7, 14, concrete);
       box(0, H - .35, -25, 5.9, .5, 14, dark, false);
-      const exitDoor = box(0, 3.5, -32.5, 5.8, 7, .5, steel, false);
+      const exitDoor = box(0, 3.5, -32.5, 5.8, 7, .5, steel);
       let exitOpen = false;
 
       // Reactor containment base and the luminous energy column.
@@ -144,7 +144,7 @@
         requiredInteractionId: 'reactor-shutdown',
         playerSpawn: { x: 0, y: 1.7, z: -28, yaw: Math.PI },
         enemySpawnPoints: [[-14, -14], [14, -14], [-14, 12], [14, 12], [0, -15], [-16, 0], [16, 0], [16, 16]],
-        openExit() { exitOpen = true; },
+        openExit() { exitOpen = true; const index = boxes.indexOf(exitDoor.userData.collisionBox); if (index >= 0) boxes.splice(index, 1); },
         update(dt, time) {
           if (exitOpen) exitDoor.position.y += (10 - exitDoor.position.y) * Math.min(1, dt * 2.2);
           reactorRings.forEach((ring, index) => {
