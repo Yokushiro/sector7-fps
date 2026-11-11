@@ -82,7 +82,6 @@
         maxActive: 7,
         enemySequence: ['scout', 'assault', 'heavy', 'sniper', 'assault', 'heavy', 'scout', 'sniper', 'assault', 'heavy', 'sniper', 'scout', 'assault', 'heavy', 'sniper', 'assault', 'scout', 'heavy']
       }
-    }
     },
     {
       id: 'surface-04',
