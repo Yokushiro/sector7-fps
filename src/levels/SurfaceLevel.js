@@ -115,6 +115,7 @@
         exitZone: { x0: -3.2, x1: 3.2, z0: 42, z1: 46 },
         requiredInteractionId: 'surface-uplink',
         evacuationSeconds: 120,
+        evacuationMessage: 'МАЯК АКТИВЕН · ДОБЕРИСЬ ДО ПОСАДОЧНОЙ ПЛОЩАДКИ',
         playerSpawn: { x: 0, y: 1.7, z: -34, yaw: Math.PI },
         enemySpawnPoints: [[-17, -8], [17, -8], [-18, 8], [18, 8], [-7, 19], [8, 20], [0, -2], [13, 28], [-14, 28]],
         openExit() {
