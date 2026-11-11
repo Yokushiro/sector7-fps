@@ -68,7 +68,7 @@ test('streamed mission transitions reset combat state and avoid a page reload', 
   assert.match(transition, /kills=0;spawned=0;spawnT=0/);
   assert.match(transition, /P\.hp=carried\.hp/);
   assert.match(transition, /weapon\.onAmmoChange\(weapon\.ammo\)/);
-  assert.match(transition, /audioManager\.startAmbience\(currentMission\.audioProfile,carried\?1\.25:0\)/);
+  assert.match(transition, /audioManager\.startAmbience\(currentMission\.audioProfile,\(carried\|\|transition\.elevator\)\?1\.25:0\)/);
   assert.match(transition, /missionCleared=false;combatCleared=false/);
   const normalTransition = transition.split('}catch(error)')[0];
   assert.doesNotMatch(normalTransition, /location\.reload/);
@@ -171,19 +171,25 @@ test('the next sector is prebuilt invisibly and its collision is isolated until 
   assert.match(game, /setTimeout\(preloadNextMission,750\)/);
 });
 
-test('sector handoff preserves player resources and uses a short fade instead of a loading screen', () => {
+test('sector handoff uses a diegetic elevator and preserves player resources', () => {
   const game = read('src/game.js');
+  const elevator = read('src/campaign/ElevatorTransition.js');
   assert.match(game, /function transitionToMission\(nextMission\)/);
-  assert.match(game, /setTimeout\(\(\)=>\{\s*loadMission\(nextMission,\{preservePlayer:true,player\}\)/);
-  assert.match(game, /dialogueSystem\.startRadio\(currentMission\.introDialogue\)/);
+  assert.match(game, /elevatorTransition\.begin\(/);
+  assert.match(game, /loadMission\(elevatorNextMission,\{elevator:true,preserveVitals:elevatorVitals\}\)/);
+  assert.match(game, /dialogueSystem\.startRadio\(currentMission\.introDialogue,\(\)=>elevatorTransition\.setRadioComplete\(\)\)/);
   assert.match(game, /outroPlaying=true;state='transition'/);
   assert.match(game, /dialogueSystem\.startRadio\(currentMission\.outroDialogue/);
   assert.match(game, /outroShown=true;outroPlaying=false;state='play';end\(true\)/);
   assert.match(game, /dialogueSystem\.update\(dt\)/);
+  assert.match(game, /elevatorTransition\.update\(dt\)/);
   assert.match(game, /P\.hp=carried\.hp/);
-  assert.match(game, /if\(!carried\)\{/);
+  assert.match(game, /P\.hp=transition\.preserveVitals\?/);
+  assert.match(elevator, /this\.drawDisplay\(floor, flicker \? 'ПОДЪЁМ' : 'В ПУТИ'\)/);
+  assert.match(elevator, /this\.setDoorOpen\(1 - t\)/);
+  assert.match(elevator, /this\.setDoorOpen\(t\)/);
   const html = read('index.html');
-  assert.match(html, /id="transitionFade"/);
+  assert.match(html, /src\/campaign\/ElevatorTransition\.js/);
   assert.match(html, /#dialogue\.radio/);
 });
 
