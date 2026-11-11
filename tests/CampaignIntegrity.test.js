@@ -76,6 +76,6 @@ test('campaign completion routes through the cinematic elevator and preserves pl
     'if(exitPosition)P.pos.copy(exitPosition)'
   ]) assert.ok(game.includes(fragment), 'game transition must include: ' + fragment);
 
-  assert.ok(elevator.includes("this.phase = 'travel'"));
+  assert.ok(elevator.includes("phase === 'travel'"));
   assert.ok(elevator.includes('this.radioComplete'));
 });
