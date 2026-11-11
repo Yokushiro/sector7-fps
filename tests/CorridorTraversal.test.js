@@ -201,7 +201,7 @@ test('surface finale continues from the reactor tunnel into an outdoor extractio
   assert.match(surface, /exitZone: \{ x0: -3\.2, x1: 3\.2, z0: 42, z1: 46 \}/);
   assert.match(game, /levelManager\.register\(S7SurfaceLevel\)/);
   assert.match(html, /src\/levels\/SurfaceLevel\.js/);
-  assert.match(missions, /id: 'surface-04'[\s\S]*order: 4[\s\S]*target: 8/);
+  assert.match(missions, /id: 'surface-04'[\s\S]*order: 4[\s\S]*target: 9/);
 });
 
 test('surface finale culminates in the Warden boss with a dedicated health HUD', () => {
