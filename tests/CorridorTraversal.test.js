@@ -237,7 +237,7 @@ test('surface finale requires clearing the pursuit and activating the uplink bef
 
 test('reactor evacuation alarm is declared and pulses without crashing the level update', () => {
   const reactor = read('src/levels/ReactorLevel.js');
-  assert.match(reactor, /const alarm = new T\\.PointLight\\(0xff3028, \.25, 16, 2\\)/);
-  assert.match(reactor, /alarm\\.intensity = \.25 \\+ Math\\.max\\(0, Math\\.sin\\(time \\* 8\\)\\) \\* 1\\.35/);
+  assert.ok(reactor.includes('const alarm = new T.PointLight(0xff3028, .25, 16, 2)'));
+  assert.ok(reactor.includes('alarm.intensity = .25 + Math.max(0, Math.sin(time * 8)) * 1.35'));
   assert.ok(reactor.indexOf('const alarm =') < reactor.indexOf('alarm.intensity ='));
 });
