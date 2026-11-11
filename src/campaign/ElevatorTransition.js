@@ -32,7 +32,8 @@
     }
 
     begin({ position, yaw = 0, destinationLabel = '02' } = {}) {
-      if (this.phase !== 'idle' || !position) throw new Error('Elevator transition is already active or has no start position');
+      if ((this.phase !== 'idle' && this.phase !== 'complete') || !position) throw new Error('Elevator transition is already active or has no start position');
+      this.disposed = false;
       this.destinationLabel = String(destinationLabel);
       this.cameraYaw = yaw;
       this.createCabin(position, yaw);
@@ -201,7 +202,6 @@
         this.cameraLocalZ = -3 + t * 1.2;
         this.updateCamera();
         if (t >= 1) {
-          this.cameraYaw = this.group.rotation.y;
           this.updateCamera();
           this.enterPhase('closing');
         }
