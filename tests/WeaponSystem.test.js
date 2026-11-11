@@ -27,7 +27,7 @@ class FakeMaterial {
   constructor(options = {}) { Object.assign(this, options); }
 }
 class FakeRaycaster {
-  setFromCamera() {}
+  setFromCamera(coords) { this.coords = coords; }
   intersectObjects() { return []; }
 }
 class FakePointLight {
@@ -90,4 +90,32 @@ test('weapon does not start a reload when the magazine is full', () => {
   const { weapon } = createWeapon();
   assert.equal(weapon.reload(), false);
   assert.equal(weapon.ammo, 30);
+});
+
+test('shot bloom grows during rapid fire and recovers while not firing', () => {
+  const { weapon } = createWeapon();
+  const ranges = [];
+  const random = (min, max) => {
+    if (min < 0) ranges.push(Math.max(Math.abs(min), Math.abs(max)));
+    return (min + max) / 2;
+  };
+  weapon.fire([], [], () => {}, () => {}, () => {}, random);
+  const firstSpread = ranges[ranges.length - 1];
+  weapon.update(0.1, 0.1, 0);
+  weapon.fire([], [], () => {}, () => {}, () => {}, random);
+  const secondSpread = ranges[ranges.length - 1];
+  assert.ok(secondSpread > firstSpread, 'rapid shots should widen the spread');
+  weapon.update(1, 1.1, 0);
+  assert.ok(weapon.aimBloom < 0.0001, 'spread should recover after a pause');
+});
+
+test('camera recoil recovery is time-based rather than frame-count based', () => {
+  const a = createWeapon().weapon;
+  const b = createWeapon().weapon;
+  const random = (min, max) => (min + max) / 2;
+  for (const weapon of [a, b]) weapon.fire([], [], () => {}, () => {}, () => {}, random);
+  a.update(0.5, 0.5, 0);
+  for (let i = 0; i < 30; i++) b.update(1 / 60, (i + 1) / 60, 0);
+  assert.ok(Math.abs(a.pitchKick - b.pitchKick) < 1e-10);
+  assert.ok(a.pitchKick < 0.002);
 });
