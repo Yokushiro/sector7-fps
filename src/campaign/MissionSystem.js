@@ -103,7 +103,7 @@
         { speaker: 'НЕИЗВЕСТНЫЙ', text: 'До скорой встречи.' }
       ],
       levelId: 'surface-04',
-      audioProfile: 'reactor',
+      audioProfile: 'surface',
       objectives: [
         { id: 'surface-pursuit', type: 'eliminate', target: 8, label: 'Уничтожить преследующие дроны' }
       ],
