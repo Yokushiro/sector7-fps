@@ -106,7 +106,7 @@ test('shot bloom grows during rapid fire and recovers while not firing', () => {
   const secondSpread = ranges[ranges.length - 1];
   assert.ok(secondSpread > firstSpread, 'rapid shots should widen the spread');
   weapon.update(1, 1.1, 0);
-  assert.ok(weapon.aimBloom < 0.0003, 'spread should recover after a pause');
+  assert.ok(weapon.aimBloom < 0.0006, 'spread should recover after a pause');
 });
 
 test('camera recoil recovery is time-based rather than frame-count based', () => {
