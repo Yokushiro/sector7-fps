@@ -28,6 +28,9 @@
         cd: randomRange(profile.attackMin, profile.attackMax),
         phase: 1,
         eyeColor: profile.eyeColor,
+        hitStunDuration: Number.isFinite(profile.hitStunDuration) ? profile.hitStunDuration : 0.14,
+        hitImpulse: Number.isFinite(profile.hitImpulse) ? profile.hitImpulse : 1.5,
+        hitReactionVelocity: { x: 0, z: 0 },
         flash: 0
       };
     }
