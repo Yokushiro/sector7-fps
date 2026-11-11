@@ -212,17 +212,17 @@ test('surface finale culminates in the Warden boss with a dedicated health HUD',
   const factory = read('src/ai/EnemyFactory.js');
   const html = read('index.html');
   const mission = read('src/campaign/MissionSystem.js');
-  assert.match(ai, /warden: Object\\.freeze\\(/);
-  assert.match(ai, /hp: 280, moveSpeed: 1\\.65/);
-  assert.match(game, /type==='warden'\\) bodyGeometry=new T\\.IcosahedronGeometry/);
-  assert.match(factory, /maxHp: profile\\.hp/);
-  assert.match(game, /S7EnemyFactory\\.createCombatant\\(type,profile,R\\)/);
-  assert.match(game, /enemies\\.find\\(enemy=>enemy\\.type==='warden'\\)/);
+  assert.match(ai, /warden: Object\.freeze\(/);
+  assert.match(ai, /hp: 280, moveSpeed: 1\.65/);
+  assert.match(game, /type==='warden'\) bodyGeometry=new T\.IcosahedronGeometry/);
+  assert.match(factory, /maxHp: profile\.hp/);
+  assert.match(game, /S7EnemyFactory\.createCombatant\(type,profile,R\)/);
+  assert.match(game, /enemies\.find\(enemy=>enemy\.type==='warden'\)/);
   assert.match(game, /bossHealth/);
   assert.match(html, /id="bossHud"/);
   assert.match(html, /id="bossHealth"/);
   assert.match(mission, /target: 9/);
-  assert.match(mission, /'warden'\\]/);
+  assert.match(mission, /'warden'\]/);
 });
 test('surface finale requires clearing the pursuit and activating the uplink before extraction', () => {
   const surface = read('src/levels/SurfaceLevel.js');
