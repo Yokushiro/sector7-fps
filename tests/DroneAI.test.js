@@ -26,13 +26,15 @@ function makeEnemy(type, speed, preferredDistance) {
 }
 
 // Enemy archetypes expose distinct combat roles and readable stat profiles.
-test('all four enemy archetypes have distinct combat profiles', () => {
+test('all enemy archetypes and the Warden boss have distinct combat profiles', () => {
   const profiles = DroneAI.PROFILES;
-  assert.deepEqual(Object.keys(profiles).sort(), ['assault', 'heavy', 'scout', 'sniper']);
+  assert.deepEqual(Object.keys(profiles).sort(), ['assault', 'heavy', 'scout', 'sniper', 'warden']);
   assert.ok(profiles.assault.moveSpeed > profiles.scout.moveSpeed);
   assert.ok(profiles.heavy.hp > profiles.scout.hp);
   assert.ok(profiles.sniper.preferredDistance > profiles.heavy.preferredDistance);
   assert.ok(profiles.sniper.damage > profiles.scout.damage);
+  assert.ok(profiles.warden.hp > profiles.heavy.hp * 2);
+  assert.ok(profiles.warden.damage > profiles.heavy.damage);
 });
 
 test('drone AI moves enemies toward the player', () => {
@@ -178,4 +180,12 @@ test('drone eye lights retain their archetype colors', () => {
   assert.ok(color[0] > 0.5 && color[0] < 0.7);
   assert.ok(color[1] > 0.3 && color[1] < 0.5);
   assert.ok(color[2] > 0.9);
+});
+
+test('Warden boss maintains a distinct heavy-pressure combat profile', () => {
+  const profile = DroneAI.PROFILES.warden;
+  assert.equal(profile.hp, 280);
+  assert.equal(profile.moveSpeed, 1.65);
+  assert.equal(profile.eyeColor, 0xff4fcb);
+  assert.ok(profile.attackMin < profile.attackMax);
 });
