@@ -122,6 +122,7 @@
           context.removeCollisionBox(exitGate.userData.collisionBox);
         },
         update(dt, time) {
+          if (exitOpen) exitGate.position.y += (11 - exitGate.position.y) * Math.min(1, dt * 2.4);
           beaconCap.material.color.setHex(Math.sin(time * 4) > 0 ? 0x42dfff : 0xff4b3a);
           beaconLight.intensity = 1.7 + Math.max(0, Math.sin(time * 4)) * 1.8;
           extractionLight.intensity = exitOpen ? 2 + Math.sin(time * 6) * .7 : .5;
