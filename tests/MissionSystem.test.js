@@ -55,12 +55,22 @@ test('second mission unlocks only after campaign progress reaches its order', ()
   assert.deepEqual(missions.getUnlockedMissions({ unlockedMission: 3 }).map(item => item.id), ['bunker-01', 'lab-02', 'reactor-03']);
 });
 
-test('campaign selection prefers the first incomplete unlocked mission', () => {
+test('campaign selection resumes at the first incomplete mission and ignores stale hashes', () => {
   const missions = new MissionSystem();
-  const save = { unlockedMission: 2, completedMissions: ['bunker-01'] };
-  assert.equal(missions.getMissionForCampaign(save).id, 'lab-02');
-  assert.equal(missions.getMissionForCampaign(save, 'bunker-01').id, 'bunker-01');
-  assert.equal(missions.getMissionForCampaign({ unlockedMission: 1, completedMissions: ['bunker-01'] }).id, 'bunker-01');
+  const save = { unlockedMission: 4, completedMissions: ['bunker-01', 'lab-02'] };
+  assert.equal(missions.getMissionForCampaign(save).id, 'reactor-03');
+  assert.equal(missions.getMissionForCampaign(save, 'surface-04').id, 'reactor-03');
+  assert.equal(missions.getMissionForCampaign(save, 'bunker-01').id, 'reactor-03');
+  assert.equal(missions.getMissionForCampaign(save, 'reactor-03').id, 'reactor-03');
+  assert.equal(missions.getMissionForCampaign({ unlockedMission: 1, completedMissions: ['bunker-01'] }, 'lab-02').id, 'bunker-01');
+});
+
+test('unlocked missions always follow campaign order even if definitions are supplied out of order', () => {
+  const missions = new MissionSystem(MissionSystem.MISSIONS.slice().reverse());
+  assert.deepEqual(
+    missions.getUnlockedMissions({ unlockedMission: 4 }).map(mission => mission.id),
+    ['bunker-01', 'lab-02', 'reactor-03', 'surface-04']
+  );
 });
 
 test('surface finale completes the four-sector campaign and keeps the extraction objective gated', () => {
