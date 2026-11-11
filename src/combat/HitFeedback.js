@@ -25,7 +25,8 @@
       }
       if (this.remaining <= 0) return false;
       this.remaining = Math.max(0, this.remaining - dt);
-      if (this.remaining === 0) {
+      if (this.remaining <= 1e-6) {
+        this.remaining = 0;
         if (element && element.classList) {
           element.classList.remove('visible', 'headshot', 'kill');
         }
