@@ -29,5 +29,5 @@ test('performance monitor resets renderer counters after each sampling window', 
 
   assert.equal(resets, 1);
   assert.match(panel.textContent, /DRAW CALLS:\s*42/);
-  assert.match(panel.textContent, /TRIANGLES:\s*12,000/);
+  assert.match(panel.textContent, /TRIANGLES:\s*12\s000/);
 });
