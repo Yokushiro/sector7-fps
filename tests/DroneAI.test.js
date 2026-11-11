@@ -189,3 +189,46 @@ test('Warden boss maintains a distinct heavy-pressure combat profile', () => {
   assert.equal(profile.eyeColor, 0xff4fcb);
   assert.ok(profile.attackMin < profile.attackMax);
 });
+
+test('Warden enters a faster and more aggressive second phase at half health', () => {
+  const ai = new DroneAI();
+  const enemy = makeEnemy('warden', 1.65, 7.2);
+  enemy.hp = 140;
+  enemy.maxHp = 280;
+  enemy.phase = 1;
+  enemy.damage = 18;
+  enemy.projectileSpeed = 15;
+  enemy.spread = .14;
+  enemy.attackMin = 1.25;
+  enemy.attackMax = 1.8;
+  enemy.eyeColor = 0xff4fcb;
+  enemy.cd = 10;
+  let phaseSound = 0;
+  ai.update(
+    [enemy],
+    { pos: { x: 0, y: 1.7, z: 0 } },
+    0.1,
+    () => {},
+    { add() {} },
+    [],
+    () => { phaseSound++; },
+    (min, max) => (min + max) / 2
+  );
+  assert.equal(enemy.phase, 2);
+  assert.ok(enemy.moveSpeed > 1.65);
+  assert.ok(enemy.damage > 18);
+  assert.ok(enemy.projectileSpeed > 15);
+  assert.equal(enemy.eyeColor, 0xff8de5);
+  assert.equal(phaseSound, 1);
+  ai.update(
+    [enemy],
+    { pos: { x: 0, y: 1.7, z: 0 } },
+    0.1,
+    () => {},
+    { add() {} },
+    [],
+    () => { phaseSound++; },
+    (min, max) => (min + max) / 2
+  );
+  assert.equal(phaseSound, 1, 'phase transition must only trigger once');
+});
