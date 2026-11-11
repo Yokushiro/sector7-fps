@@ -164,13 +164,13 @@ const weapon=new S7WeaponSystem({
  onAmmoChange:value=>{$('ammo').textContent=value}
 });
 const damageSystem=new S7DamageSystem();
+const hitFeedback=new S7HitFeedback();
 const projectileSystem=new S7ProjectileSystem({scene});
 function hitEnemy(enemy,hit){
  const result=damageSystem.applyEnemyDamage(enemy,Boolean(hit.object.userData.head));
  enemy.m.emissive.setRGB(1,.6,.3);
  enemy.flash=.08;
- $('hit').style.opacity=1;
- setTimeout(()=>$('hit').style.opacity=0,90);
+ hitFeedback.trigger($('hit'),{headshot:result.headshot,killed:result.killed});
  snd(900,.06,'square',.15);
  for(let i=0;i<6;i++)spark(hit.point,new T.Color(3,1.5,.4));
  if(result.killed)killE(enemy);
@@ -297,6 +297,7 @@ const graphicsSettings=new S7GraphicsSettings(renderer,comp,bloom,resize);
 let last=performance.now();
 function loop(now){requestAnimationFrame(loop);const dt=Math.min(.05,(now-last)/1000);last=now;tm+=dt;if(typeof activeLevel.update==='function')activeLevel.update(dt,tm);
  dialogueSystem.update(dt);
+ hitFeedback.update(dt,$('hit'));
  if(state==='play'){
   const f=(keys.KeyW?1:0)-(keys.KeyS?1:0),r=(keys.KeyD?1:0)-(keys.KeyA?1:0),sp=keys.ShiftLeft?7:4.6,mv=f||r;
   if(mv){const l=Math.hypot(f,r),sy=Math.sin(P.yaw),cy=Math.cos(P.yaw);P.pos.x+=(-sy*f+cy*r)/l*sp*dt;P.pos.z+=(-cy*f-sy*r)/l*sp*dt;collide(P.pos,.4)}
