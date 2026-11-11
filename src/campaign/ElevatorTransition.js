@@ -17,6 +17,7 @@
       this.displayTexture = null;
       this.displayCanvas = null;
       this.doors = [];
+      this.ceilingLight = null;
       this.phase = 'idle';
       this.phaseTime = 0;
       this.travelTime = 0;
@@ -92,6 +93,7 @@
       const ceilingLight = new T.PointLight(0x9edcff, 1.2, 8, 2);
       ceilingLight.position.set(0, 3.05, 0);
       group.add(ceilingLight);
+      this.ceilingLight = ceilingLight;
       const emergency = new T.PointLight(0xff4c36, .12, 5, 2);
       emergency.position.set(0, 2.7, 1.8);
       group.add(emergency);
@@ -102,7 +104,8 @@
       canvas.width = 256;
       canvas.height = 128;
       const texture = new T.CanvasTexture(canvas);
-      texture.colorSpace = T.SRGBColorSpace || texture.colorSpace;
+      if (T.SRGBColorSpace && 'colorSpace' in texture) texture.colorSpace = T.SRGBColorSpace;
+      else if (T.sRGBEncoding) texture.encoding = T.sRGBEncoding;
       const screen = new T.Mesh(new T.PlaneGeometry(.42, .21),
         new T.MeshBasicMaterial({ map: texture, toneMapped: false }));
       screen.position.set(1.72, 2.12, -.71);
@@ -226,6 +229,7 @@
       if (this.group && this.phase === 'travel') {
         const vibration = Math.sin(this.travelTime * 18) * .012;
         this.camera.position.y = this.group.position.y + 1.7 + vibration;
+        if (this.ceilingLight) this.ceilingLight.intensity = .92 + Math.sin(this.travelTime * 13) * .16;
       }
       return true;
     }
@@ -249,6 +253,7 @@
         this.scene.remove(this.group);
       }
       this.group = null;
+      this.ceilingLight = null;
       this.displayTexture = null;
       this.displayCanvas = null;
       this.doors = [];
