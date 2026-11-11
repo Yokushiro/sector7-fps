@@ -203,8 +203,14 @@ function hitEnemy(enemy,hit){
  enemy.m.emissive.setRGB(1,.6,.3);
  enemy.flash=.08;
  if(!result.killed){
-  const stagger={scout:.16,assault:.12,heavy:.09,sniper:.2,warden:.07};
-  enemy.hitStunRemaining=Math.max(enemy.hitStunRemaining||0,stagger[enemy.type]+(result.headshot?.12:0));
+  const stunDuration=Number.isFinite(enemy.hitStunDuration)?enemy.hitStunDuration:.14;
+  enemy.hitStunRemaining=Math.max(enemy.hitStunRemaining||0,stunDuration+(result.headshot?.12:0));
+  const dx=enemy.g.position.x-P.pos.x,dz=enemy.g.position.z-P.pos.z;
+  const distance=Math.hypot(dx,dz)||1;
+  const impulse=(Number.isFinite(enemy.hitImpulse)?enemy.hitImpulse:1.5)*(result.headshot?1.35:1);
+  if(!enemy.hitReactionVelocity)enemy.hitReactionVelocity={x:0,z:0};
+  enemy.hitReactionVelocity.x+=dx/distance*impulse;
+  enemy.hitReactionVelocity.z+=dz/distance*impulse;
  }
  hitFeedback.trigger($('hit'),{headshot:result.headshot,killed:result.killed});
  snd(900,.06,'square',.15);
