@@ -152,6 +152,10 @@
       const corridorLight = new T.PointLight(0xff8b42, 1.2, 17, 2);
       corridorLight.position.set(0, 5, -25);
       scene.add(corridorLight);
+      // Red emergency beacon pulses after the reactor shutdown sequence begins.
+      const alarm = new T.PointLight(0xff3028, .25, 16, 2);
+      alarm.position.set(0, 6.2, -17.5);
+      scene.add(alarm);
 
       // Emergency shutdown console with the final incident record.
       let reactorShutdown = false;
