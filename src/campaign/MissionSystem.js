@@ -144,16 +144,20 @@
       const unlocked = Math.max(1, Number(campaignSave?.unlockedMission) || 1);
       return this.missions
         .filter(mission => mission.order <= unlocked)
+        .sort((a, b) => a.order - b.order)
         .map(mission => this.copyMission(mission));
     }
 
     getMissionForCampaign(campaignSave, requestedId) {
       const unlocked = this.getUnlockedMissions(campaignSave);
       if (!unlocked.length) return null;
-      const requested = unlocked.find(mission => mission.id === requestedId);
-      if (requested) return requested;
       const completed = new Set(Array.isArray(campaignSave?.completedMissions) ? campaignSave.completedMissions : []);
-      return unlocked.find(mission => !completed.has(mission.id)) || unlocked[0];
+      const nextInSequence = unlocked.find(mission => !completed.has(mission.id)) || unlocked[0];
+      // A remembered URL hash is not permission to skip campaign chapters.
+      // Honor it only when it already points at the next mission in order.
+      return requestedId && requestedId === nextInSequence.id
+        ? this.getMission(nextInSequence.id)
+        : nextInSequence;
     }
 
     getObjective(missionId, objectiveId) {
