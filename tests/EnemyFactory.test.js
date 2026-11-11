@@ -23,6 +23,9 @@ test('factory creates an isolated combatant with profile stats and randomized co
   assert.equal(enemy.flankOffset, 2.8);
   assert.equal(enemy.phase, 1);
   assert.equal(enemy.cd, 1.9);
+  assert.equal(enemy.hitStunDuration, 0.14);
+  assert.equal(enemy.hitImpulse, 1.5);
+  assert.deepEqual({ ...enemy.hitReactionVelocity }, { x: 0, z: 0 });
 });
 
 test('factory applies a safe scout fallback for unknown flank archetypes', () => {
