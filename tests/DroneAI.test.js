@@ -265,3 +265,58 @@ test('nonlethal hits stagger drones and temporarily suppress their attacks', () 
   assert.equal(enemy.hitStunRemaining, 0.1);
   assert.equal(projectiles.length, 0, 'staggered drone must not fire');
 });
+
+
+test('sniper drones retreat when the player breaches their preferred range', () => {
+  const ai = new DroneAI();
+  const enemy = makeEnemy('sniper', 1.25, 10);
+  enemy.g.position.x = 3;
+  enemy.t = -0.1;
+  ai.update(
+    [enemy],
+    { pos: { x: 0, y: 1.7, z: 0 } },
+    0.1,
+    () => {},
+    { add() {} },
+    [],
+    () => {},
+    (min, max) => (min + max) / 2
+  );
+  assert.ok(enemy.g.position.x > 3, 'sniper should create distance instead of pushing into close range');
+});
+
+test('drones reverse their strafe direction after firing to avoid static attack lanes', () => {
+  const ai = new DroneAI();
+  const enemy = makeEnemy('scout', 2.65, 5.5);
+  enemy.cd = 0;
+  enemy.strafeSign = 1;
+  class Vector3 {
+    constructor(x, y, z) { this.x = x; this.y = y; this.z = z; }
+    sub(other) { this.x -= other.x; this.y -= other.y; this.z -= other.z; return this; }
+    normalize() { const n = Math.hypot(this.x, this.y, this.z) || 1; this.x /= n; this.y /= n; this.z /= n; return this; }
+    multiplyScalar(n) { this.x *= n; this.y *= n; this.z *= n; return this; }
+  }
+  const three = {
+    Mesh: class { constructor() { this.position = { copy() {} }; } },
+    SphereGeometry: class {},
+    MeshBasicMaterial: class {},
+    Color: class {},
+    Vector3
+  };
+  const previousThree = context.THREE;
+  context.THREE = three;
+  const projectiles = [];
+  ai.update(
+    [enemy],
+    { pos: { x: 0, y: 1.7, z: 0 } },
+    0.1,
+    () => {},
+    { add() {} },
+    projectiles,
+    () => {},
+    (min, max) => min
+  );
+  context.THREE = previousThree;
+  assert.equal(projectiles.length, 1);
+  assert.equal(enemy.strafeSign, -1);
+});
