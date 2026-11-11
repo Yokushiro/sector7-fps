@@ -38,7 +38,7 @@
           }
         }
 
-        if (distance < this.playerHitDistance) {
+        if (!remove && distance < this.playerHitDistance) {
           onPlayerHit(projectile.damage || 8, projectile);
           hits++;
           remove = true;
