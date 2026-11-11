@@ -32,7 +32,7 @@ test('every campaign mission maps to a registered, loadable level script', () =>
     const levelPath = levelFiles[mission.levelId];
     assert.ok(levelPath, 'missing level mapping for ' + mission.id);
     const source = read(levelPath);
-    assert.match(source, new RegExp("id\\s*:\\s*['"]" + mission.levelId + "['"]"));
+    assert.ok(source.includes("id: '" + mission.levelId + "'"), "level id must match " + mission.levelId);
     assert.match(game, new RegExp('register\\(S7' + mission.levelId.split('-')[0][0].toUpperCase() + mission.levelId.split('-')[0].slice(1) + 'Level\\)'));
     assert.ok(html.includes('<script src="' + levelPath + '"></script>'), 'level script must load before game.js');
     assert.match(source, /playerSpawn:\\s*\\{/);
