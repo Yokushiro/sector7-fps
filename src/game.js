@@ -78,6 +78,36 @@ const enemies=[],proj=[],sparks=[];
 const droneAI=new S7DroneAI();
 const $=id=>document.getElementById(id);
 const dialogueSystem=new S7DialogueSystem({rootElement:$('dialogue'),speakerElement:$('dialogueSpeaker'),textElement:$('dialogueText'),promptElement:$('dialoguePrompt')});
+const elevatorTransition=new S7ElevatorTransition({
+ THREE:T,scene,camera:cam,
+ onSound:type=>{
+  if(type==='door-open')snd(185,.24,'triangle',.07);
+  else if(type==='door-close')snd(125,.32,'square',.055);
+  else if(type==='motor-start')snd(48,.8,'sawtooth',.045);
+  else if(type==='floor-beep')snd(880,.055,'sine',.035);
+  else if(type==='arrival')snd(220,.35,'triangle',.06);
+ },
+ onTravel:()=>{
+  try{
+   loadMission(elevatorNextMission,{elevator:true});
+   elevatorTransition.setDestination(P.pos,P.yaw,String(currentMission.order).padStart(2,'0'));
+   dialogueSystem.startRadio(currentMission.introDialogue,()=>elevatorTransition.setRadioComplete());
+  }catch(error){
+   console.error('Elevator destination load failed',error);
+   elevatorTransition.dispose();
+   state='over';
+   $('ov').style.display='flex';
+   $('ov').innerHTML='<div><h1>ОШИБКА ЗАГРУЗКИ СЕКТОРА</h1><p>Не удалось подготовить следующую локацию.</p><p>Перезапусти миссию, чтобы восстановить кампанию.</p></div>';
+  }
+ },
+ onComplete:()=>{
+  state='play';
+  cam.position.copy(P.pos);
+  cam.rotation.set(P.pitch+weapon.pitchKick,P.yaw,0);
+  try{dom.requestPointerLock()}catch(e){fallback=true}
+ }
+});
+let elevatorNextMission=null;
 let interactionSystem=new S7InteractionSystem(activeLevel.interactables||[]);
 $('dialogue').addEventListener('click',()=>dialogueSystem.advance());
 const savedStats=savedCampaign.stats;
@@ -253,9 +283,11 @@ function loadMission(nextMission,transition={}){
   $('ov').style.display='none';
   location.hash=currentMission.id;
   audioManager.startAmbience(currentMission.audioProfile,carried?1.25:0);
-  state='play';
-  dialogueSystem.startRadio(currentMission.introDialogue);
-  try{dom.requestPointerLock()}catch(e){fallback=true}
+  if(transition.elevator){state='transition'}else{
+   state='play';
+   dialogueSystem.startRadio(currentMission.introDialogue);
+   try{dom.requestPointerLock()}catch(e){fallback=true}
+  }
  }catch(error){
   console.error('Campaign transition failed',error);
   state='over';$('ov').style.display='flex';
@@ -264,14 +296,13 @@ function loadMission(nextMission,transition={}){
  }
 }
 function transitionToMission(nextMission){
- const player={x:P.pos.x,y:P.pos.y,z:P.pos.z,yaw:P.yaw,pitch:P.pitch,hp:P.hp};
  state='transition';mouse=false;document.exitPointerLock&&document.exitPointerLock();
- const fade=$('transitionFade');
- fade.style.opacity='1';
- setTimeout(()=>{
-  loadMission(nextMission,{preservePlayer:true,player});
-  requestAnimationFrame(()=>{fade.style.opacity='0'});
- },300);
+ elevatorNextMission=nextMission;
+ elevatorTransition.begin({
+  position:{x:P.pos.x,y:P.pos.y,z:P.pos.z},
+  yaw:P.yaw,
+  destinationLabel:String(nextMission.order).padStart(2,'0')
+ });
 }
 function useNearbyInteraction(){const nearby=interactionSystem.findNearby(P.pos);if(!nearby)return;if(nearby.id===activeLevel.requiredInteractionId&&!combatCleared){$('kl').textContent='СНАЧАЛА УНИЧТОЖЬ ВСЮ ОХРАНУ СЕКТОРА';return}const item=interactionSystem.activate(nearby.id);if(!item)return;state='dialogue';mouse=false;$('interactHint').hidden=true;document.exitPointerLock&&document.exitPointerLock();dialogueSystem.start(item.dialogue,()=>{if(item.id===activeLevel.requiredInteractionId){missionCleared=true;activeLevel.openExit?.();const evacuationSeconds=Number(activeLevel.evacuationSeconds)||0;if(evacuationSeconds>0){evacuationRemaining=evacuationSeconds;$('evacTimer').hidden=false;const seconds=Math.ceil(evacuationRemaining);$('evacTimer').textContent=`ЭВАКУАЦИЯ · ${String(Math.floor(seconds/60)).padStart(2,'0')}:${String(seconds%60).padStart(2,'0')}`;$('kl').textContent=activeLevel.evacuationMessage||'ЯДРО ОТКЛЮЧЕНО · ИЩИ ЭВАКУАЦИОННЫЙ КОРИДОР'}else{$('kl').textContent='ВНЕШНИЙ КОНТУР ОТКЛЮЧЁН · ШЛЮЗ В РЕАКТОР ОТКРЫТ'}}state='play';try{dom.requestPointerLock()}catch(e){fallback=true}})}
 $('ov').onclick=()=>{if(state==='over'||state==='dialogue')return;$('ov').style.display='none';if(!introShown){if(!ac)ac=audioManager.unlock();if(ac){audioManager.startAmbience(currentMission.audioProfile);audioManager.startMusic()}introShown=true;state='dialogue';dialogueSystem.start(currentMission.introDialogue,()=>{state='play';try{dom.requestPointerLock()}catch(e){fallback=true}})}else{state='play';try{dom.requestPointerLock()}catch(e){fallback=true}}};
@@ -301,6 +332,7 @@ const graphicsSettings=new S7GraphicsSettings(renderer,comp,bloom,resize);
 let last=performance.now();
 function loop(now){requestAnimationFrame(loop);const dt=Math.min(.05,(now-last)/1000);last=now;tm+=dt;if(typeof activeLevel.update==='function')activeLevel.update(dt,tm);
  dialogueSystem.update(dt);
+ elevatorTransition.update(dt);
  hitFeedback.update(dt,$('hit'));
  if(state==='play'){
   const f=(keys.KeyW?1:0)-(keys.KeyS?1:0),r=(keys.KeyD?1:0)-(keys.KeyA?1:0),sp=keys.ShiftLeft?7:4.6,mv=f||r;
