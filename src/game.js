@@ -89,7 +89,7 @@ const elevatorTransition=new S7ElevatorTransition({
  },
  onTravel:()=>{
   try{
-   loadMission(elevatorNextMission,{elevator:true});
+   loadMission(elevatorNextMission,{elevator:true,preserveVitals:elevatorVitals});
    elevatorTransition.setDestination(P.pos,P.yaw,String(currentMission.order).padStart(2,'0'));
    dialogueSystem.startRadio(currentMission.introDialogue,()=>elevatorTransition.setRadioComplete());
   }catch(error){
@@ -108,6 +108,7 @@ const elevatorTransition=new S7ElevatorTransition({
  }
 });
 let elevatorNextMission=null;
+let elevatorVitals=null;
 let interactionSystem=new S7InteractionSystem(activeLevel.interactables||[]);
 $('dialogue').addEventListener('click',()=>dialogueSystem.advance());
 const savedStats=savedCampaign.stats;
@@ -264,11 +265,11 @@ function loadMission(nextMission,transition={}){
    P.hp=carried.hp;
   }else{
    P.pos.set(activeLevel.playerSpawn.x,GROUND_Y,activeLevel.playerSpawn.z);
-   P.yaw=activeLevel.playerSpawn.yaw||0;P.pitch=0;P.hp=100;
+   P.yaw=activeLevel.playerSpawn.yaw||0;P.pitch=0;P.hp=transition.preserveVitals?Math.max(1,Number(transition.preserveVitals.hp)||100):100;
   }
   P.velocityY=0;P.grounded=true;
   $('hpf').style.width=Math.max(0,P.hp)+'%';
-  if(!carried){
+  if(!carried&&!transition.preserveVitals){
    weapon.ammo=weapon.magazineSize;weapon.reloadRemaining=0;weapon.cooldown=0;weapon.recoil=0;weapon.pitchKick=0;
    weapon.group.rotation.set(0,0,0);
   }
@@ -282,7 +283,7 @@ function loadMission(nextMission,transition={}){
   $('interactHint').hidden=true;
   $('ov').style.display='none';
   location.hash=currentMission.id;
-  audioManager.startAmbience(currentMission.audioProfile,carried?1.25:0);
+  audioManager.startAmbience(currentMission.audioProfile,(carried||transition.elevator)?1.25:0);
   if(transition.elevator){state='transition'}else{
    state='play';
    dialogueSystem.startRadio(currentMission.introDialogue);
@@ -298,6 +299,7 @@ function loadMission(nextMission,transition={}){
 function transitionToMission(nextMission){
  state='transition';mouse=false;document.exitPointerLock&&document.exitPointerLock();
  elevatorNextMission=nextMission;
+ elevatorVitals={hp:P.hp};
  elevatorTransition.begin({
   position:{x:P.pos.x,y:P.pos.y,z:P.pos.z},
   yaw:P.yaw,
