@@ -33,8 +33,8 @@
       // Outer retaining walls and a gated extraction aperture.
       box(-23.2, 4.5, 0, 1, 9, 84, wall);
       box(23.2, 4.5, 0, 1, 9, 84, wall);
-      box(-10, 4.5, 40.5, 26, 9, 1, wall);
-      box(10, 4.5, 40.5, 26, 9, 1, wall);
+      box(-14.5, 4.5, 40.5, 17.4, 9, 1, wall);
+      box(14.5, 4.5, 40.5, 17.4, 9, 1, wall);
       const exitGate = box(0, 3.8, 40.5, 5.8, 7.6, .8, steel);
       let exitOpen = false;
 
@@ -81,6 +81,13 @@
       const recorderLight = new T.PointLight(0x39cfff, .7, 5, 2);
       recorderLight.position.set(-17, 2, 25.7);
       scene.add(recorderLight);
+
+      const landingPad = new T.Mesh(new T.PlaneGeometry(12, 12), mat('floor', 4, 4, .3, 0x87969d));
+      landingPad.rotation.x = -Math.PI / 2;
+      landingPad.position.set(0, .018, 45);
+      landingPad.receiveShadow = true;
+      scene.add(landingPad);
+      context.solids.push(landingPad);
 
       const extractionMark = new T.Mesh(new T.RingGeometry(2.8, 3.2, 48), new T.MeshBasicMaterial({ color: 0x36d9ff, side: T.DoubleSide }));
       extractionMark.rotation.x = -Math.PI / 2;
