@@ -26,13 +26,15 @@
       this.destinationLabel = '01';
       this.disposed = false;
       this.doorOpen = 1;
-      this.cameraLocalZ = 1.15;
+      this.cameraLocalZ = -3;
+      this.cameraYaw = 0;
       this.durations = { entering: 1.15, closing: .85, travel: 3.8, opening: .95, exiting: .85 };
     }
 
     begin({ position, yaw = 0, destinationLabel = '02' } = {}) {
       if (this.phase !== 'idle' || !position) throw new Error('Elevator transition is already active or has no start position');
       this.destinationLabel = String(destinationLabel);
+      this.cameraYaw = yaw;
       this.createCabin(position, yaw);
       this.phase = 'entering';
       this.phaseTime = 0;
@@ -40,7 +42,7 @@
       this.radioComplete = false;
       this.destinationReady = false;
       this.doorOpen = 1;
-      this.cameraLocalZ = 1.15;
+      this.cameraLocalZ = -3;
       this.drawDisplay('01', 'ВХОД');
       this.updateCamera();
       this.onSound('door-open');
@@ -51,8 +53,9 @@
       const T = this.THREE;
       const group = new T.Group();
       this.group = group;
-      group.position.set(position.x, position.y - 1.7, position.z);
-      group.rotation.y = yaw;
+      const forwardX = -Math.sin(yaw), forwardZ = -Math.cos(yaw);
+      group.position.set(position.x + forwardX * 3, position.y - 1.7, position.z + forwardZ * 3);
+      group.rotation.y = yaw + Math.PI;
       const metal = new T.MeshStandardMaterial({ color: 0x25313b, metalness: .78, roughness: .34 });
       const dark = new T.MeshStandardMaterial({ color: 0x080f16, metalness: .35, roughness: .58 });
       const trim = new T.MeshStandardMaterial({ color: 0x5d7787, metalness: .85, roughness: .25 });
@@ -144,6 +147,7 @@
       this.group.rotation.y = Number(yaw) || 0;
       this.destinationLabel = String(floorLabel || this.destinationLabel);
       this.destinationReady = true;
+      this.cameraYaw = Number(yaw) || 0;
       this.cameraLocalZ = .15;
       this.updateCamera();
       this.drawDisplay(this.destinationLabel, 'В ПУТИ');
@@ -157,7 +161,7 @@
       if (!this.group) return;
       const local = new this.THREE.Vector3(0, 1.7, this.cameraLocalZ);
       this.camera.position.copy(this.group.localToWorld(local));
-      this.camera.rotation.set(0, this.group.rotation.y, 0);
+      this.camera.rotation.set(0, this.cameraYaw, 0);
     }
 
     setDoorOpen(amount) {
@@ -194,9 +198,13 @@
       this.phaseTime += dt;
       if (this.phase === 'entering') {
         const t = Math.min(1, this.phaseTime / this.durations.entering);
-        this.cameraLocalZ = 1.15 - t;
+        this.cameraLocalZ = -3 + t * 1.2;
         this.updateCamera();
-        if (t >= 1) this.enterPhase('closing');
+        if (t >= 1) {
+          this.cameraYaw = this.group.rotation.y;
+          this.updateCamera();
+          this.enterPhase('closing');
+        }
       } else if (this.phase === 'closing') {
         const t = Math.min(1, this.phaseTime / this.durations.closing);
         this.setDoorOpen(1 - t);
@@ -218,12 +226,13 @@
         if (t >= 1) this.enterPhase('exiting');
       } else if (this.phase === 'exiting') {
         const t = Math.min(1, this.phaseTime / this.durations.exiting);
-        this.cameraLocalZ = .15 + t * .85;
+        this.cameraLocalZ = .15 - t * 2.15;
         this.updateCamera();
         if (t >= 1) {
           this.phase = 'complete';
+          const exitPosition = this.group.localToWorld(new this.THREE.Vector3(0, 1.7, -2));
           this.dispose();
-          this.onComplete();
+          this.onComplete(exitPosition);
         }
       }
       if (this.group && this.phase === 'travel') {
