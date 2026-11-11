@@ -185,3 +185,32 @@ test('sector handoff preserves player resources and uses a short fade instead of
   assert.match(html, /id="transitionFade"/);
   assert.match(html, /#dialogue\.radio/);
 });
+
+test('surface finale continues from the reactor tunnel into an outdoor extraction yard', () => {
+  const surface = read('src/levels/SurfaceLevel.js');
+  const game = read('src/game.js');
+  const html = read('index.html');
+  const missions = read('src/campaign/MissionSystem.js');
+  assert.match(surface, /id: 'surface-04'/);
+  assert.match(surface, /tunnelFloor\.position\.set\(0, \.012, -39\)/);
+  assert.match(surface, /playerSpawn: \{ x: 0, y: 1\.7, z: -34, yaw: Math\.PI \}/);
+  assert.match(surface, /id: 'surface-uplink'/);
+  assert.match(surface, /evacuationSeconds: 120/);
+  assert.match(surface, /context\.removeCollisionBox\(exitGate\.userData\.collisionBox\)/);
+  assert.match(surface, /exitGate\.position\.y \+=/);
+  assert.match(surface, /exitZone: \{ x0: -3\.2, x1: 3\.2, z0: 42, z1: 46 \}/);
+  assert.match(game, /levelManager\.register\(S7SurfaceLevel\)/);
+  assert.match(html, /src\/levels\/SurfaceLevel\.js/);
+  assert.match(missions, /id: 'surface-04'[\s\S]*order: 4[\s\S]*target: 8/);
+});
+
+test('surface finale requires clearing the pursuit and activating the uplink before extraction', () => {
+  const surface = read('src/levels/SurfaceLevel.js');
+  const game = read('src/game.js');
+  assert.match(surface, /requiredInteractionId: 'surface-uplink'/);
+  assert.match(surface, /label: 'АКТИВИРОВАТЬ ЭВАКУАЦИОННЫЙ МАЯК'/);
+  assert.match(surface, /id: 'surface-recorder'/);
+  assert.match(surface, /if \(exitOpen\) exitGate\.position\.y/);
+  assert.match(game, /nearby\.id===activeLevel\.requiredInteractionId&&!combatCleared/);
+  assert.match(game, /if\(evacuationRemaining<=0\)end\(false\)/);
+});
