@@ -143,6 +143,12 @@
       projectileSpeed: 19, damage: 16, spread: 0.07,
       attackMin: 2.2, attackMax: 3.1,
       bodyColor: 0x292c48, eyeColor: 0x9a6bff, ringColor: 0x9675ff
+    }),
+    warden: Object.freeze({
+      hp: 280, moveSpeed: 1.65, preferredDistance: 7.2,
+      projectileSpeed: 15, damage: 18, spread: 0.14,
+      attackMin: 1.25, attackMax: 1.8,
+      bodyColor: 0x282d3d, eyeColor: 0xff4fcb, ringColor: 0x46dfff
     })
   });
 
