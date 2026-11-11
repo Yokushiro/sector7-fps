@@ -69,3 +69,13 @@ test('later mission victories unlock the following campaign slot', () => {
   assert.equal(data.campaign.unlockedMission, 3);
   assert.deepEqual(data.campaign.completedMissions, ['bunker-01', 'lab-02']);
 });
+
+test('reactor completion unlocks the final surface extraction mission', () => {
+  const save = new SaveSystem(memoryStorage());
+  save.load();
+  save.recordMissionResult({ missionId: 'bunker-01', won: true, kills: 10, nextMissionOrder: 2 });
+  save.recordMissionResult({ missionId: 'lab-02', won: true, kills: 14, nextMissionOrder: 3 });
+  const data = save.recordMissionResult({ missionId: 'reactor-03', won: true, kills: 18, nextMissionOrder: 4 });
+  assert.equal(data.campaign.unlockedMission, 4);
+  assert.deepEqual(data.campaign.completedMissions, ['bunker-01', 'lab-02', 'reactor-03']);
+});
