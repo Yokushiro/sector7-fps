@@ -263,6 +263,7 @@
       }
       this.group = null;
       this.ceilingLight = null;
+      this.displayTexture?.dispose?.();
       this.displayTexture = null;
       this.displayCanvas = null;
       this.doors = [];
