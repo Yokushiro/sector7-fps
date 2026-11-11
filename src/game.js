@@ -161,7 +161,7 @@ const weapon=new S7WeaponSystem({
  THREE:T,
  camera:cam,
  sound:snd,
- onAmmoChange:value=>{$('ammo').textContent=value}
+ onAmmoChange:value=>{$('ammo').textContent=value;$('am').classList.toggle('low',value<=6)}
 });
 const damageSystem=new S7DamageSystem();
 const hitFeedback=new S7HitFeedback();
