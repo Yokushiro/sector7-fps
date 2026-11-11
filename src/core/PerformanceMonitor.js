@@ -52,6 +52,10 @@
         '',
         'F3 — скрыть / показать'
       ].join('\n');
+      // renderer.info is configured with autoReset=false so the overlay can
+      // report a complete frame window across the post-processing passes.
+      // Reset only after sampling to avoid lifetime-cumulative draw-call counts.
+      if (typeof info.reset === 'function') info.reset();
       this.frames = 0;
       this.windowStart = now;
     }
