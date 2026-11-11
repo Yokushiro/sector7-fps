@@ -63,7 +63,18 @@
         } else {
           const strafing = distance < preferredDistance + 2 ? 1 : 0;
           const lateral = strafeSign * strafing * Math.sin(enemy.t * 0.7) * 2.2;
-          const forward = distance > preferredDistance ? (enemy.moveSpeed || 2.4) : -0.6;
+          const speed = enemy.moveSpeed || 2.4;
+          let forward;
+          if (enemy.type === 'sniper') {
+            forward = distance > preferredDistance + 1 ? speed * 0.65
+              : distance < preferredDistance - 2 ? -speed * 0.85 : 0;
+          } else if (enemy.type === 'heavy') {
+            forward = distance > preferredDistance ? speed * 0.75 : -0.25;
+          } else if (enemy.type === 'assault') {
+            forward = distance > preferredDistance ? speed * 1.15 : 0.15;
+          } else {
+            forward = distance > preferredDistance ? speed : -0.6;
+          }
           moveX = dx / distance * forward - (dz / distance) * lateral;
           moveZ = dz / distance * forward + (dx / distance) * lateral;
         }
@@ -129,6 +140,7 @@
           ).sub(group.position).normalize().multiplyScalar(enemy.projectileSpeed || 13);
           scene.add(projectile);
           projectiles.push({ m: projectile, v: velocity, l: 3, damage: enemy.damage || 8 });
+          enemy.strafeSign = -(enemy.strafeSign || 1);
           sound(500, 0.12, 'square', 0.08);
         }
       }
