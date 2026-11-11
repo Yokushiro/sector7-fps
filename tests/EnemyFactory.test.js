@@ -18,6 +18,10 @@ test('factory creates an isolated combatant with profile stats and randomized co
   assert.equal(enemy.hp, 120);
   assert.equal(enemy.maxHp, 120);
   assert.equal(enemy.moveSpeed, 1.5);
+  assert.equal(enemy.strafeAmplitude, 2.2);
+  assert.equal(enemy.strafeFrequency, 0.7);
+  assert.equal(enemy.approachMultiplier, 1);
+  assert.equal(enemy.retreatMultiplier, 1);
   assert.equal(enemy.damage, 14);
   assert.equal(enemy.strafeSign, -1);
   assert.equal(enemy.flankOffset, 2.8);
