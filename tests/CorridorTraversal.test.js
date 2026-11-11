@@ -204,6 +204,23 @@ test('surface finale continues from the reactor tunnel into an outdoor extractio
   assert.match(missions, /id: 'surface-04'[\s\S]*order: 4[\s\S]*target: 8/);
 });
 
+test('surface finale culminates in the Warden boss with a dedicated health HUD', () => {
+  const ai = read('src/ai/DroneAI.js');
+  const game = read('src/game.js');
+  const html = read('index.html');
+  const mission = read('src/campaign/MissionSystem.js');
+  assert.match(ai, /warden: Object\.freeze\(/);
+  assert.match(ai, /hp: 280, moveSpeed: 1\.65/);
+  assert.match(game, /type==='warden'\) bodyGeometry=new T\.IcosahedronGeometry/);
+  assert.match(game, /maxHp:profile\.hp/);
+  assert.match(game, /enemies\.find\(enemy=>enemy\.type==='warden'\)/);
+  assert.match(game, /bossHealth/);
+  assert.match(html, /id="bossHud"/);
+  assert.match(html, /id="bossHealth"/);
+  assert.match(mission, /target: 9/);
+  assert.match(mission, /'warden'\]/);
+});
+
 test('surface finale requires clearing the pursuit and activating the uplink before extraction', () => {
   const surface = read('src/levels/SurfaceLevel.js');
   const game = read('src/game.js');
