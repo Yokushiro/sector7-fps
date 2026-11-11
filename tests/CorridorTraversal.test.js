@@ -95,7 +95,8 @@ test('reactor shutdown starts a visible 90-second evacuation countdown', () => {
   assert.match(game, /evacuationRemaining=evacuationSeconds/);
   assert.match(game, /evacuationRemaining=Math\.max\(0,evacuationRemaining-dt\)/);
   assert.match(game, /if\(evacuationRemaining<=0\)end\(false\)/);
-  assert.match(game, /ЭВАКУАЦИЯ · 01:30/);
+  assert.match(game, /activeLevel\.evacuationMessage\|\|/);
+  assert.match(game, /String\(Math\.floor\(seconds\/60\)\)\.padStart\(2,'0'\)/);
   assert.match(html, /id="evacTimer"/);
 });
 
@@ -196,6 +197,7 @@ test('surface finale continues from the reactor tunnel into an outdoor extractio
   assert.match(surface, /playerSpawn: \{ x: 0, y: 1\.7, z: -34, yaw: Math\.PI \}/);
   assert.match(surface, /id: 'surface-uplink'/);
   assert.match(surface, /evacuationSeconds: 120/);
+  assert.match(surface, /evacuationMessage: 'МАЯК АКТИВЕН · ДОБЕРИСЬ ДО ПОСАДОЧНОЙ ПЛОЩАДКИ'/);
   assert.match(surface, /context\.removeCollisionBox\(exitGate\.userData\.collisionBox\)/);
   assert.match(surface, /exitGate\.position\.y \+=/);
   assert.match(surface, /exitZone: \{ x0: -3\.2, x1: 3\.2, z0: 42, z1: 46 \}/);
