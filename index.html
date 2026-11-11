@@ -9,7 +9,7 @@ canvas{display:block}
 #cross:before,#cross:after{content:"";position:absolute;background:#fff;box-shadow:0 0 4px #000}
 #cross:before{left:10px;top:0;width:2px;height:22px;-webkit-mask:linear-gradient(#000 35%,transparent 35% 65%,#000 65%)}
 #cross:after{top:10px;left:0;height:2px;width:22px;-webkit-mask:linear-gradient(90deg,#000 35%,transparent 35% 65%,#000 65%)}
-#hit{position:absolute;left:50%;top:50%;width:30px;height:30px;margin:-15px;border:2px solid #ff4a3a;transform:rotate(45deg);opacity:0;transition:opacity .15s}
+#hit{position:absolute;left:50%;top:50%;width:30px;height:30px;margin:-15px;border:2px solid #ff4a3a;transform:rotate(45deg);opacity:0;transition:opacity .07s,border-color .07s,box-shadow .07s}#hit.visible{opacity:1}#hit.headshot{border-color:#ffd76a;box-shadow:0 0 12px #ffc94d}#hit.kill{width:36px;height:36px;margin:-18px;border-color:#79ffd0;box-shadow:0 0 14px #42ffc0}#hit.kill:after{content:'ELIMINATED';position:absolute;left:50%;top:calc(100% + 9px);transform:translateX(-50%) rotate(-45deg);font-size:9px;letter-spacing:.14em;color:#a8ffe0;text-shadow:0 0 8px #24e8a2;white-space:nowrap}
 .b{position:absolute;bottom:calc(24px + env(safe-area-inset-bottom,0px));font-size:15px;letter-spacing:.04em;text-shadow:0 0 8px #000}
 #hp{left:28px;width:260px}#hp div{height:10px;background:#0008;border:1px solid #9fd8ff66;margin-top:6px}
 #hpf{height:100%!important;border:0!important;margin:0!important;width:100%;background:linear-gradient(90deg,#ff6a2a,#ffd36a)}
@@ -64,6 +64,6 @@ canvas{display:block}
 <script src="src/ai/DroneAI.js"></script>
 <script src="src/combat/DamageSystem.js"></script>
 <script src="src/combat/ProjectileSystem.js"></script>
-<script src="src/combat/WeaponSystem.js"></script>
+<script src="src/combat/WeaponSystem.js"></script>\n<script src="src/combat/HitFeedback.js"></script>
 <script src="src/game.js"></script>
 </body></html>
