@@ -209,7 +209,7 @@ const dom=renderer.domElement;
 function loadMission(nextMission,transition={}){
  try{
   for(const enemy of enemies){scene.remove(enemy.g);disposeRenderable(enemy.g)}enemies.length=0;
-  for(const shot of proj){scene.remove(shot.m);shot.m.geometry.dispose();shot.m.material.dispose()}proj.length=0;
+  projectileSystem.clear(proj);
   for(const particle of sparks){scene.remove(particle.m);particle.m.material.dispose()}sparks.length=0;
   currentMission=nextMission;
   missionObjective=currentMission.objectives.find(objective=>objective.type==='eliminate');
