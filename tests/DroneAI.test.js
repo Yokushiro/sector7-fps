@@ -37,6 +37,14 @@ test('all enemy archetypes and the Warden boss have distinct combat profiles', (
   assert.ok(profiles.warden.damage > profiles.heavy.damage);
 });
 
+test('enemy archetypes expose distinct movement signatures', () => {
+  const p = DroneAI.PROFILES;
+  assert.ok(p.scout.strafeFrequency > p.heavy.strafeFrequency);
+  assert.ok(p.assault.approachMultiplier > p.sniper.approachMultiplier);
+  assert.ok(p.sniper.retreatMultiplier > p.assault.retreatMultiplier);
+  assert.ok(p.heavy.strafeAmplitude < p.scout.strafeAmplitude);
+});
+
 test('drone AI moves enemies toward the player', () => {
   const ai = new DroneAI();
   const enemy = makeEnemy('scout', 2.6, 5.5);
