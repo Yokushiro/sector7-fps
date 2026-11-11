@@ -13,6 +13,9 @@
       this.cooldown = 0;
       this.recoil = 0;
       this.pitchKick = 0;
+      this.baseSpread = 0.004;
+      this.aimBloom = 0;
+      this.maxAimBloom = 0.018;
       this.raycaster = new this.THREE.Raycaster();
 
       const T = this.THREE;
@@ -54,13 +57,16 @@
       this.ammo--;
       this.cooldown=.1;
       this.recoil=.07;
+      this.pitchKick=Math.min(.12,this.pitchKick+.012);
+      this.aimBloom=Math.min(this.maxAimBloom,this.aimBloom+.0028);
       this.flash.material.opacity=1;
       this.flash.rotation.z=randomRange(0,6);
       this.flashLight.intensity=3;
       this.sound(2600,.2,0,.3,true);
       this.sound(140,.14,'sine',.5);
 
-      this.raycaster.setFromCamera({x:randomRange(-.004,.004),y:randomRange(-.004,.004)},this.camera);
+      const spread=this.baseSpread+this.aimBloom;
+      this.raycaster.setFromCamera({x:randomRange(-spread,spread),y:randomRange(-spread,spread)},this.camera);
       const targets=solids.concat(enemies.map(enemy=>enemy.g));
       const intersections=this.raycaster.intersectObjects(targets,true);
       if(intersections.length){
@@ -69,7 +75,6 @@
         if(enemy)onEnemyHit(enemy,hit);
         else onWorldHit(hit);
       }
-      this.pitchKick=.012;
       this.onAmmoChange(this.ammo);
       return true;
     }
@@ -85,6 +90,8 @@
     update(dt,time,moving) {
       this.cooldown=Math.max(0,this.cooldown-dt);
       this.recoil*=Math.pow(.85,dt*60);
+      this.aimBloom*=Math.pow(.08,dt);
+      this.pitchKick*=Math.pow(.8,dt*60);
       if(this.reloadRemaining>0){
         const previous=this.reloadRemaining;
         this.reloadRemaining=Math.max(0,this.reloadRemaining-dt);
@@ -109,7 +116,6 @@
       );
       this.flash.material.opacity*=.6;
       this.flashLight.intensity*=.55;
-      this.pitchKick*=.8;
     }
   }
 
