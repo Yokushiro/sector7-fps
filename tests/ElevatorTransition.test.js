@@ -73,6 +73,7 @@ test('elevator closes, travels, waits for radio, opens and cleans up', () => {
     const camera = { position: new Vector3(), rotation: { set(x, y, z) { this.x = x; this.y = y; this.z = z; } } };
     let travelCalls = 0;
     let completeCalls = 0;
+    let exitPosition = null;
     let elevator;
     elevator = new ElevatorTransition({
       THREE: fakeThree(),
@@ -83,13 +84,14 @@ test('elevator closes, travels, waits for radio, opens and cleans up', () => {
         elevator.setDestination({ x: 12, y: 1.7, z: -8 }, Math.PI, '02');
         elevator.setRadioComplete();
       },
-      onComplete() { completeCalls++; }
+      onComplete(position) { completeCalls++; exitPosition = position; }
     });
 
     elevator.begin({ position: { x: 0, y: 1.7, z: 0 }, yaw: 0, destinationLabel: '02' });
     assert.equal(elevator.phase, 'entering');
     for (let i = 0; i < 12; i++) elevator.update(.1);
     assert.equal(elevator.phase, 'closing');
+    assert.equal(camera.rotation.y, 0, 'entry must not rotate the player away from the doorway');
     for (let i = 0; i < 9; i++) elevator.update(.1);
     assert.equal(elevator.phase, 'travel');
     assert.equal(travelCalls, 1);
@@ -104,8 +106,14 @@ test('elevator closes, travels, waits for radio, opens and cleans up', () => {
 
     assert.equal(elevator.phase, 'complete');
     assert.equal(completeCalls, 1);
+    assert.ok(exitPosition instanceof Vector3);
     assert.equal(scene.children.length, 0);
     assert.equal(elevator.group, null);
+
+    elevator.begin({ position: { x: 4, y: 1.7, z: 5 }, yaw: Math.PI, destinationLabel: '03' });
+    assert.equal(elevator.phase, 'entering', 'the same transition controller must support later campaign handoffs');
+    assert.equal(scene.children.length, 1);
+    elevator.dispose();
   } finally {
     if (previousDocument === undefined) delete global.document;
     else global.document = previousDocument;
