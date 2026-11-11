@@ -25,6 +25,20 @@
       for (const enemy of enemies) {
         const group = enemy.g;
         enemy.t += dt;
+        // The Warden escalates once, at half health, rather than relying on raw stats alone.
+        if (enemy.type === 'warden' && enemy.phase === 1
+          && Number.isFinite(enemy.maxHp) && enemy.hp <= enemy.maxHp * 0.5) {
+          enemy.phase = 2;
+          enemy.moveSpeed *= 1.35;
+          enemy.attackMin *= 0.78;
+          enemy.attackMax *= 0.82;
+          enemy.damage *= 1.15;
+          enemy.projectileSpeed *= 1.12;
+          enemy.spread *= 0.9;
+          enemy.cd = Math.min(enemy.cd, 0.7);
+          enemy.eyeColor = 0xff8de5;
+          sound(180, 0.3, 'sawtooth', 0.2);
+        }
         const dx = player.pos.x - group.position.x;
         const dz = player.pos.z - group.position.z;
         const distance = Math.hypot(dx, dz) || 1;
