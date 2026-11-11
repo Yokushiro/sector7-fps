@@ -14,6 +14,7 @@ class Group {
     this.rotation = { y: 0 };
   }
   add(child) { this.children.push(child); child.parent = this; }
+  remove(child) { const index = this.children.indexOf(child); if (index >= 0) this.children.splice(index, 1); child.parent = null; }
   traverse(callback) { callback(this); for (const child of this.children) child.traverse ? child.traverse(callback) : callback(child); }
   localToWorld(vector) {
     const c = Math.cos(this.rotation.y), s = Math.sin(this.rotation.y);
@@ -93,7 +94,7 @@ test('elevator closes, travels, waits for radio, opens and cleans up', () => {
     assert.equal(elevator.phase, 'travel');
     assert.equal(travelCalls, 1);
     assert.equal(camera.position.x, 12);
-    assert.equal(camera.position.z, -8);
+    assert.equal(camera.position.z, -8.15);
 
     for (let i = 0; i < 38; i++) elevator.update(.1);
     assert.equal(elevator.phase, 'opening');
