@@ -42,11 +42,11 @@ test('repeated hits refresh the marker lifetime without stale classes', () => {
 });
 
 test('hit feedback validates inputs and can be cleared immediately', () => {
-  assert.throws(() => new HitFeedback(0), RangeError);
+  assert.throws(() => new HitFeedback(0), error => error.name === 'RangeError');
   const feedback = new HitFeedback();
   const element = marker();
-  assert.throws(() => feedback.trigger(null), TypeError);
-  assert.throws(() => feedback.update(-1, element), RangeError);
+  assert.throws(() => feedback.trigger(null), error => error.name === 'TypeError');
+  assert.throws(() => feedback.update(-1, element), error => error.name === 'RangeError');
   feedback.trigger(element, { headshot: true, killed: true });
   feedback.clear(element);
   assert.equal(feedback.remaining, 0);
