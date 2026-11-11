@@ -62,18 +62,18 @@
           moveZ = flankDz / flankDistance * speed;
         } else {
           const strafing = distance < preferredDistance + 2 ? 1 : 0;
-          const lateral = strafeSign * strafing * Math.sin(enemy.t * 0.7) * 2.2;
+          const lateral = strafeSign * strafing * Math.sin(enemy.t * (enemy.strafeFrequency || 0.7)) * (enemy.strafeAmplitude || 2.2);
           const speed = enemy.moveSpeed || 2.4;
           let forward;
           if (enemy.type === 'sniper') {
-            forward = distance > preferredDistance + 1 ? speed * 0.65
-              : distance < preferredDistance - 2 ? -speed * 0.85 : 0;
+            forward = distance > preferredDistance + 1 ? speed * 0.65 * (enemy.approachMultiplier || 1)
+              : distance < preferredDistance - 2 ? -speed * 0.85 * (enemy.retreatMultiplier || 1) : 0;
           } else if (enemy.type === 'heavy') {
-            forward = distance > preferredDistance ? speed * 0.75 : -0.25;
+            forward = distance > preferredDistance ? speed * 0.75 * (enemy.approachMultiplier || 1) : -0.25;
           } else if (enemy.type === 'assault') {
-            forward = distance > preferredDistance ? speed * 1.15 : 0.15;
+            forward = distance > preferredDistance ? speed * 1.15 * (enemy.approachMultiplier || 1) : 0.15;
           } else {
-            forward = distance > preferredDistance ? speed : -0.6;
+            forward = distance > preferredDistance ? speed * (enemy.approachMultiplier || 1) : -0.6 * (enemy.retreatMultiplier || 1);
           }
           moveX = dx / distance * forward - (dz / distance) * lateral;
           moveZ = dz / distance * forward + (dx / distance) * lateral;
@@ -162,31 +162,31 @@
 
   S7DroneAI.PROFILES = Object.freeze({
     scout: Object.freeze({
-      hp: 60, moveSpeed: 2.65, preferredDistance: 5.5,
+      hp: 60, moveSpeed: 2.65, preferredDistance: 5.5,\n      strafeAmplitude: 3.5, strafeFrequency: 2.1, approachMultiplier: 0.95, retreatMultiplier: 1.15,
       projectileSpeed: 14, damage: 6, spread: 0.42,
       attackMin: 1.2, attackMax: 1.9,
       bodyColor: 0x2b3037, eyeColor: 0xff3928, ringColor: 0x35bfff, hitStunDuration: 0.22, hitImpulse: 3.8
     }),
     assault: Object.freeze({
-      hp: 72, moveSpeed: 3.35, preferredDistance: 3.8,
+      hp: 72, moveSpeed: 3.35, preferredDistance: 3.8,\n      strafeAmplitude: 1.1, strafeFrequency: 0.45, approachMultiplier: 1.35, retreatMultiplier: 0.55,
       projectileSpeed: 13, damage: 8, spread: 0.34,
       attackMin: 0.95, attackMax: 1.45,
       bodyColor: 0x49332d, eyeColor: 0xff5a18, ringColor: 0xff6a28, hitStunDuration: 0.17, hitImpulse: 2.8
     }),
     heavy: Object.freeze({
-      hp: 120, moveSpeed: 1.5, preferredDistance: 6.8,
+      hp: 120, moveSpeed: 1.5, preferredDistance: 6.8,\n      strafeAmplitude: 0.55, strafeFrequency: 0.35, approachMultiplier: 0.8, retreatMultiplier: 0.35,
       projectileSpeed: 10, damage: 14, spread: 0.2,
       attackMin: 1.9, attackMax: 2.7,
       bodyColor: 0x3b424b, eyeColor: 0xff3322, ringColor: 0xffa23a, hitStunDuration: 0.10, hitImpulse: 0.85
     }),
     sniper: Object.freeze({
-      hp: 75, moveSpeed: 1.25, preferredDistance: 10,
+      hp: 75, moveSpeed: 1.25, preferredDistance: 10,\n      strafeAmplitude: 2.8, strafeFrequency: 0.55, approachMultiplier: 0.75, retreatMultiplier: 1.45,
       projectileSpeed: 19, damage: 16, spread: 0.07,
       attackMin: 2.2, attackMax: 3.1,
       bodyColor: 0x292c48, eyeColor: 0x9a6bff, ringColor: 0x9675ff, hitStunDuration: 0.24, hitImpulse: 2.4
     }),
     warden: Object.freeze({
-      hp: 280, moveSpeed: 1.65, preferredDistance: 7.2,
+      hp: 280, moveSpeed: 1.65, preferredDistance: 7.2,\n      strafeAmplitude: 1.8, strafeFrequency: 0.9, approachMultiplier: 1.05, retreatMultiplier: 0.7,
       projectileSpeed: 15, damage: 18, spread: 0.14,
       attackMin: 1.25, attackMax: 1.8,
       bodyColor: 0x282d3d, eyeColor: 0xff4fcb, ringColor: 0x46dfff, hitStunDuration: 0.08, hitImpulse: 0.45
