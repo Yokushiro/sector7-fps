@@ -82,7 +82,6 @@ test('elevator closes, travels, waits for radio, opens and cleans up', () => {
       onTravel() {
         travelCalls++;
         elevator.setDestination({ x: 12, y: 1.7, z: -8 }, Math.PI, '02');
-        elevator.setRadioComplete();
       },
       onComplete(position) { completeCalls++; exitPosition = position; }
     });
@@ -98,7 +97,10 @@ test('elevator closes, travels, waits for radio, opens and cleans up', () => {
     assert.equal(camera.position.x, 12);
     assert.equal(camera.position.z, -8.15);
 
-    for (let i = 0; i < 38; i++) elevator.update(.1);
+    for (let i = 0; i < 39; i++) elevator.update(.1);
+    assert.equal(elevator.phase, 'travel', 'doors must remain closed until the radio dialogue ends');
+    elevator.setRadioComplete();
+    elevator.update(.1);
     assert.equal(elevator.phase, 'opening');
     for (let i = 0; i < 10; i++) elevator.update(.1);
     assert.equal(elevator.phase, 'exiting');
