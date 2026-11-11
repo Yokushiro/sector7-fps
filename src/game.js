@@ -170,6 +170,10 @@ function hitEnemy(enemy,hit){
  const result=damageSystem.applyEnemyDamage(enemy,Boolean(hit.object.userData.head));
  enemy.m.emissive.setRGB(1,.6,.3);
  enemy.flash=.08;
+ if(!result.killed){
+  const stagger={scout:.16,assault:.12,heavy:.09,sniper:.2,warden:.07};
+  enemy.hitStunRemaining=Math.max(enemy.hitStunRemaining||0,stagger[enemy.type]+(result.headshot?.12:0));
+ }
  hitFeedback.trigger($('hit'),{headshot:result.headshot,killed:result.killed});
  snd(900,.06,'square',.15);
  for(let i=0;i<6;i++)spark(hit.point,new T.Color(3,1.5,.4));
