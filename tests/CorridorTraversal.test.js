@@ -183,6 +183,7 @@ test('sector handoff uses a diegetic elevator and preserves player resources', (
   assert.match(game, /outroShown=true;outroPlaying=false;state='play';end\(true\)/);
   assert.match(game, /dialogueSystem\.update\(dt\)/);
   assert.match(game, /elevatorTransition\.update\(dt\)/);
+  assert.match(game, /onComplete:exitPosition=>\{\s*if\(exitPosition\)P\.pos\.copy\(exitPosition\)/);
   assert.match(game, /P\.hp=carried\.hp/);
   assert.match(game, /P\.hp=transition\.preserveVitals\?/);
   assert.match(elevator, /this\.drawDisplay\(floor, flicker \? 'ПОДЪЁМ' : 'В ПУТИ'\)/);
