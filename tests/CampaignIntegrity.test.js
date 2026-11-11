@@ -13,10 +13,10 @@ vm.runInNewContext(read('src/ai/DroneAI.js'), aiContext);
 const enemyProfiles = aiContext.window.S7DroneAI.PROFILES;
 
 const levelFiles = {
-  'bunker-01': 'src/levels/BunkerLevel.js',
-  'lab-02': 'src/levels/LabLevel.js',
-  'reactor-03': 'src/levels/ReactorLevel.js',
-  'surface-04': 'src/levels/SurfaceLevel.js'
+  'bunker-01': { path: 'src/levels/BunkerLevel.js', symbol: 'S7BunkerLevel' },
+  'lab-02': { path: 'src/levels/LabLevel.js', symbol: 'S7LabLevel' },
+  'reactor-03': { path: 'src/levels/ReactorLevel.js', symbol: 'S7ReactorLevel' },
+  'surface-04': { path: 'src/levels/SurfaceLevel.js', symbol: 'S7SurfaceLevel' }
 };
 
 test('every campaign mission maps to a registered, loadable level script', () => {
@@ -29,15 +29,15 @@ test('every campaign mission maps to a registered, loadable level script', () =>
   assert.deepEqual(definitions.map(mission => mission.order), [1, 2, 3, 4]);
 
   for (const mission of definitions) {
-    const levelPath = levelFiles[mission.levelId];
-    assert.ok(levelPath, 'missing level mapping for ' + mission.id);
-    const source = read(levelPath);
-    assert.ok(source.includes("id: '" + mission.levelId + "'"), "level id must match " + mission.levelId);
-    assert.match(game, new RegExp('register\\(S7' + mission.levelId.split('-')[0][0].toUpperCase() + mission.levelId.split('-')[0].slice(1) + 'Level\\)'));
-    assert.ok(html.includes('<script src="' + levelPath + '"></script>'), 'level script must load before game.js');
-    assert.match(source, /playerSpawn:\\s*\\{/);
-    assert.match(source, /enemySpawnPoints:\\s*\\[/);
-    assert.match(source, /bounds:\\s*\\{/);
+    const level = levelFiles[mission.levelId];
+    assert.ok(level, 'missing level mapping for ' + mission.id);
+    const source = read(level.path);
+    assert.ok(source.includes("id: '" + mission.levelId + "'"), 'level id must match ' + mission.levelId);
+    assert.ok(game.includes('register(' + level.symbol + ')'), 'game must register ' + level.symbol);
+    assert.ok(html.includes('<script src="' + level.path + '"></script>'), 'HTML must load ' + level.path);
+    assert.ok(source.includes('playerSpawn:'), 'level must define a player spawn');
+    assert.ok(source.includes('enemySpawnPoints:'), 'level must define enemy spawn points');
+    assert.ok(source.includes('bounds:'), 'level must define playable bounds');
   }
 });
 
@@ -65,14 +65,17 @@ test('campaign completion routes through the cinematic elevator and preserves pl
   const game = read('src/game.js');
   const elevator = read('src/campaign/ElevatorTransition.js');
 
-  assert.match(game, /if\\(w&&nextMission\\)\\{transitionToMission\\(nextMission\\);return\\}/);
-  assert.match(game, /elevatorVitals=\\{hp:P\\.hp\\}/);
-  assert.match(game, /elevatorTransition\\.begin\\(/);
-  assert.match(game, /loadMission\\(elevatorNextMission,\\{elevator:true,preserveVitals:elevatorVitals\\}\\)/);
-  assert.match(game, /elevatorTransition\\.setDestination\\(P\\.pos,P\\.yaw/);
-  assert.match(game, /dialogueSystem\\.startRadio\\(currentMission\\.introDialogue,\\(\\)=>elevatorTransition\\.setRadioComplete\\(\\)\\)/);
-  assert.match(game, /onComplete:exitPosition=>/);
-  assert.match(game, /if\\(exitPosition\\)P\\.pos\\.copy\\(exitPosition\\)/);
-  assert.match(elevator, /this\\.phase\\s*=\\s*'travel'/);
-  assert.match(elevator, /this\\.radioComplete/);
+  for (const fragment of [
+    'if(w&&nextMission){transitionToMission(nextMission);return}',
+    'elevatorVitals={hp:P.hp}',
+    'elevatorTransition.begin(',
+    'loadMission(elevatorNextMission,{elevator:true,preserveVitals:elevatorVitals})',
+    'elevatorTransition.setDestination(P.pos,P.yaw',
+    'dialogueSystem.startRadio(currentMission.introDialogue,()=>elevatorTransition.setRadioComplete())',
+    'onComplete:exitPosition=>',
+    'if(exitPosition)P.pos.copy(exitPosition)'
+  ]) assert.ok(game.includes(fragment), 'game transition must include: ' + fragment);
+
+  assert.ok(elevator.includes("this.phase = 'travel'"));
+  assert.ok(elevator.includes('this.radioComplete'));
 });
