@@ -100,7 +100,8 @@ const elevatorTransition=new S7ElevatorTransition({
    $('ov').innerHTML='<div><h1>ОШИБКА ЗАГРУЗКИ СЕКТОРА</h1><p>Не удалось подготовить следующую локацию.</p><p>Перезапусти миссию, чтобы восстановить кампанию.</p></div>';
   }
  },
- onComplete:()=>{
+ onComplete:exitPosition=>{
+  if(exitPosition)P.pos.copy(exitPosition);
   state='play';
   cam.position.copy(P.pos);
   cam.rotation.set(P.pitch+weapon.pitchKick,P.yaw,0);
