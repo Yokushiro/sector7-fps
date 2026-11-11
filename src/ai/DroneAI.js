@@ -109,6 +109,18 @@
         const reactionScale = hitStunned ? 0.18 : 1;
         group.position.x += moveX * dt * reactionScale;
         group.position.z += moveZ * dt * reactionScale;
+        const hitVelocity = enemy.hitReactionVelocity;
+        if (hitVelocity && Number.isFinite(hitVelocity.x) && Number.isFinite(hitVelocity.z)) {
+          group.position.x += hitVelocity.x * dt;
+          group.position.z += hitVelocity.z * dt;
+          const damping = Math.exp(-8 * dt);
+          hitVelocity.x *= damping;
+          hitVelocity.z *= damping;
+          if (Math.hypot(hitVelocity.x, hitVelocity.z) < 0.08) {
+            hitVelocity.x = 0;
+            hitVelocity.z = 0;
+          }
+        }
         group.position.y = 1.3 + Math.sin(enemy.t * 2) * 0.12;
         collide(group.position, 0.5);
         group.lookAt(player.pos.x, group.position.y, player.pos.z);
@@ -153,31 +165,31 @@
       hp: 60, moveSpeed: 2.65, preferredDistance: 5.5,
       projectileSpeed: 14, damage: 6, spread: 0.42,
       attackMin: 1.2, attackMax: 1.9,
-      bodyColor: 0x2b3037, eyeColor: 0xff3928, ringColor: 0x35bfff
+      bodyColor: 0x2b3037, eyeColor: 0xff3928, ringColor: 0x35bfff, hitStunDuration: 0.22, hitImpulse: 3.8
     }),
     assault: Object.freeze({
       hp: 72, moveSpeed: 3.35, preferredDistance: 3.8,
       projectileSpeed: 13, damage: 8, spread: 0.34,
       attackMin: 0.95, attackMax: 1.45,
-      bodyColor: 0x49332d, eyeColor: 0xff5a18, ringColor: 0xff6a28
+      bodyColor: 0x49332d, eyeColor: 0xff5a18, ringColor: 0xff6a28, hitStunDuration: 0.17, hitImpulse: 2.8
     }),
     heavy: Object.freeze({
       hp: 120, moveSpeed: 1.5, preferredDistance: 6.8,
       projectileSpeed: 10, damage: 14, spread: 0.2,
       attackMin: 1.9, attackMax: 2.7,
-      bodyColor: 0x3b424b, eyeColor: 0xff3322, ringColor: 0xffa23a
+      bodyColor: 0x3b424b, eyeColor: 0xff3322, ringColor: 0xffa23a, hitStunDuration: 0.10, hitImpulse: 0.85
     }),
     sniper: Object.freeze({
       hp: 75, moveSpeed: 1.25, preferredDistance: 10,
       projectileSpeed: 19, damage: 16, spread: 0.07,
       attackMin: 2.2, attackMax: 3.1,
-      bodyColor: 0x292c48, eyeColor: 0x9a6bff, ringColor: 0x9675ff
+      bodyColor: 0x292c48, eyeColor: 0x9a6bff, ringColor: 0x9675ff, hitStunDuration: 0.24, hitImpulse: 2.4
     }),
     warden: Object.freeze({
       hp: 280, moveSpeed: 1.65, preferredDistance: 7.2,
       projectileSpeed: 15, damage: 18, spread: 0.14,
       attackMin: 1.25, attackMax: 1.8,
-      bodyColor: 0x282d3d, eyeColor: 0xff4fcb, ringColor: 0x46dfff
+      bodyColor: 0x282d3d, eyeColor: 0xff4fcb, ringColor: 0x46dfff, hitStunDuration: 0.08, hitImpulse: 0.45
     })
   });
 
