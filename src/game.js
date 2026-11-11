@@ -109,15 +109,7 @@ function spawn(){
  const g=new T.Group(),m=bodyM.clone();
  m.color.setHex(profile.bodyColor);
  const eye=new T.MeshBasicMaterial({color:profile.eyeColor});
- const e={
-  g,type,hp:profile.hp,maxHp:profile.hp,m,t:R(0,9),cd:R(profile.attackMin,profile.attackMax),
-  moveSpeed:profile.moveSpeed,preferredDistance:profile.preferredDistance,
-  projectileSpeed:profile.projectileSpeed,damage:profile.damage,spread:profile.spread,
-  attackMin:profile.attackMin,attackMax:profile.attackMax,
-  strafeSign:R(0,1)<.5?-1:1,
-  flankOffset:type==='warden'?2.2:type==='sniper'?5.5:type==='heavy'?2.8:type==='assault'?3.2:4.2,
-  eye,eyeColor:profile.eyeColor,flash:0
- };
+ const e={...S7EnemyFactory.createCombatant(type,profile,R),g,m,eye};
  let bodyGeometry;
  if(type==='warden') bodyGeometry=new T.IcosahedronGeometry(.82,1);
  else if(type==='sniper') bodyGeometry=new T.CylinderGeometry(.24,.34,1.2,16);
