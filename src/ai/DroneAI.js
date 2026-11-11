@@ -25,6 +25,8 @@
       for (const enemy of enemies) {
         const group = enemy.g;
         enemy.t += dt;
+        enemy.hitStunRemaining = Math.max(0, (enemy.hitStunRemaining || 0) - dt);
+        const hitStunned = enemy.hitStunRemaining > 0;
         // The Warden escalates once, at half health, rather than relying on raw stats alone.
         if (enemy.type === 'warden' && enemy.phase === 1
           && Number.isFinite(enemy.maxHp) && enemy.hp <= enemy.maxHp * 0.5) {
@@ -93,8 +95,9 @@
           }
         }
 
-        group.position.x += moveX * dt;
-        group.position.z += moveZ * dt;
+        const reactionScale = hitStunned ? 0.18 : 1;
+        group.position.x += moveX * dt * reactionScale;
+        group.position.z += moveZ * dt * reactionScale;
         group.position.y = 1.3 + Math.sin(enemy.t * 2) * 0.12;
         collide(group.position, 0.5);
         group.lookAt(player.pos.x, group.position.y, player.pos.z);
@@ -112,7 +115,7 @@
           ((eyeColor >> 8) & 255) / 255 * eyePulse,
           (eyeColor & 255) / 255 * eyePulse
         );
-        if (enemy.cd <= 0 && distance < 20 && hasLineOfSight(group.position, player.pos)) {
+        if (!hitStunned && enemy.cd <= 0 && distance < 20 && hasLineOfSight(group.position, player.pos)) {
           enemy.cd = randomRange(enemy.attackMin || 1.4, enemy.attackMax || 2.4);
           const projectile = new THREE.Mesh(
             new THREE.SphereGeometry(0.11, 10, 8),
