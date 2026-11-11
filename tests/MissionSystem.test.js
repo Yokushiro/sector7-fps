@@ -68,8 +68,9 @@ test('surface finale completes the four-sector campaign and keeps the extraction
   const finale = missions.getMission('surface-04');
   assert.equal(finale.order, 4);
   assert.equal(finale.levelId, 'surface-04');
-  assert.equal(finale.objectives[0].target, 8);
-  assert.equal(finale.spawn.enemySequence.length, 8);
+  assert.equal(finale.objectives[0].target, 9);
+  assert.equal(finale.spawn.enemySequence.length, 9);
+  assert.equal(finale.spawn.enemySequence.at(-1), 'warden');
   assert.equal(finale.introDialogue.length, 4);
   assert.equal(finale.outroDialogue.length, 5);
   assert.deepEqual(
