@@ -106,6 +106,7 @@
       sun.shadow.camera.right = 32;
       sun.shadow.camera.top = 45;
       sun.shadow.camera.bottom = -45;
+      sun.shadow.camera.updateProjectionMatrix();
       scene.add(sun);
 
       return {
