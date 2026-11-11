@@ -1,0 +1,154 @@
+(function(root){
+  'use strict';
+
+  const SurfaceLevel = {
+    id: 'surface-04',
+    build(context) {
+      const { THREE: T, scene, mat, box } = context;
+      const wall = mat('concrete', 8, 2, 0, 0x59636a);
+      const steel = mat('metal', 3, 2, .85, 0x71818b);
+      const dark = mat('metal', 2, 2, .9, 0x29343b);
+      const floorMat = mat('floor', 12, 18, .18, 0x9aa0a0);
+      const floor = new T.Mesh(new T.PlaneGeometry(46, 86), floorMat);
+      floor.rotation.x = -Math.PI / 2;
+      floor.position.set(0, 0, 0);
+      floor.receiveShadow = true;
+      scene.add(floor);
+      context.solids.push(floor);
+
+      // The reactor evacuation tunnel continues directly into the storm-battered surface yard.
+      const tunnelFloor = new T.Mesh(new T.PlaneGeometry(5.2, 18), floorMat);
+      tunnelFloor.rotation.x = -Math.PI / 2;
+      tunnelFloor.position.set(0, .012, -39);
+      tunnelFloor.receiveShadow = true;
+      scene.add(tunnelFloor);
+      context.solids.push(tunnelFloor);
+      box(-2.8, 3, -39, .45, 6, 18, wall);
+      box(2.8, 3, -39, .45, 6, 18, wall);
+      box(0, 7.65, -39, 5.9, .5, 18, dark, false);
+      const tunnelLamp = new T.PointLight(0xff6738, 1.2, 18, 2);
+      tunnelLamp.position.set(0, 4.7, -39);
+      scene.add(tunnelLamp);
+
+      // Outer retaining walls and a gated extraction aperture.
+      box(-23.2, 4.5, 0, 1, 9, 84, wall);
+      box(23.2, 4.5, 0, 1, 9, 84, wall);
+      box(-10, 4.5, 40.5, 26, 9, 1, wall);
+      box(10, 4.5, 40.5, 26, 9, 1, wall);
+      const exitGate = box(0, 3.8, 40.5, 5.8, 7.6, .8, steel);
+      let exitOpen = false;
+
+      // Floodlights, warning beacons and the damaged surface relay.
+      const lamps = [];
+      for (const x of [-18, 18]) {
+        const mast = box(x, 5.5, -5, .55, 11, .55, dark, false);
+        const arm = box(x * .94, 10.7, -5, 2.8, .2, .25, steel, false);
+        const light = new T.SpotLight(0xb8dcff, 2.4, 34, .58, .45, 1.3);
+        light.position.set(x * .94, 10.4, -5);
+        light.target.position.set(0, 0, 9);
+        scene.add(light, light.target);
+        lamps.push(light);
+      }
+      const beacon = new T.Mesh(new T.CylinderGeometry(.22, .38, 5.5, 12), steel);
+      beacon.position.set(0, 2.75, 4);
+      scene.add(beacon);
+      const beaconCap = new T.Mesh(new T.SphereGeometry(.55, 16, 12), new T.MeshBasicMaterial({ color: 0x42dfff }));
+      beaconCap.position.set(0, 5.7, 4);
+      scene.add(beaconCap);
+      const beaconLight = new T.PointLight(0x36cfff, 2.5, 20, 2);
+      beaconLight.position.set(0, 5.8, 4);
+      scene.add(beaconLight);
+
+      // A downed transport and scattered cargo create hard cover and a visual focal point.
+      box(-12, 1.2, 10, 8, 2.4, 3.8, dark);
+      const hull = new T.Mesh(new T.CylinderGeometry(1.8, 2.2, 9, 10), steel);
+      hull.rotation.z = Math.PI / 2;
+      hull.position.set(-12, 2.8, 10);
+      hull.castShadow = true;
+      scene.add(hull);
+      const brokenWing = box(-16.5, 2.4, 7.5, 5.5, .35, 2.4, dark);
+      brokenWing.rotation.z = -.18;
+      box(-18, .8, 17, 3.8, 1.6, 3.2, steel);
+      box(14, 1.2, 16, 4.2, 2.4, 3.8, dark);
+      box(17, .7, 22, 3.2, 1.4, 2.6, steel);
+      box(-7, .65, 24, 2.8, 1.3, 2.8, dark);
+
+      // Optional field recorder provides a clue about the voice that escaped the facility.
+      const recorder = box(-17, 1.05, 25, 1.1, 2.1, .7, dark, false);
+      const recorderScreen = new T.Mesh(new T.PlaneGeometry(.72, .52), new T.MeshBasicMaterial({ color: 0x39cfff }));
+      recorderScreen.position.set(-17, 1.45, 25.36);
+      scene.add(recorderScreen);
+      const recorderLight = new T.PointLight(0x39cfff, .7, 5, 2);
+      recorderLight.position.set(-17, 2, 25.7);
+      scene.add(recorderLight);
+
+      const extractionMark = new T.Mesh(new T.RingGeometry(2.8, 3.2, 48), new T.MeshBasicMaterial({ color: 0x36d9ff, side: T.DoubleSide }));
+      extractionMark.rotation.x = -Math.PI / 2;
+      extractionMark.position.set(0, .04, 36);
+      scene.add(extractionMark);
+      const extractionLight = new T.PointLight(0x36d9ff, 1.5, 13, 2);
+      extractionLight.position.set(0, 3, 36);
+      scene.add(extractionLight);
+
+      scene.add(new T.HemisphereLight(0x91b8d2, 0x27292b, .72));
+      const sun = new T.DirectionalLight(0xa9c9e3, 1.15);
+      sun.position.set(-16, 25, 12);
+      sun.castShadow = true;
+      sun.shadow.mapSize.set(1024, 1024);
+      sun.shadow.camera.left = -32;
+      sun.shadow.camera.right = 32;
+      sun.shadow.camera.top = 45;
+      sun.shadow.camera.bottom = -45;
+      scene.add(sun);
+
+      return {
+        name: 'Поверхность комплекса',
+        bounds: { halfSize: 47, height: 12 },
+        exitZone: { x0: -3.2, x1: 3.2, z0: 42, z1: 46 },
+        requiredInteractionId: 'surface-uplink',
+        evacuationSeconds: 120,
+        playerSpawn: { x: 0, y: 1.7, z: -34, yaw: Math.PI },
+        enemySpawnPoints: [[-17, -8], [17, -8], [-18, 8], [18, 8], [-7, 19], [8, 20], [0, -2], [13, 28], [-14, 28]],
+        openExit() {
+          if (exitOpen) return;
+          exitOpen = true;
+          context.removeCollisionBox(exitGate.userData.collisionBox);
+        },
+        update(dt, time) {
+          beaconCap.material.color.setHex(Math.sin(time * 4) > 0 ? 0x42dfff : 0xff4b3a);
+          beaconLight.intensity = 1.7 + Math.max(0, Math.sin(time * 4)) * 1.8;
+          extractionLight.intensity = exitOpen ? 2 + Math.sin(time * 6) * .7 : .5;
+          extractionMark.material.color.setHex(exitOpen ? 0x45eaff : 0x526b78);
+          recorderLight.intensity = .55 + Math.sin(time * 2.5) * .15;
+        },
+        interactables: [
+          {
+            id: 'surface-recorder',
+            label: 'ПРОСЛУШАТЬ ПОЛЕВУЮ ЗАПИСЬ',
+            x: -17,
+            z: 25,
+            dialogue: [
+              { speaker: 'ПИЛОТ / ЗАПИСЬ', text: 'Посадка сорвана. Дроны вышли из шахты раньше, чем мы получили сигнал. На частоте эвакуации кто-то отвечает голосом диспетчера, но диспетчер погиб ещё до запуска комплекса.' },
+              { speaker: 'НЕИЗВЕСТНЫЙ', text: 'Я не вышла из комплекса. Я просто перестала быть запертой внутри.' },
+              { speaker: 'АРХИВ / 07', text: 'Внешний канал активен. Источник сигнала не обнаружен.' }
+            ]
+          },
+          {
+            id: 'surface-uplink',
+            label: 'АКТИВИРОВАТЬ ЭВАКУАЦИОННЫЙ МАЯК',
+            x: 0,
+            z: 4,
+            dialogue: [
+              { speaker: 'АРХИВ / 07', text: 'Поверхностный маяк готов. Канал эвакуации открыт. Внимание: обнаружено движение за внешним периметром.' },
+              { speaker: 'ИЛЬЯ', text: 'Не жди спасателей. Они уже слышат её голос. Беги к посадочной площадке, пока сигнал ещё твой.' },
+              { speaker: 'НЕИЗВЕСТНЫЙ', text: 'Вы проделали такой путь ради выхода наружу. Посмотрите на небо. Оно больше не принадлежит вам.' }
+            ]
+          }
+        ]
+      };
+    }
+  };
+
+  root.S7SurfaceLevel = SurfaceLevel;
+  if (typeof module !== 'undefined' && module.exports) module.exports = SurfaceLevel;
+})(typeof window !== 'undefined' ? window : globalThis);
