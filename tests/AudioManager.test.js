@@ -114,3 +114,13 @@ test('sector ambience crossfades instead of cutting the previous soundscape', as
   assert.equal(previousNodes.every(node => node.disconnected), true);
   audio.stopAmbience();
 });
+
+test('surface mission uses a lighter wind-like exterior ambience profile', () => {
+  const context = fakeAudioContext();
+  const audio = new AudioManager(() => context);
+  audio.unlock();
+  assert.equal(audio.startAmbience('surface'), true);
+  assert.equal(context.sources[0].frequency.value, 48);
+  assert.equal(context.sources[1].frequency.value, 72);
+  audio.stopAmbience();
+});
