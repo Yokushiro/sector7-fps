@@ -62,3 +62,18 @@ test('campaign selection prefers the first incomplete unlocked mission', () => {
   assert.equal(missions.getMissionForCampaign(save, 'bunker-01').id, 'bunker-01');
   assert.equal(missions.getMissionForCampaign({ unlockedMission: 1, completedMissions: ['bunker-01'] }).id, 'bunker-01');
 });
+
+test('surface finale completes the four-sector campaign and keeps the extraction objective gated', () => {
+  const missions = new MissionSystem();
+  const finale = missions.getMission('surface-04');
+  assert.equal(finale.order, 4);
+  assert.equal(finale.levelId, 'surface-04');
+  assert.equal(finale.objectives[0].target, 8);
+  assert.equal(finale.spawn.enemySequence.length, 8);
+  assert.equal(finale.introDialogue.length, 4);
+  assert.equal(finale.outroDialogue.length, 5);
+  assert.deepEqual(
+    missions.getUnlockedMissions({ unlockedMission: 4 }).map(item => item.id),
+    ['bunker-01', 'lab-02', 'reactor-03', 'surface-04']
+  );
+});
