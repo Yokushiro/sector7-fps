@@ -16,7 +16,7 @@ test('projectiles move, damage the player and dispose resources',()=>{
 });
 test('solid geometry and expired lifetime remove projectiles without damage',()=>{
  const system=new System(),blocked=shot(0,1,0),expired=shot(8,1,8,0,0,0,.05),items=[blocked,expired];
- system.update(items,.1,{x:30,y:1,z:30},[{x0:-1,x1:1,z0:-1,z1:1}],{halfSize:40},()=>assert.fail('blocked shot damaged player'));
+ system.update(items,.1,{x:0,y:1,z:0},[{x0:-1,x1:1,z0:-1,z1:1}],{halfSize:40},()=>assert.fail('blocked shot damaged player'));
  assert.equal(items.length,0);assert.equal(blocked.disposed.geometry,1);assert.equal(expired.disposed.material,1);
 });
 test('out-of-bounds projectiles are removed and clear disposes remaining shots',()=>{
