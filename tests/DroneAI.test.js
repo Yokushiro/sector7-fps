@@ -232,3 +232,36 @@ test('Warden enters a faster and more aggressive second phase at half health', (
   );
   assert.equal(phaseSound, 1, 'phase transition must only trigger once');
 });
+
+
+test('nonlethal hits stagger drones and temporarily suppress their attacks', () => {
+  const ai = new DroneAI();
+  const enemy = makeEnemy('scout', 2.65, 5.5);
+  enemy.hitStunRemaining = 0.2;
+  enemy.cd = 0;
+  const projectiles = [];
+  const three = {
+    Mesh: class { constructor() { this.position = { copy() {} }; } },
+    SphereGeometry: class {},
+    MeshBasicMaterial: class {},
+    Color: class {}
+  };
+  const previousThree = context.THREE;
+  context.THREE = three;
+  const startX = enemy.g.position.x;
+  ai.update(
+    [enemy],
+    { pos: { x: 0, y: 1.7, z: 0 } },
+    0.1,
+    () => {},
+    { add() {} },
+    projectiles,
+    () => {},
+    (min, max) => min
+  );
+  context.THREE = previousThree;
+  assert.ok(enemy.g.position.x < startX, 'staggered drone should still drift toward its target');
+  assert.ok(startX - enemy.g.position.x < 0.1, 'stagger should heavily reduce movement');
+  assert.equal(enemy.hitStunRemaining, 0.1);
+  assert.equal(projectiles.length, 0, 'staggered drone must not fire');
+});
