@@ -267,6 +267,27 @@ test('nonlethal hits stagger drones and temporarily suppress their attacks', () 
 });
 
 
+
+test('hit reaction velocity knocks drones away and decays smoothly', () => {
+  const ai = new DroneAI();
+  const enemy = makeEnemy('scout', 0, 5.5);
+  enemy.hitReactionVelocity = { x: 4, z: 0 };
+  const startX = enemy.g.position.x;
+  ai.update(
+    [enemy],
+    { pos: { x: 0, y: 1.7, z: 0 } },
+    0.1,
+    () => {},
+    { add() {} },
+    [],
+    () => {},
+    (min, max) => (min + max) / 2
+  );
+  assert.ok(enemy.g.position.x > startX, 'impact impulse should push the drone away from the player');
+  assert.ok(enemy.hitReactionVelocity.x > 0 && enemy.hitReactionVelocity.x < 4,
+    'impact velocity should decay instead of persisting');
+});
+
 test('sniper drones retreat when the player breaches their preferred range', () => {
   const ai = new DroneAI();
   const enemy = makeEnemy('sniper', 1.25, 10);
