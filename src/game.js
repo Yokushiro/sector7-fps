@@ -384,12 +384,12 @@ function end(w){
   return;
  }
  state='transition';
- document.exitPointerLock&&document.exitPointerLock();
  const record=saveSystem.recordMissionResult({missionId:currentMission.id,won:w,kills,nextMissionOrder:currentMission.order+1});
  savedCampaign=record;
  $('saveInfo').textContent=`СОХРАНЕНИЕ · Побед: ${record.stats.wins} · Поражений: ${record.stats.losses} · Лучший результат: ${record.stats.bestKills} дронов`;
  const nextMission=w?missionSystem.getUnlockedMissions(record.campaign).find(mission=>mission.order>currentMission.order):null;
  if(w&&nextMission){transitionToMission(nextMission);return}
+ document.exitPointerLock&&document.exitPointerLock();
  audioManager.stopMusic();audioManager.stopAmbience();
  state='over';
  $('interactHint').hidden=true;
@@ -466,6 +466,7 @@ function loadMission(nextMission,transition={}){
 function transitionToMission(nextMission){
  // Keep the pointer locked and the normal FPS controls active throughout the ride.
  state='play';mouse=false;
+ if(!locked)fallback=true; // A preceding outro may have released pointer lock; keep mouse-look usable.
  elevatorNextMission=nextMission;
  elevatorVitals={hp:P.hp};
  elevatorTransition.begin({
