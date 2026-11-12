@@ -21,7 +21,7 @@ function create() {
     }
   });
 
-  w.loadFile('index.html');
+  w.loadFile(path.join(__dirname, 'index.html'));
 
   w.webContents.on('before-input-event', (e, i) => {
     if (i.type === 'keyDown' && i.key === 'F11') {
