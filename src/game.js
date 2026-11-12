@@ -273,7 +273,29 @@ function killE(e){
  }
  kills++;$('kl').textContent=`Дроны: ${kills} / ${GOAL}`;if(missionSystem.isObjectiveComplete(currentMission.id,missionObjective.id,kills)){combatCleared=true;mouse=false;projectileSystem.clear(proj);if(activeLevel.requiredInteractionId){$('kl').textContent='ОХРАНА УНИЧТОЖЕНА · АКТИВИРУЙ ПАНЕЛЬ'}else{missionCleared=true;activeLevel.openExit?.();$('kl').textContent='СЕКТОР ЗАЧИЩЕН · ИЩИ ВЫХОД В КОРИДОРЕ'}}}
 const spGeo=new T.BoxGeometry(.03,.03,.03);
+const debris=[];
 function spark(p,c,sp=4){const m=new T.Mesh(spGeo,new T.MeshBasicMaterial({color:c}));m.position.copy(p);scene.add(m);sparks.push({m,v:new T.Vector3(R(-1,1),R(0,1.4),R(-1,1)).multiplyScalar(sp),l:R(.3,.7)})}
+function spawnDebris(object,point){
+ if(!object||!object.geometry)return;
+ object.updateMatrixWorld(true);
+ const bounds=new T.Box3().setFromObject(object);
+ if(bounds.isEmpty())return;
+ const size=bounds.getSize(new T.Vector3()),center=bounds.getCenter(new T.Vector3());
+ const source=Array.isArray(object.material)?object.material[0]:object.material;
+ const count=cl(Math.ceil((size.x+size.y+size.z)*1.5),5,9);
+ for(let i=0;i<count;i++){
+  const w=Math.max(.07,size.x*R(.13,.3)),h=Math.max(.07,size.y*R(.13,.3)),d=Math.max(.07,size.z*R(.13,.3));
+  const material=source&&source.clone?source.clone():new T.MeshStandardMaterial({color:0x77818a,metalness:.65,roughness:.55});
+  const shard=new T.Mesh(new T.BoxGeometry(w,h,d),material);
+  shard.position.set(center.x+R(-size.x*.32,size.x*.32),center.y+R(-size.y*.32,size.y*.32),center.z+R(-size.z*.32,size.z*.32));
+  shard.rotation.set(R(0,Math.PI),R(0,Math.PI),R(0,Math.PI));
+  shard.castShadow=true;shard.receiveShadow=true;scene.add(shard);
+  const direction=shard.position.clone().sub(point||center);
+  if(direction.lengthSq()<.01)direction.set(R(-1,1),R(.2,1),R(-1,1));
+  direction.normalize();
+  debris.push({mesh:shard,velocity:direction.multiplyScalar(R(1.3,3.8)).add(new T.Vector3(0,R(1.5,3.8),0)),spin:new T.Vector3(R(-5,5),R(-5,5),R(-5,5)),life:R(1.7,2.7),halfHeight:h*.5});
+ }
+}
 
 /* ---------- боевая система ---------- */
 const weapon=new S7WeaponSystem({
@@ -285,7 +307,7 @@ const weapon=new S7WeaponSystem({
 const damageSystem=new S7DamageSystem();
 const hitFeedback=new S7HitFeedback();
 const projectileSystem=new S7ProjectileSystem({scene});
-const destructibleSystem=new S7DestructibleSystem({collisionBoxes:boxes,onBreak:(object,point)=>{if(point)for(let i=0;i<10;i++)spark(point,new T.Color(2.4,1.1,.35),R(2,5));snd(95,.24,'square',.18,true);}});
+const destructibleSystem=new S7DestructibleSystem({collisionBoxes:boxes,onBreak:(object,point)=>{spawnDebris(object,point);if(point)for(let i=0;i<10;i++)spark(point,new T.Color(2.4,1.1,.35),R(2,5));snd(95,.24,'square',.18,true);}});
 function hitEnemy(enemy,hit){
  const result=damageSystem.applyEnemyDamage(enemy,Boolean(hit.object.userData.head));
  if(enemy.visual?.hitFlash){
@@ -355,6 +377,7 @@ function loadMission(nextMission,transition={}){
   for(const enemy of enemies){scene.remove(enemy.g);disposeRenderable(enemy.g)}enemies.length=0;
   projectileSystem.clear(proj);
   for(const particle of sparks){scene.remove(particle.m);particle.m.material.dispose()}sparks.length=0;
+  for(const piece of debris){scene.remove(piece.mesh);piece.mesh.geometry.dispose();piece.mesh.material.dispose()}debris.length=0;
   currentMission=nextMission;
   missionObjective=currentMission.objectives.find(objective=>objective.type==='eliminate');
   if(!missionObjective)throw new Error('The next mission has no supported elimination objective');
@@ -465,6 +488,18 @@ function loop(now){requestAnimationFrame(loop);const dt=Math.min(.05,(now-last)/
   droneAI.update(enemies,P,dt,collide,scene,proj,snd,R,boxes);
   const exit=activeLevel.exitZone;if(missionCleared&&exit&&P.pos.x>=exit.x0&&P.pos.x<=exit.x1&&P.pos.z>=exit.z0&&P.pos.z<=exit.z1)end(true);
   projectileSystem.update(proj,dt,P.pos,boxes,LEVEL_BOUNDS,dmg);
+ }
+ for(let i=debris.length-1;i>=0;i--){
+  const piece=debris[i];piece.life-=dt;
+  piece.velocity.y-=9.8*dt;piece.velocity.multiplyScalar(Math.max(0,1-dt*.42));
+  piece.mesh.position.addScaledVector(piece.velocity,dt);
+  piece.mesh.rotation.x+=piece.spin.x*dt;piece.mesh.rotation.y+=piece.spin.y*dt;piece.mesh.rotation.z+=piece.spin.z*dt;
+  if(piece.mesh.position.y<piece.halfHeight){
+   piece.mesh.position.y=piece.halfHeight;
+   if(piece.velocity.y<0)piece.velocity.y=-piece.velocity.y*.28;
+   piece.velocity.x*=.72;piece.velocity.z*=.72;piece.spin.multiplyScalar(.72);
+  }
+  if(piece.life<=0){scene.remove(piece.mesh);piece.mesh.geometry.dispose();piece.mesh.material.dispose();debris.splice(i,1)}
  }
  for(let i=sparks.length-1;i>=0;i--){const s=sparks[i];s.v.y-=9*dt;s.m.position.addScaledVector(s.v,dt);s.l-=dt;if(s.l<=0||s.m.position.y<.02){scene.remove(s.m);s.m.material.dispose();sparks.splice(i,1)}}
  hurt=Math.max(0,hurt-dt*1.6);dust.rotation.y+=dt*.01;dust.position.y=Math.sin(tm*.2)*.1;
