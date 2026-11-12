@@ -35,6 +35,8 @@ const sign=new T.Mesh(new T.PlaneGeometry(7,7),sm);sign.scale.y=.5;sign.rotation
 const terminalBase=new T.Mesh(new T.BoxGeometry(1.1,1.7,.8),mm);terminalBase.position.set(-7,.85,8);terminalBase.castShadow=true;scene.add(terminalBase);
 const terminalScreen=new T.Mesh(new T.PlaneGeometry(.82,.68),new T.MeshBasicMaterial({color:0x35dfff,emissive:0x126080,emissiveIntensity:1.8}));terminalScreen.position.set(-7,1.35,8.41);scene.add(terminalScreen);
 const terminalLamp=new T.PointLight(0x25cfff,.8,5,2);terminalLamp.position.set(-7,1.8,8.7);scene.add(terminalLamp);
+const terminalSweep=new T.Mesh(new T.PlaneGeometry(.72,.035),new T.MeshBasicMaterial({color:0xb8f5ff,transparent:true,opacity:.72}));terminalSweep.position.set(-7,1.35,8.425);scene.add(terminalSweep);
+const terminalBeacon=new T.Mesh(new T.SphereGeometry(.07,12,8),new T.MeshBasicMaterial({color:0x35dfff}));terminalBeacon.position.set(-6.48,1.63,8.43);scene.add(terminalBeacon);
 // свет
 scene.add(new T.HemisphereLight(0x3a5570,0x0a0a0a,.35));
 const strips=new T.MeshStandardMaterial({color:0,emissive:0xcfeaff,emissiveIntensity:4});
@@ -55,6 +57,10 @@ const bunkerLights=[];
         openExit() { exitOpen = true; context.removeCollisionBox(exitDoor.userData.collisionBox); },
         update(dt, time) {
           bunkerLights.forEach((light, index) => { light.intensity = .68 + Math.sin(time * 2.1 + index * 1.4) * .08; });
+          terminalSweep.position.y = 1.12 + ((time * .42) % 1) * .46;
+          terminalSweep.material.opacity = .38 + Math.sin(time * 5) * .18;
+          terminalBeacon.material.color.setHex(Math.sin(time * 3.5) > -.35 ? 0x35dfff : 0x174c67);
+          terminalLamp.intensity = .62 + Math.sin(time * 4.2) * .16;
           if (exitOpen) exitDoor.position.y += (8 - exitDoor.position.y) * Math.min(1, dt * 2.2);
         },
         interactables: [{
