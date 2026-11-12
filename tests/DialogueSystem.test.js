@@ -97,7 +97,7 @@ test('Russian character voice synthesis uses distinct profiles and stops on dial
     });
     dialogue.start([
       { speaker: 'ЛЕВ', text: 'Проверь канал связи.' },
-      { speaker: 'СИСТЕМА БУНКЕРА', text: 'Канал связи нестабилен.' }
+      { speaker: 'ЯДРО', text: 'Канал связи нестабилен.' }
     ]);
     assert.equal(spoken.length, 1);
     assert.equal(spoken[0].voice, maleRussianVoice, 'Lev must use an available male Russian voice');
