@@ -223,6 +223,9 @@
                 1.2 + offsetY,
                 player.pos.z + spreadZ
               ).sub(group.position).normalize().multiplyScalar(shotSpeed);
+              if (typeof projectile.lookAt === 'function') {
+                projectile.lookAt(projectile.position.clone().add(velocity));
+              }
               scene.add(projectile);
               projectiles.push({ m: projectile, v: velocity, l: 3.2, damage: shotDamage });
             };
