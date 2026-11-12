@@ -175,6 +175,44 @@
       terminalLight.position.set(-6, 1.9, 10.8);
       scene.add(terminalLight);
 
+      // Lab work areas: compact benches, instrument carts and sealed sample cabinets.
+      const benchMat = mat('metal', 1, 1, .68, 0x718d96);
+      const cabinetMat = mat('metal', 1, 1, .82, 0x42545e);
+      for (const [x, z, side] of [[-11, 1, -1], [11, 1, 1], [-11, -11, -1], [11, -11, 1]]) {
+        box(x, .92, z, 2.4, .16, 1.05, benchMat);
+        for (const dx of [-.95, .95]) box(x + dx, .45, z, .12, .9, .12, cabinetMat, false);
+        const monitor = new T.Mesh(new T.BoxGeometry(.72, .48, .08), darkSteel);
+        monitor.position.set(x, 1.42, z + .28); scene.add(monitor);
+        const display = new T.Mesh(new T.PlaneGeometry(.58, .32), new T.MeshBasicMaterial({ color: side < 0 ? 0x45dfff : 0x8dffdf }));
+        display.position.set(x, 1.43, z + .326); scene.add(display);
+      }
+      for (const [x, z] of [[-12, -1], [12, -1], [-12, 10], [12, 10]]) {
+        box(x, 1.15, z, 1.15, 2.3, 1.05, cabinetMat);
+        for (let y = .55; y < 2.1; y += .42) {
+          const handle = new T.Mesh(new T.BoxGeometry(.26, .035, .035), steel);
+          handle.position.set(x, y, z + .54); scene.add(handle);
+        }
+      }
+      // A mobile instrument trolley and two stools make the central lab feel staffed.
+      const trolley = new T.Group();
+      const trolleyTop = new T.Mesh(new T.BoxGeometry(1.2, .1, .72), benchMat);
+      trolleyTop.position.y = .92; trolley.add(trolleyTop);
+      const trolleyShelf = new T.Mesh(new T.BoxGeometry(1.05, .08, .62), cabinetMat);
+      trolleyShelf.position.y = .38; trolley.add(trolleyShelf);
+      for (const dx of [-.48, .48]) for (const dz of [-.25, .25]) {
+        const leg = new T.Mesh(new T.CylinderGeometry(.035, .035, .9, 8), cabinetMat);
+        leg.position.set(dx, .45, dz); trolley.add(leg);
+        const wheel = new T.Mesh(new T.SphereGeometry(.09, 8, 6), darkSteel);
+        wheel.position.set(dx, .08, dz); trolley.add(wheel);
+      }
+      trolley.position.set(7.2, 0, 5.8); scene.add(trolley);
+      for (const x of [-7.5, 7.5]) {
+        const stool = new T.Mesh(new T.CylinderGeometry(.38, .42, .16, 16), benchMat);
+        stool.position.set(x, .72, 3.8); scene.add(stool);
+        const stem = new T.Mesh(new T.CylinderGeometry(.07, .09, .62, 10), cabinetMat);
+        stem.position.set(x, .36, 3.8); scene.add(stem);
+      }
+
       // Sterile containment bays: repeated glass columns and cyan service lighting distinguish the lab.
       const podGlass = new T.MeshStandardMaterial({ color: 0x91e8f0, metalness: .18, roughness: .12, transparent: true, opacity: .22, depthWrite: false });
       const podRim = new T.MeshStandardMaterial({ color: 0xb9dce2, metalness: .82, roughness: .24 });
