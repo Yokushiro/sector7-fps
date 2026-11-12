@@ -77,7 +77,7 @@ test('Russian character voice synthesis uses distinct profiles and stops on dial
   const originalUtterance = global.SpeechSynthesisUtterance;
   const spoken = [];
   let cancellations = 0;
-  const russianVoice = { name: 'Russian Female Voice', lang: 'ru-RU' };
+  const russianVoice = { name: 'Microsoft Irina', lang: 'ru-RU' };
   const maleRussianVoice = { name: 'Microsoft Pavel', lang: 'ru-RU' };
   global.speechSynthesis = {
       speaking: false,
@@ -97,7 +97,7 @@ test('Russian character voice synthesis uses distinct profiles and stops on dial
     });
     dialogue.start([
       { speaker: 'ЛЕВ', text: 'Проверь канал связи.' },
-      { speaker: 'АРХИВ / 07', text: 'Канал связи нестабилен.' }
+      { speaker: 'СИСТЕМА БУНКЕРА', text: 'Канал связи нестабилен.' }
     ]);
     assert.equal(spoken.length, 1);
     assert.equal(spoken[0].voice, maleRussianVoice, 'Lev must use an available male Russian voice');
@@ -105,7 +105,8 @@ test('Russian character voice synthesis uses distinct profiles and stops on dial
     assert.ok(spoken[0].pitch < .8, 'Lev must use a lower masculine pitch profile');
     dialogue.advance();
     assert.equal(spoken.length, 2);
-    assert.ok(spoken[1].pitch < spoken[0].pitch);
+    assert.equal(spoken[1].voice, russianVoice, 'the bunker AI must use a feminine Russian voice');
+    assert.ok(spoken[1].pitch > 1, 'the bunker AI should have a higher feminine pitch profile');
     assert.ok(cancellations >= 1, 'advancing must cancel the previous spoken line');
     dialogue.setVoiceEnabled(false);
     assert.equal(dialogue.voiceEnabled, false);
@@ -150,4 +151,35 @@ test('long radio lines are not cut off by the old twelve-second ceiling', () => 
   const line = { speaker: 'ЛЕВ', text: 'Аварийный канал нестабилен. '.repeat(9) };
   assert.ok(dialogue.lineDuration(line) > 12);
   assert.ok(dialogue.lineDuration(line) <= 26);
+});
+
+
+test('bunker system selects a feminine Russian voice without confusing female and male labels', () => {
+  const originalSynthesis = global.speechSynthesis;
+  const originalUtterance = global.SpeechSynthesisUtterance;
+  const spoken = [];
+  const female = { name: 'Russian Female Voice', lang: 'ru-RU' };
+  const male = { name: 'Microsoft Pavel', lang: 'ru-RU' };
+  global.speechSynthesis = {
+    speaking: false,
+    getVoices: () => [female, male],
+    speak: utterance => spoken.push(utterance),
+    cancel() {}
+  };
+  global.SpeechSynthesisUtterance = class { constructor(text) { this.text = text; } };
+  try {
+    const dialogue = new S7DialogueSystem({
+      rootElement: createElement(),
+      speakerElement: createElement(),
+      textElement: createElement(),
+      promptElement: createElement()
+    });
+    dialogue.start([{ speaker: 'СИСТЕМА БУНКЕРА', text: 'Добро пожаловать обратно. Хотя, разумеется, вас никто не приглашал.' }]);
+    assert.equal(spoken[0].voice, female);
+    assert.ok(spoken[0].pitch > 1);
+    dialogue.finish();
+  } finally {
+    global.speechSynthesis = originalSynthesis;
+    global.SpeechSynthesisUtterance = originalUtterance;
+  }
 });
