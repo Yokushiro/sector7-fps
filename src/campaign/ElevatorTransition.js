@@ -14,8 +14,10 @@
       this.onSound = typeof onSound === 'function' ? onSound : () => {};
       this.group = null;
       this.display = null;
+      this.panel = null;
       this.displayTexture = null;
       this.displayCanvas = null;
+      this.panel = null;
       this.doors = [];
       this.ceilingLight = null;
       this.phase = 'idle';
@@ -105,6 +107,7 @@
       const panel = new T.Mesh(new T.BoxGeometry(1.12, 1.28, .12), dark);
       panel.position.set(0, 1.98, -2.22);
       group.add(panel);
+      this.panel = panel;
       const panelFrame = new T.Mesh(new T.BoxGeometry(1.2, 1.36, .035), trim);
       panelFrame.position.set(0, 1.98, -2.29);
       group.add(panelFrame);
