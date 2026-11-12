@@ -23,6 +23,15 @@
       tunnelFloor.receiveShadow = true;
       scene.add(tunnelFloor);
       context.solids.push(tunnelFloor);
+      // Keep the yard ground on both sides of the tunnel without overlapping its floor plane.
+      for (const x of [-13.0125, 13.0125]) {
+        const sideFloor = new T.Mesh(new T.PlaneGeometry(19.975, 13), floorMat);
+        sideFloor.rotation.x = -Math.PI / 2;
+        sideFloor.position.set(x, 0, -36.5);
+        sideFloor.receiveShadow = true;
+        scene.add(sideFloor);
+        context.solids.push(sideFloor);
+      }
       box(-2.8, 3, -39, .45, 6, 18, wall);
       box(2.8, 3, -39, .45, 6, 18, wall);
       box(0, 6.25, -39, 6.2, .5, 18, dark, false);
