@@ -74,6 +74,7 @@ test('campaign completion routes through the cinematic elevator and preserves pl
     'dialogueSystem.startRadio(currentMission.introDialogue,()=>elevatorTransition.setRadioComplete())',
     'onComplete:()=>',
     'state=\'play\';mouse=false',
+    'fallback=Boolean(transition.elevator&&!locked)',
     'elevatorTransition.constrainPlayer(P.pos)'
   ]) assert.ok(game.includes(fragment), 'game transition must include: ' + fragment);
 
