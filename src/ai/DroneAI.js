@@ -234,6 +234,10 @@
         if (enemy.attackWindupRemaining > 0) {
           enemy.attackWindupRemaining = Math.max(0, enemy.attackWindupRemaining - dt);
           if (enemy.attackWindupRemaining === 0 && canAttack) {
+            if (enemy.visual?.attackMarker) {
+              enemy.visual.attackMarker.visible = false;
+              if (enemy.visual.attackMarker.material) enemy.visual.attackMarker.material.opacity = 0;
+            }
             const speed = enemy.projectileSpeed || 13;
             const damage = enemy.damage || 8;
             const shot = (offsetX = 0, offsetY = 0, shotSpeed = speed, shotDamage = damage, spreadZ = 0) => {
