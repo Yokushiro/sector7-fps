@@ -88,3 +88,13 @@ test('surface finale completes the four-sector campaign and keeps the extraction
     ['bunker-01', 'lab-02', 'reactor-03', 'surface-04']
   );
 });
+
+
+test('campaign dialogue identifies the engineer as Lev in every chapter', () => {
+  const missions = new MissionSystem();
+  const lines = missions.getUnlockedMissions({ unlockedMission: 4 })
+    .flatMap(mission => [...mission.introDialogue, ...mission.outroDialogue]);
+  assert.ok(lines.some(line => line.text.includes('Меня зовут Лев')));
+  assert.ok(lines.filter(line => line.speaker.startsWith('ЛЕВ')).length >= 10);
+  assert.ok(lines.every(line => !/Илья|Ильи|ИЛЬЯ/.test(line.speaker + ' ' + line.text)));
+});
