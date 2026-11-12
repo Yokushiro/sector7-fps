@@ -435,7 +435,7 @@ function loadMission(nextMission,transition={}){
    P.pos.set(activeLevel.playerSpawn.x,GROUND_Y,activeLevel.playerSpawn.z);
    P.yaw=activeLevel.playerSpawn.yaw||0;P.pitch=0;P.hp=transition.preserveVitals?Math.max(1,Number(transition.preserveVitals.hp)||100):100;
   }
-  P.velocityY=0;P.grounded=true;
+  P.velocityY=0;P.grounded=true;P.groundedHeight=GROUND_Y;P.groundedPlatform=null;
   $('hpf').style.width=Math.max(0,P.hp)+'%';
   if(!carried&&!transition.preserveVitals){
    weapon.ammo=weapon.magazineSize;weapon.reloadRemaining=0;weapon.cooldown=0;weapon.recoil=0;weapon.pitchKick=0;
@@ -444,7 +444,7 @@ function loadMission(nextMission,transition={}){
   weapon.onAmmoChange(weapon.ammo);
   cam.position.copy(P.pos);cam.rotation.set(P.pitch+weapon.pitchKick,P.yaw,0);
   for(const key of Object.keys(keys))delete keys[key];
-  kills=0;spawned=0;spawnT=0;hurt=0;mouse=false;fallback=false;missionCleared=false;combatCleared=false;outroShown=false;outroPlaying=false;introShown=true;evacuationRemaining=0;$('evacTimer').hidden=true;
+  kills=0;spawned=0;spawnT=0;hurt=0;mouse=false;fallback=Boolean(transition.elevator&&!locked);missionCleared=false;combatCleared=false;outroShown=false;outroPlaying=false;introShown=true;evacuationRemaining=0;$('evacTimer').hidden=true;
   $('missionTitle').textContent=`${currentMission.title} · ${currentMission.location}`;
   $('missionDescription').textContent=currentMission.description;
   $('kl').textContent=`Дроны: 0 / ${GOAL}`;
@@ -553,8 +553,9 @@ function loop(now){requestAnimationFrame(loop);const dt=Math.min(.05,(now-last)/
   if(inElevator)elevatorTransition.constrainPlayer(P.pos);
   const boss=enemies.find(enemy=>enemy.type==='warden');$('bossHud').hidden=!boss;if(boss){$('bossHealth').style.width=`${Math.max(0,boss.hp/boss.maxHp*100)}%`;$('bossName').textContent=`СТОРОЖ · ${Math.max(0,Math.ceil(boss.hp))} HP`}
   const nearby=interactionSystem.findNearby(P.pos);$('interactHint').hidden=!nearby;if(nearby)$('interactHint').textContent=`E — ${nearby.label}`;
+  if(P.grounded&&P.groundedPlatform&&!jumpController.isSupported(P,boxes)){P.grounded=false;P.velocityY=0;}
   if(!inElevator&&jumpController.update(P,dt,boxes))snd(75,.09,'sine',.08);
-  if(P.grounded&&!inElevator)P.pos.y=GROUND_Y+(mv?Math.sin(tm*(keys.ShiftLeft?13:9))*.035:0);
+  if(P.grounded&&!inElevator)P.pos.y=(Number.isFinite(P.groundedHeight)?P.groundedHeight:GROUND_Y)+(mv?Math.sin(tm*(keys.ShiftLeft?13:9))*.035:0);
   cam.position.copy(P.pos);cam.rotation.set(P.pitch+weapon.pitchKick,P.yaw,0);
   if(mouse&&!combatCleared)weapon.fire(solids,enemies,spark,hitEnemy,hitWorld,R);
   weapon.update(dt,tm,mv);
