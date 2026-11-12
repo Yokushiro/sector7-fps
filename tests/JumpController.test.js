@@ -61,3 +61,29 @@ test('jump ignores platforms outside the player footprint and lands on the floor
   assert.equal(actor.pos.y, 1.7);
   assert.equal(actor.grounded, true);
 });
+
+
+test('landing on a platform preserves its height and walking off makes the player fall', () => {
+  const jump = new JumpController(1.7);
+  const actor = { ...player(), pos: { x: 0, y: 1.7, z: 0 } };
+  const platform = { x0: -.8, x1: .8, z0: -.8, z1: .8, topY: .65 };
+  jump.jump(actor);
+  let landed = false;
+  for (let i = 0; i < 80 && !landed; i++) landed = jump.update(actor, .025, [platform]);
+
+  assert.equal(landed, true);
+  assert.equal(actor.groundedHeight, 2.35);
+  assert.equal(actor.groundedPlatform, platform);
+  assert.equal(jump.isSupported(actor, [platform]), true);
+
+  actor.pos.x = 2;
+  assert.equal(jump.isSupported(actor, [platform]), false);
+  actor.grounded = false;
+  actor.velocityY = 0;
+  for (let i = 0; i < 100 && !actor.grounded; i++) jump.update(actor, .025, [platform]);
+
+  assert.equal(actor.grounded, true);
+  assert.equal(actor.pos.y, 1.7);
+  assert.equal(actor.groundedHeight, 1.7);
+  assert.equal(actor.groundedPlatform, null);
+});
