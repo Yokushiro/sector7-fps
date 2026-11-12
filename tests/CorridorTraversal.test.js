@@ -37,6 +37,9 @@ test('connector floors meet edge-to-edge without coplanar overlap', () => {
   assert.match(reactor, /new T\.PlaneGeometry\(5\.2, 8\.5\)/);
   assert.match(surface, /new T\.PlaneGeometry\(46, 73\), floorMat/);
   assert.match(surface, /floor\.position\.set\(0, 0, 6\.5\)/);
+  assert.match(surface, /sideFloor\.position\.set\(x, 0, -36\.5\)/);
+  assert.match(surface, /landingPad\.position\.set\(0, \.06, 45\)/);
+  assert.match(surface, /extractionMark\.position\.set\(0, \.04, 35\.5\)/);
 });
 
 test('all enclosed campaign chambers have a roof while the surface yard stays open', () => {
