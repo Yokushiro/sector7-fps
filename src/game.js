@@ -527,7 +527,10 @@ $('s7-new').addEventListener('click',()=>{
 $('s7-load').addEventListener('click',openLoadMenu);
 $('s7-load-back').addEventListener('click',()=>{$('s7-load-panel').hidden=true});
 $('s7-settings').addEventListener('click',()=>graphicsSettings.toggle(true));
-$('s7-exit').addEventListener('click',()=>{window.close();});
+$('s7-exit').addEventListener('click',()=>{
+  if(window.sector7Desktop&&typeof window.sector7Desktop.quit==='function')window.sector7Desktop.quit();
+  else $('msg').textContent='Выход доступен только в настольной версии SECTOR 7.';
+});
 $('s7-resume').addEventListener('click',()=>{
   pauseMenu=false;state='play';$('ov').style.display='none';$('s7-resume').hidden=true;
   try{dom.requestPointerLock()}catch(e){fallback=true}
