@@ -495,8 +495,8 @@ document.addEventListener('pointerlockchange',()=>{locked=document.pointerLockEl
 document.addEventListener('pointerlockerror',()=>{fallback=true});
 addEventListener('mousemove',e=>{if(state!=='play'||!(locked||fallback))return;P.yaw-=e.movementX*.0022;P.pitch=cl(P.pitch-e.movementY*.0022,-1.45,1.45)});
 addEventListener('mousedown',e=>{if(e.button===0)mouse=true});addEventListener('mouseup',()=>mouse=false);
-addEventListener('keydown',e=>{if(e.code==='Escape'&&state==='play'&&fallback&&!elevatorTransition.isActive()){e.preventDefault();showPauseMenu();return}if(dialogueSystem.isActive()&&(e.code==='Enter'||e.code==='KeyE')){e.preventDefault();if(!e.repeat)dialogueSystem.advance();return}if(e.code==='KeyE'&&state==='play'){e.preventDefault();if(!e.repeat)useNearbyInteraction();return}keys[e.code]=1;if(e.code==='Space'){e.preventDefault();if(!e.repeat&&state==='play'&&!elevatorTransition.isActive()&&jumpController.jump(P))snd(125,.14,'sawtooth',.12)}if(e.code==='KeyR')weapon.reload();if(e.code==='KeyF')torch.visible=!torch.visible;if(e.code==='F3')perfMonitor.toggle()});addEventListener('keyup',e=>keys[e.code]=0);
-addEventListener('blur',()=>{for(const key of Object.keys(keys))delete keys[key];mouse=false;if(state==='play'&&fallback&&!elevatorTransition.isActive())showPauseMenu();});
+addEventListener('keydown',e=>{if(e.code==='Escape'&&state==='play'&&fallback){e.preventDefault();showPauseMenu();return}if(dialogueSystem.isActive()&&(e.code==='Enter'||e.code==='KeyE')){e.preventDefault();if(!e.repeat)dialogueSystem.advance();return}if(e.code==='KeyE'&&state==='play'){e.preventDefault();if(!e.repeat)useNearbyInteraction();return}keys[e.code]=1;if(e.code==='Space'){e.preventDefault();if(!e.repeat&&state==='play'&&!elevatorTransition.isActive()&&jumpController.jump(P))snd(125,.14,'sawtooth',.12)}if(e.code==='KeyR')weapon.reload();if(e.code==='KeyF')torch.visible=!torch.visible;if(e.code==='F3')perfMonitor.toggle()});addEventListener('keyup',e=>keys[e.code]=0);
+addEventListener('blur',()=>{for(const key of Object.keys(keys))delete keys[key];mouse=false;if(state==='play'&&fallback)showPauseMenu();});
 setTimeout(()=>{if(state==='menu'&&!$('ov').matches(':hover'))0},0);
 
 /* ---------- пост-обработка ---------- */
@@ -555,7 +555,7 @@ $('s7-resume').addEventListener('click',()=>{
 let last=performance.now();
 function loop(now){requestAnimationFrame(loop);const dt=Math.min(.05,(now-last)/1000);last=now;tm+=dt;if(typeof activeLevel.update==='function')activeLevel.update(dt,tm);
  dialogueSystem.update(dt);
- elevatorTransition.update(dt);
+ if(state==='play')elevatorTransition.update(dt);
  hitFeedback.update(dt,$('hit'));
  if(state==='play'){
   const f=(keys.KeyW?1:0)-(keys.KeyS?1:0),r=(keys.KeyD?1:0)-(keys.KeyA?1:0),sp=keys.ShiftLeft?7:4.6,mv=f||r;
