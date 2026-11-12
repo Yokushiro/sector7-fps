@@ -104,6 +104,9 @@
       if(!this.group||!position)throw new Error('Elevator cabin has not started');
       const destinationYaw=Number(yaw)||0;
       const forwardX=-Math.sin(destinationYaw),forwardZ=-Math.cos(destinationYaw);
+      // Rotate the cabin to the destination while preserving the player's facing relative to its interior.
+      const playerYawOffset=this.player&&Number.isFinite(this.player.yaw)
+        ?this.player.yaw-this.group.rotation.y:0;
       this.group.rotation.y=destinationYaw;
       this.destinationY=position.y-1.7;
       this.group.position.set(position.x+forwardX*2.4,this.destinationY+7.5,position.z+forwardZ*2.4);
@@ -112,7 +115,7 @@
       if(this.player?.pos){
         const inside=this.group.localToWorld(new this.THREE.Vector3(0,1.7,.55));
         this.player.pos.copy(inside);
-        this.player.yaw=destinationYaw;
+        this.player.yaw=destinationYaw+playerYawOffset;
       }
       this.drawDisplay(this.destinationLabel,'КАБИНА В ДВИЖЕНИИ');
     }
