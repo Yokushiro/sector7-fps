@@ -28,6 +28,17 @@ test('combat completion opens the route instead of ending the mission immediatel
 });
 
 
+test('all enclosed campaign chambers have a roof while the surface yard stays open', () => {
+  const bunker = read('src/levels/BunkerLevel.js');
+  const lab = read('src/levels/LabLevel.js');
+  const reactor = read('src/levels/ReactorLevel.js');
+  const surface = read('src/levels/SurfaceLevel.js');
+  assert.match(bunker, /box\(0,H,0,S\*2\+2,\.6,S\*2\+2/);
+  assert.match(lab, /box\(0, H, 0, S \* 2 \+ 2, \.6, S \* 2 \+ 2/);
+  assert.match(reactor, /box\(0, H, 0, S \* 2 \+ 2, \.6, S \* 2 \+ 2/);
+  assert.doesNotMatch(surface, /box\(0,\s*H,\s*0,/);
+});
+
 test('corridor lintels remain visual-only so they do not block player movement', () => {
   const bunker = read('src/levels/BunkerLevel.js');
   const lab = read('src/levels/LabLevel.js');
