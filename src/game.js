@@ -68,7 +68,7 @@ function box(x,y,z,w,h,d,m,col=true,target=scene){const me=new T.Mesh(new T.BoxG
 const saveSystem=new S7SaveSystem();
 const missionSystem=new S7MissionSystem();
 let savedCampaign=saveSystem.load();
-const requestedMissionId=location.hash.slice(1);
+const requestedMissionId=savedCampaign.campaign.currentMission||location.hash.slice(1);
 let currentMission=missionSystem.getMissionForCampaign(savedCampaign.campaign,requestedMissionId);
 if(!currentMission)throw new Error('No unlocked campaign missions are available');
 let missionObjective=currentMission.objectives.find(objective=>objective.type==='eliminate');
@@ -103,7 +103,7 @@ const torch=new T.SpotLight(0xe8f4ff,1.6,28,.5,.6,1.2);torch.position.set(.2,-.1
 let GROUND_Y=activeLevel.playerSpawn.y;
 const P={pos:new T.Vector3(activeLevel.playerSpawn.x,GROUND_Y,activeLevel.playerSpawn.z),yaw:activeLevel.playerSpawn.yaw||0,pitch:0,hp:100,velocityY:0,grounded:true};
 const jumpController=new S7JumpController(GROUND_Y);
-let state='menu',kills=0,spawned=0,spawnT=0,hurt=0,tm=0,mouse=false,fallback=false,locked=false,missionCleared=false,combatCleared=false,outroShown=false,outroPlaying=false,introShown=false,evacuationRemaining=0;
+let state='menu',kills=0,spawned=0,spawnT=0,hurt=0,tm=0,mouse=false,fallback=false,locked=false,pauseMenu=false,missionCleared=false,combatCleared=false,outroShown=false,outroPlaying=false,introShown=false,evacuationRemaining=0;
 const keys=Object.create(null); // shared keyboard state for input handlers and the game loop
 const enemies=[],proj=[],sparks=[],explosions=[];
 const droneAI=new S7DroneAI();
@@ -401,6 +401,7 @@ function loadMission(nextMission,transition={}){
   for(const particle of sparks){scene.remove(particle.m);particle.m.material.dispose()}sparks.length=0;
   for(const piece of debris){scene.remove(piece.mesh);piece.mesh.geometry.dispose();piece.mesh.material.dispose()}debris.length=0;
   currentMission=nextMission;
+  saveSystem.setCurrentMission(currentMission.id);
   missionObjective=currentMission.objectives.find(objective=>objective.type==='eliminate');
   if(!missionObjective)throw new Error('The next mission has no supported elimination objective');
   GOAL=missionObjective.target;
@@ -437,6 +438,7 @@ function loadMission(nextMission,transition={}){
   $('kl').textContent=`Дроны: 0 / ${GOAL}`;
   $('interactHint').hidden=true;
   $('ov').style.display='none';
+  $('s7-resume').hidden=true;pauseMenu=false;
   location.hash=currentMission.id;
   audioManager.startAmbience(currentMission.audioProfile,(carried||transition.elevator)?1.25:0);
   if(transition.elevator){state='transition'}else{
@@ -462,8 +464,8 @@ function transitionToMission(nextMission){
  });
 }
 function useNearbyInteraction(){const nearby=interactionSystem.findNearby(P.pos);if(!nearby)return;if(nearby.id===activeLevel.requiredInteractionId&&!combatCleared){$('kl').textContent='СНАЧАЛА УНИЧТОЖЬ ВСЮ ОХРАНУ СЕКТОРА';return}const item=interactionSystem.activate(nearby.id);if(!item)return;activeLevel.onInteractionActivated?.(item.id);state='dialogue';mouse=false;$('interactHint').hidden=true;document.exitPointerLock&&document.exitPointerLock();dialogueSystem.start(item.dialogue,()=>{if(item.id===activeLevel.requiredInteractionId){missionCleared=true;activeLevel.openExit?.();const evacuationSeconds=Number(activeLevel.evacuationSeconds)||0;if(evacuationSeconds>0){evacuationRemaining=evacuationSeconds;$('evacTimer').hidden=false;const seconds=Math.ceil(evacuationRemaining);$('evacTimer').textContent=`ЭВАКУАЦИЯ · ${String(Math.floor(seconds/60)).padStart(2,'0')}:${String(seconds%60).padStart(2,'0')}`;$('kl').textContent=activeLevel.evacuationMessage||'ЯДРО ОТКЛЮЧЕНО · ИЩИ ЭВАКУАЦИОННЫЙ КОРИДОР'}else{$('kl').textContent='ВНЕШНИЙ КОНТУР ОТКЛЮЧЁН · ШЛЮЗ В РЕАКТОР ОТКРЫТ'}}state='play';try{dom.requestPointerLock()}catch(e){fallback=true}})}
-$('ov').onclick=()=>{if(state==='over'||state==='dialogue')return;$('ov').style.display='none';if(!introShown){if(!ac)ac=audioManager.unlock();if(ac){audioManager.startAmbience(currentMission.audioProfile);audioManager.startMusic()}introShown=true;state='dialogue';dialogueSystem.start(currentMission.introDialogue,()=>{state='play';try{dom.requestPointerLock()}catch(e){fallback=true}})}else{state='play';try{dom.requestPointerLock()}catch(e){fallback=true}}};
-document.addEventListener('pointerlockchange',()=>{locked=document.pointerLockElement===dom;if(!locked&&state==='play'&&!fallback){state='menu';$('msg').innerHTML='<b>Пауза — нажми, чтобы продолжить</b>';$('ov').style.display='flex'}});
+
+document.addEventListener('pointerlockchange',()=>{locked=document.pointerLockElement===dom;if(locked){pauseMenu=false;$('s7-resume').hidden=true}if(!locked&&state==='play'&&!fallback){state='menu';pauseMenu=true;$('s7-resume').hidden=false;$('msg').textContent='Пауза';$('s7-load-panel').hidden=true;$('ov').style.display='flex'}});
 document.addEventListener('pointerlockerror',()=>{fallback=true});
 addEventListener('mousemove',e=>{if(state!=='play'||!(locked||fallback))return;P.yaw-=e.movementX*.0022;P.pitch=cl(P.pitch-e.movementY*.0022,-1.45,1.45)});
 addEventListener('mousedown',e=>{if(e.button===0)mouse=true});addEventListener('mouseup',()=>mouse=false);
@@ -484,6 +486,40 @@ const perfMonitor=new S7PerformanceMonitor();
 function resize(){const w=innerWidth,h=innerHeight;renderer.setSize(w,h);comp.setSize(w,h);cam.aspect=w/h;cam.updateProjectionMatrix()}
 addEventListener('resize',resize);resize();
 const graphicsSettings=new S7GraphicsSettings(renderer,comp,bloom,resize);
+function openLoadMenu(){
+  const panel=$('s7-load-panel'),list=$('s7-load-list');
+  list.replaceChildren();
+  const campaign=savedCampaign.campaign;
+  const next=missionSystem.getMissionForCampaign(campaign,campaign.currentMission||'');
+  if(next){
+    const resume=document.createElement('button');
+    resume.className='s7-primary';
+    resume.textContent='ПРОДОЛЖИТЬ КАМПАНИЮ · '+next.title;
+    resume.onclick=()=>loadMission(next);
+    list.appendChild(resume);
+  }
+  const completed=new Set(campaign.completedMissions||[]);
+  for(const mission of missionSystem.getUnlockedMissions(campaign)){
+    const button=document.createElement('button');
+    const isCurrent=next&&mission.id===next.id;
+    button.textContent=String(mission.order).padStart(2,'0')+' · '+mission.title+' · '+mission.location+(isCurrent?' — ТЕКУЩАЯ':completed.has(mission.id)?' — ПОВТОР':'');
+    button.onclick=()=>loadMission(mission);
+    list.appendChild(button);
+  }
+  panel.hidden=false;
+}
+$('s7-new').addEventListener('click',()=>{
+  saveSystem.reset();savedCampaign=saveSystem.load();
+  loadMission(missionSystem.getFirstMission(),{newGame:true});
+});
+$('s7-load').addEventListener('click',openLoadMenu);
+$('s7-load-back').addEventListener('click',()=>{$('s7-load-panel').hidden=true});
+$('s7-settings').addEventListener('click',()=>graphicsSettings.toggle(true));
+$('s7-exit').addEventListener('click',()=>{window.close();});
+$('s7-resume').addEventListener('click',()=>{
+  pauseMenu=false;state='play';$('ov').style.display='none';$('s7-resume').hidden=true;
+  try{dom.requestPointerLock()}catch(e){fallback=true}
+});
 
 /* ---------- цикл ---------- */
 let last=performance.now();
@@ -535,6 +571,6 @@ function loop(now){requestAnimationFrame(loop);const dt=Math.min(.05,(now-last)/
  hurt=Math.max(0,hurt-dt*1.6);dust.rotation.y+=dt*.01;dust.position.y=Math.sin(tm*.2)*.1;
  // мерцание неона
  fin.uniforms.time.value=tm%10;fin.uniforms.hurt.value=hurt;
- if(state==='menu'){cam.position.set(Math.sin(tm*.15)*4,2.4,9);cam.lookAt(0,1.8,-5)}else if(state==='dialogue'){cam.position.copy(P.pos);cam.rotation.set(P.pitch,P.yaw,0)}
+ if(state==='menu'&&!pauseMenu){cam.position.set(Math.sin(tm*.15)*4,2.4,9);cam.lookAt(0,1.8,-5)}else if(state==='dialogue'){cam.position.copy(P.pos);cam.rotation.set(P.pitch,P.yaw,0)}
  comp.render();perfMonitor.update(renderer,now);renderer.info.reset()}
 cam.position.copy(P.pos);requestAnimationFrame(loop);
