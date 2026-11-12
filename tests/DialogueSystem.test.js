@@ -70,3 +70,70 @@ test('radio dialogue advances automatically without requiring player input', () 
   assert.equal(root.classList.values.has('radio'), false);
   assert.equal(completed, 1);
 });
+
+
+test('Russian character voice synthesis uses distinct profiles and stops on dialogue advance', () => {
+  const originalWindow = global.window;
+  const spoken = [];
+  let cancellations = 0;
+  const russianVoice = { name: 'Russian Voice', lang: 'ru-RU' };
+  global.window = {
+    speechSynthesis: {
+      speaking: false,
+      getVoices: () => [russianVoice],
+      speak: utterance => spoken.push(utterance),
+      cancel: () => { cancellations++; }
+    },
+    SpeechSynthesisUtterance: class {
+      constructor(text) { this.text = text; }
+    }
+  };
+  try {
+    const dialogue = new S7DialogueSystem({
+      rootElement: createElement(),
+      speakerElement: createElement(),
+      textElement: createElement(),
+      promptElement: createElement()
+    });
+    dialogue.start([
+      { speaker: 'ИЛЬЯ', text: 'Проверь канал связи.' },
+      { speaker: 'АРХИВ / 07', text: 'Канал связи нестабилен.' }
+    ]);
+    assert.equal(spoken.length, 1);
+    assert.equal(spoken[0].voice, russianVoice);
+    assert.equal(spoken[0].lang, 'ru-RU');
+    assert.ok(spoken[0].pitch < 1);
+    dialogue.advance();
+    assert.equal(spoken.length, 2);
+    assert.ok(spoken[1].pitch < spoken[0].pitch);
+    assert.ok(cancellations >= 2);
+    dialogue.setVoiceEnabled(false);
+    assert.equal(dialogue.voiceEnabled, false);
+    dialogue.finish();
+  } finally {
+    global.window = originalWindow;
+  }
+});
+
+test('voice synthesis stays silent when no Russian system voice is installed', () => {
+  const originalWindow = global.window;
+  let spoken = 0;
+  global.window = {
+    speechSynthesis: { getVoices: () => [{ name: 'English Voice', lang: 'en-US' }], speak: () => spoken++, cancel() {} },
+    SpeechSynthesisUtterance: class { constructor(text) { this.text = text; } }
+  };
+  try {
+    const dialogue = new S7DialogueSystem({
+      rootElement: createElement(),
+      speakerElement: createElement(),
+      textElement: createElement(),
+      promptElement: createElement()
+    });
+    dialogue.start([{ speaker: 'ИЛЬЯ', text: 'Русская реплика.' }]);
+    assert.equal(spoken, 0);
+    assert.equal(dialogue.textElement.textContent, 'Русская реплика.');
+    dialogue.finish();
+  } finally {
+    global.window = originalWindow;
+  }
+});
