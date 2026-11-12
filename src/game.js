@@ -131,12 +131,10 @@ const elevatorTransition=new S7ElevatorTransition({
    $('ov').innerHTML='<div><h1>ОШИБКА ЗАГРУЗКИ СЕКТОРА</h1><p>Не удалось подготовить следующую локацию.</p><p>Перезапусти миссию, чтобы восстановить кампанию.</p></div>';
   }
  },
- onComplete:exitPosition=>{
-  if(exitPosition)P.pos.copy(exitPosition);
+ onComplete:()=>{
   state='play';
   cam.position.copy(P.pos);
   cam.rotation.set(P.pitch+weapon.pitchKick,P.yaw,0);
-  try{dom.requestPointerLock()}catch(e){fallback=true}
  }
 });
 let elevatorNextMission=null;
@@ -453,7 +451,7 @@ function loadMission(nextMission,transition={}){
   location.hash=currentMission.id;
   if(!ac){ac=audioManager.unlock();if(ac)audioManager.startMusic()}
   audioManager.startAmbience(currentMission.audioProfile,(carried||transition.elevator)?1.25:0);
-  if(transition.elevator){state='transition'}else{
+  if(transition.elevator){state='play'}else{
    state='play';
    dialogueSystem.startRadio(currentMission.introDialogue);
    try{dom.requestPointerLock()}catch(e){fallback=true}
@@ -466,12 +464,14 @@ function loadMission(nextMission,transition={}){
  }
 }
 function transitionToMission(nextMission){
- state='transition';mouse=false;document.exitPointerLock&&document.exitPointerLock();
+ // Keep the pointer locked and the normal FPS controls active throughout the ride.
+ state='play';mouse=false;
  elevatorNextMission=nextMission;
  elevatorVitals={hp:P.hp};
  elevatorTransition.begin({
   position:{x:P.pos.x,y:P.pos.y,z:P.pos.z},
   yaw:P.yaw,
+  player:P,
   destinationLabel:String(nextMission.order).padStart(2,'0')
  });
 }
@@ -481,7 +481,7 @@ document.addEventListener('pointerlockchange',()=>{locked=document.pointerLockEl
 document.addEventListener('pointerlockerror',()=>{fallback=true});
 addEventListener('mousemove',e=>{if(state!=='play'||!(locked||fallback))return;P.yaw-=e.movementX*.0022;P.pitch=cl(P.pitch-e.movementY*.0022,-1.45,1.45)});
 addEventListener('mousedown',e=>{if(e.button===0)mouse=true});addEventListener('mouseup',()=>mouse=false);
-addEventListener('keydown',e=>{if(dialogueSystem.isActive()&&(e.code==='Enter'||e.code==='KeyE')){e.preventDefault();if(!e.repeat)dialogueSystem.advance();return}if(e.code==='KeyE'&&state==='play'){e.preventDefault();if(!e.repeat)useNearbyInteraction();return}keys[e.code]=1;if(e.code==='Space'){e.preventDefault();if(!e.repeat&&state==='play'&&jumpController.jump(P))snd(125,.14,'sawtooth',.12)}if(e.code==='KeyR')weapon.reload();if(e.code==='KeyF')torch.visible=!torch.visible;if(e.code==='F3')perfMonitor.toggle()});addEventListener('keyup',e=>keys[e.code]=0);
+addEventListener('keydown',e=>{if(dialogueSystem.isActive()&&(e.code==='Enter'||e.code==='KeyE')){e.preventDefault();if(!e.repeat)dialogueSystem.advance();return}if(e.code==='KeyE'&&state==='play'){e.preventDefault();if(!e.repeat)useNearbyInteraction();return}keys[e.code]=1;if(e.code==='Space'){e.preventDefault();if(!e.repeat&&state==='play'&&!elevatorTransition.isActive()&&jumpController.jump(P))snd(125,.14,'sawtooth',.12)}if(e.code==='KeyR')weapon.reload();if(e.code==='KeyF')torch.visible=!torch.visible;if(e.code==='F3')perfMonitor.toggle()});addEventListener('keyup',e=>keys[e.code]=0);
 setTimeout(()=>{if(state==='menu'&&!$('ov').matches(':hover'))0},0);
 
 /* ---------- пост-обработка ---------- */
@@ -544,11 +544,13 @@ function loop(now){requestAnimationFrame(loop);const dt=Math.min(.05,(now-last)/
  hitFeedback.update(dt,$('hit'));
  if(state==='play'){
   const f=(keys.KeyW?1:0)-(keys.KeyS?1:0),r=(keys.KeyD?1:0)-(keys.KeyA?1:0),sp=keys.ShiftLeft?7:4.6,mv=f||r;
-  if(mv){const l=Math.hypot(f,r),sy=Math.sin(P.yaw),cy=Math.cos(P.yaw);P.pos.x+=(-sy*f+cy*r)/l*sp*dt;P.pos.z+=(-cy*f-sy*r)/l*sp*dt;collide(P.pos,.4)}
+  if(mv){const l=Math.hypot(f,r),sy=Math.sin(P.yaw),cy=Math.cos(P.yaw);P.pos.x+=(-sy*f+cy*r)/l*sp*dt;P.pos.z+=(-cy*f-sy*r)/l*sp*dt;if(!elevatorTransition.isActive())collide(P.pos,.4)}
+  const inElevator=elevatorTransition.isActive();
+  if(inElevator)elevatorTransition.constrainPlayer(P.pos);
   const boss=enemies.find(enemy=>enemy.type==='warden');$('bossHud').hidden=!boss;if(boss){$('bossHealth').style.width=`${Math.max(0,boss.hp/boss.maxHp*100)}%`;$('bossName').textContent=`СТОРОЖ · ${Math.max(0,Math.ceil(boss.hp))} HP`}
   const nearby=interactionSystem.findNearby(P.pos);$('interactHint').hidden=!nearby;if(nearby)$('interactHint').textContent=`E — ${nearby.label}`;
-  if(jumpController.update(P,dt,boxes))snd(75,.09,'sine',.08);
-  if(P.grounded)P.pos.y=GROUND_Y+(mv?Math.sin(tm*(keys.ShiftLeft?13:9))*.035:0);
+  if(!inElevator&&jumpController.update(P,dt,boxes))snd(75,.09,'sine',.08);
+  if(P.grounded&&!inElevator)P.pos.y=GROUND_Y+(mv?Math.sin(tm*(keys.ShiftLeft?13:9))*.035:0);
   cam.position.copy(P.pos);cam.rotation.set(P.pitch+weapon.pitchKick,P.yaw,0);
   if(mouse&&!combatCleared)weapon.fire(solids,enemies,spark,hitEnemy,hitWorld,R);
   weapon.update(dt,tm,mv);
