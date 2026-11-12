@@ -55,7 +55,25 @@
       const exitLamp = new T.PointLight(0x26cfff, 1.1, 18, 2);
       exitLamp.position.set(0, 4.8, 21);
       scene.add(exitLamp);
-      const exitDoor = box(0, 3, 28, 5.6, 6, .45, darkSteel);
+      // Outgoing elevator vestibule: paired armored panels remain visible from the corridor.
+      const elevatorFrame = mat('metal', 1, 1, .9, 0x526c78);
+      const elevatorDoors = [
+        box(-1.4, 3, 28, 2.8, 5.7, .32, mat('metal', 1, 1, .88, 0x344b57)),
+        box(1.4, 3, 28, 2.8, 5.7, .32, mat('metal', 1, 1, .88, 0x344b57))
+      ];
+      elevatorDoors[0].userData.openX = -4.15;
+      elevatorDoors[1].userData.openX = 4.15;
+      box(-2.95, 3, 28, .28, 6.1, .62, elevatorFrame, false);
+      box(2.95, 3, 28, .28, 6.1, .62, elevatorFrame, false);
+      box(0, 6.12, 28, 6.15, .32, .62, elevatorFrame, false);
+      for (const x of [-2.72, 2.72]) {
+        const rail = new T.Mesh(new T.BoxGeometry(.055, 4.9, .035), new T.MeshBasicMaterial({ color: 0x42d8ff }));
+        rail.position.set(x, 3, 28.34);
+        scene.add(rail);
+      }
+      const elevatorHeader = new T.Mesh(new T.BoxGeometry(1.1, .24, .045), new T.MeshBasicMaterial({ color: 0x42d8ff }));
+      elevatorHeader.position.set(0, 6.34, 28.34);
+      scene.add(elevatorHeader);
       let exitOpen = false;
       box(-S - .5, H / 2, 0, 1, H, S * 2, wall);
       box(S + .5, H / 2, 0, 1, H, S * 2, wall);
@@ -248,7 +266,7 @@
         exitZone: { x0: -2.1, x1: 2.1, z0: 28.2, z1: 29.5 },
         playerSpawn: { x: 0, y: 1.7, z: -26, yaw: Math.PI },
         enemySpawnPoints: [[-11, -11], [11, -11], [-11, 11], [11, 11], [0, -12.5], [-12.5, 0], [12.5, 0]],
-        openExit() { exitOpen = true; context.removeCollisionBox(exitDoor.userData.collisionBox); },
+        openExit() { exitOpen = true; elevatorDoors.forEach(door => context.removeCollisionBox(door.userData.collisionBox)); },
         update(dt, time) {
           alarm.intensity = securityDisabled ? .22 : .85 + Math.max(0, Math.sin(time * 4.2)) * .8;
           securityScan.position.y = 1.43 + ((time * .5) % 1) * .52;
@@ -256,7 +274,7 @@
           securityStatus.material.color.setHex(securityDisabled ? 0x45ff9a : (Math.sin(time * 4) > 0 ? 0xff3448 : 0x6c1821));
           securityLamp.color.setHex(securityDisabled ? 0x45ff9a : 0xff3542);
           securityLamp.intensity = securityDisabled ? .42 : 1.15 + Math.max(0, Math.sin(time * 4.2)) * .35;
-          if (exitOpen) exitDoor.position.y += (9 - exitDoor.position.y) * Math.min(1, dt * 2.2);
+          if (exitOpen) elevatorDoors.forEach(door => { door.position.x += (door.userData.openX - door.position.x) * Math.min(1, dt * 3.2); });
         },
         onInteractionActivated(id) {
           if (id !== 'lab-security-console') return;
