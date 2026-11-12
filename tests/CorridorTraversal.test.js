@@ -120,8 +120,10 @@ test('evacuation doors block the corridor until opened, then release collision',
   assert.match(game, /me\.userData\.collisionBox=collisionBox/);
   for (const levelPath of ['src/levels/BunkerLevel.js', 'src/levels/LabLevel.js', 'src/levels/ReactorLevel.js']) {
     const source = read(levelPath);
-    assert.match(source, /const exitDoor\s*=\s*box\([^;]+\);/);
-    assert.match(source, /context\.removeCollisionBox\(exitDoor\.userData\.collisionBox\)/);
+    assert.match(source, /const elevatorDoors\s*=\s*\[/);
+    assert.match(source, /elevatorDoors\.forEach\(door\s*=>\s*context\.removeCollisionBox\(door\.userData\.collisionBox\)\)/);
+    assert.match(source, /userData\.openX\s*=\s*-?4\./);
+    assert.match(source, /door\.position\.x\s*\+=/);
   }
 });
 
@@ -142,7 +144,8 @@ test('laboratory route enters from the bunker side and exits through the opposit
   const lab = read('src/levels/LabLevel.js');
   assert.match(lab, /corridorFloor\.position\.set\(0, \.015, -21\)/);
   assert.match(lab, /exitCorridorFloor\.position\.set\(0, \.015, 21\)/);
-  assert.match(lab, /const exitDoor = box\(0, 3, 28,/);
+  assert.match(lab, /const elevatorDoors = \[/);
+  assert.match(lab, /box\(-1\.4, 3, 28, 2\.8, 5\.7, \.32/);
   assert.match(lab, /exitZone: \{ x0: -2\.1, x1: 2\.1, z0: 28\.2, z1: 29\.5 \}/);
   assert.doesNotMatch(lab, /const exitDoor = box\(0, 3, -28,/);
 });
@@ -248,4 +251,25 @@ test('reactor evacuation alarm is declared and pulses without crashing the level
   assert.ok(reactor.includes('const alarm = new T.PointLight(0xff3028, .25, 16, 2)'));
   assert.ok(reactor.includes('alarm.intensity = .25 + Math.max(0, Math.sin(time * 8)) * 1.35'));
   assert.ok(reactor.indexOf('const alarm =') < reactor.indexOf('alarm.intensity ='));
+});
+
+
+test('the three interior sectors show paired elevator doors before the exit is unlocked', () => {
+  for (const levelPath of ['src/levels/BunkerLevel.js', 'src/levels/LabLevel.js', 'src/levels/ReactorLevel.js']) {
+    const source = read(levelPath);
+    assert.match(source, /const elevatorDoors\s*=\s*\[/);
+    assert.match(source, /userData\.openX\s*=\s*-?4\./);
+    assert.match(source, /userData\.openX\s*=\s*4\./);
+    assert.match(source, /elevatorDoors\.forEach\(door\s*=>\s*context\.removeCollisionBox\(door\.userData\.collisionBox\)\)/);
+    assert.match(source, /door\.position\.x\s*\+=/);
+  }
+});
+
+test('elevator cabin keeps the floor display centered on the front wall and preserves facing on arrival', () => {
+  const elevator = read('src/campaign/ElevatorTransition.js');
+  assert.match(elevator, /group\.rotation\.y = yaw;/);
+  assert.match(elevator, /panel\.position\.set\(0, 1\.98, -2\.22\)/);
+  assert.match(elevator, /screen\.position\.set\(0, 2\.18, -2\.145\)/);
+  assert.match(elevator, /this\.cameraLocalZ = -\.55/);
+  assert.match(elevator, /this\.cameraYaw = Number\(yaw\) \|\| 0/);
 });
