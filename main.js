@@ -25,11 +25,13 @@ function create() {
 
   w.webContents.on('before-input-event', (e, i) => {
     if (i.type === 'keyDown' && i.key === 'F11') {
+      e.preventDefault();
       w.setFullScreen(!w.isFullScreen());
     }
 
     // Temporary diagnostics: open Chromium DevTools with Ctrl+Shift+I.
     if (i.type === 'keyDown' && i.control && i.shift && i.key.toLowerCase() === 'i') {
+      e.preventDefault();
       w.webContents.openDevTools({ mode: 'detach' });
     }
   });
