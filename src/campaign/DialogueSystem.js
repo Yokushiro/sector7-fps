@@ -3,10 +3,11 @@
 
   const VOICE_PROFILES = {
     'ЛЕВ': { pitch: .72, rate: .94 },
-    'СИСТЕМА БУНКЕРА': { pitch: 1.12, rate: .88 },
-    'АРХИВ / 07': { pitch: 1.12, rate: .88 },
-    'НЕИЗВЕСТНЫЙ': { pitch: 1.08, rate: .91 },
-    'СИСТЕМА': { pitch: 1.12, rate: .9 }
+    'ЯДРО': { pitch: 1.14, rate: .88 },
+    'СИСТЕМА БУНКЕРА': { pitch: .82, rate: .94 },
+    'АРХИВ / 07': { pitch: .82, rate: .94 },
+    'НЕИЗВЕСТНЫЙ': { pitch: .82, rate: .94 },
+    'СИСТЕМА': { pitch: .9, rate: .96 }
   };
 
   class S7DialogueSystem {
@@ -111,11 +112,11 @@
       try {
         const utterance = this.utteranceFactory(line.text);
         const isLev = line.speaker === 'ЛЕВ' || line.speaker.startsWith('ЛЕВ /');
-        const isBunkerSystem = line.speaker === 'СИСТЕМА БУНКЕРА' || line.speaker === 'АРХИВ / 07' || line.speaker === 'СИСТЕМА';
+        const isAntagonistAI = line.speaker === 'ЯДРО';
         const profile = isLev ? VOICE_PROFILES['ЛЕВ'] : (VOICE_PROFILES[line.speaker] || VOICE_PROFILES['СИСТЕМА']);
         const voice = isLev
           ? (this.maleRussianVoice || this.selectedVoice)
-          : isBunkerSystem ? (this.femaleRussianVoice || this.selectedVoice) : this.selectedVoice;
+          : isAntagonistAI ? (this.femaleRussianVoice || this.selectedVoice) : this.selectedVoice;
         utterance.lang = voice.lang || 'ru-RU';
         utterance.voice = voice;
         utterance.pitch = Math.max(.5, Math.min(2, line.pitch ?? profile.pitch));
