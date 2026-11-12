@@ -98,10 +98,10 @@ test('desktop exit uses the isolated preload bridge and packaged preload file', 
   const preload = fs.readFileSync(path.join(root, 'preload.js'), 'utf8');
   const game = fs.readFileSync(path.join(root, 'src/game.js'), 'utf8');
   const packageJson = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
-  assert.match(main, /preload:\\s*path\\.join\\(__dirname, ['"]preload\\.js['"]\\)/);
-  assert.match(main, /ipcMain\\.on\\(['"]sector7:quit['"]/);
-  assert.match(preload, /contextBridge\\.exposeInMainWorld\\(['"]sector7Desktop['"]/);
-  assert.match(preload, /ipcRenderer\\.send\\(['"]sector7:quit['"]\\)/);
-  assert.match(game, /window\\.sector7Desktop\\.quit\\(\\)/);
+  assert.ok(main.includes("preload: path.join(__dirname, 'preload.js')"));
+  assert.ok(main.includes("ipcMain.on('sector7:quit'"));
+  assert.ok(preload.includes("contextBridge.exposeInMainWorld('sector7Desktop'"));
+  assert.ok(preload.includes("ipcRenderer.send('sector7:quit')"));
+  assert.ok(game.includes('window.sector7Desktop.quit()'));
   assert.ok(packageJson.build.files.includes('preload.js'));
 });
