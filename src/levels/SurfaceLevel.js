@@ -101,17 +101,17 @@
 
       const landingPad = new T.Mesh(new T.PlaneGeometry(12, 12), mat('floor', 4, 4, .3, 0x87969d));
       landingPad.rotation.x = -Math.PI / 2;
-      landingPad.position.set(0, .018, 45);
+      landingPad.position.set(0, .06, 45);
       landingPad.receiveShadow = true;
       scene.add(landingPad);
       context.solids.push(landingPad);
 
       const extractionMark = new T.Mesh(new T.RingGeometry(2.8, 3.2, 48), new T.MeshBasicMaterial({ color: 0x36d9ff, side: T.DoubleSide }));
       extractionMark.rotation.x = -Math.PI / 2;
-      extractionMark.position.set(0, .04, 36);
+      extractionMark.position.set(0, .04, 35.5);
       scene.add(extractionMark);
       const extractionLight = new T.PointLight(0x36d9ff, 1.5, 13, 2);
-      extractionLight.position.set(0, 3, 36);
+      extractionLight.position.set(0, 3, 35.5);
       scene.add(extractionLight);
 
       scene.add(new T.HemisphereLight(0x91b8d2, 0x27292b, .72));
