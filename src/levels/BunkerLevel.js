@@ -153,7 +153,7 @@ const bunkerLights=[];
           terminalSweep.material.opacity = .38 + Math.sin(time * 5) * .18;
           terminalBeacon.material.color.setHex(Math.sin(time * 3.5) > -.35 ? 0x35dfff : 0x174c67);
           terminalLamp.intensity = .62 + Math.sin(time * 4.2) * .16;
-          if(exitOpen){elevatorDoors[0].position.x+=(elevatorDoors[0].userData.openX-elevatorDoors[0].position.x)*Math.min(1,dt*3.2);elevatorDoors[1].position.x+=(elevatorDoors[1].userData.openX-elevatorDoors[1].position.x)*Math.min(1,dt*3.2);}
+          if(exitOpen)elevatorDoors.forEach(door=>{door.position.x+=(door.userData.openX-door.position.x)*Math.min(1,dt*3.2)});
         },
         interactables: [{
           id: 'bunker-log',
