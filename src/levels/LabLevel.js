@@ -20,15 +20,15 @@
       box(8.15, H / 2, -S - .5, 12.9, H, 1, wall);
       box(0, H - .5, -S - .5, 4.2, 1, 1, steel, false);
       // Service corridor continues deeper into the facility and ends at the reactor access door.
-      const corridorFloor = new T.Mesh(new T.PlaneGeometry(5.2, 14), mat('floor', 2, 5, .3));
+      const corridorFloor = new T.Mesh(new T.PlaneGeometry(5.2, 15.5), mat('floor', 2, 5, .3));
       corridorFloor.rotation.x = -Math.PI / 2;
-      corridorFloor.position.set(0, .015, -21);
+      corridorFloor.position.set(0, .015, -21.75);
       corridorFloor.receiveShadow = true;
       scene.add(corridorFloor);
       context.solids.push(corridorFloor);
-      box(-2.8, 3, -21, .45, 6, 14, wall);
-      box(2.8, 3, -21, .45, 6, 14, wall);
-      box(0, H - .35, -21, 5.9, .5, 14, darkSteel, false);
+      box(-2.8, H / 2, -21.75, .45, H, 15.5, wall);
+      box(2.8, H / 2, -21.75, .45, H, 15.5, wall);
+      box(0, H - .35, -21.75, 5.9, .5, 15.5, darkSteel, false);
       const corridorStrip = new T.Mesh(new T.BoxGeometry(.25, .12, 8), new T.MeshBasicMaterial({ color: 0xff3545 }));
       corridorStrip.position.set(0, 7.1, -20);
       scene.add(corridorStrip);
@@ -40,15 +40,15 @@
       box(-8.15, H / 2, S + .5, 12.9, H, 1, wall);
       box(8.15, H / 2, S + .5, 12.9, H, 1, wall);
       box(0, H - .5, S + .5, 4.2, 1, 1, steel, false);
-      const exitCorridorFloor = new T.Mesh(new T.PlaneGeometry(5.2, 14), mat('floor', 2, 5, .3));
+      const exitCorridorFloor = new T.Mesh(new T.PlaneGeometry(5.2, 15.5), mat('floor', 2, 5, .3));
       exitCorridorFloor.rotation.x = -Math.PI / 2;
-      exitCorridorFloor.position.set(0, .015, 21);
+      exitCorridorFloor.position.set(0, .015, 21.75);
       exitCorridorFloor.receiveShadow = true;
       scene.add(exitCorridorFloor);
       context.solids.push(exitCorridorFloor);
-      box(-2.8, 3, 21, .45, 6, 14, wall);
-      box(2.8, 3, 21, .45, 6, 14, wall);
-      box(0, H - .35, 21, 5.9, .5, 14, darkSteel, false);
+      box(-2.8, H / 2, 21.75, .45, H, 15.5, wall);
+      box(2.8, H / 2, 21.75, .45, H, 15.5, wall);
+      box(0, H - .35, 21.75, 5.9, .5, 15.5, darkSteel, false);
       const exitStrip = new T.Mesh(new T.BoxGeometry(.25, .12, 8), new T.MeshBasicMaterial({ color: 0x42d8ff }));
       exitStrip.position.set(0, 7.1, 21);
       scene.add(exitStrip);
@@ -63,9 +63,19 @@
       ];
       elevatorDoors[0].userData.openX = -4.15;
       elevatorDoors[1].userData.openX = 4.15;
-      box(-2.95, 3, 28, .28, 6.1, .62, elevatorFrame, false);
-      box(2.95, 3, 28, .28, 6.1, .62, elevatorFrame, false);
-      box(0, 6.12, 28, 6.15, .32, .62, elevatorFrame, false);
+      box(-2.95, H / 2, 28, .3, H, .72, elevatorFrame, false);
+      box(2.95, H / 2, 28, .3, H, .72, elevatorFrame, false);
+      box(0, 6.12, 28, 6.15, .32, .72, elevatorFrame, false);
+      // The upper bulkhead closes the gap between the door lintel and the full-height ceiling.
+      box(0, (H + 6.28) / 2, 28, 5.6, H - 6.28, .72, elevatorFrame, false);
+      box(0, .08, 28, 5.6, .16, .82, elevatorFrame, false);
+      for (const door of elevatorDoors) {
+        const side = door.position.x < 0 ? 1 : -1;
+        const seam = new T.Mesh(new T.BoxGeometry(.045, 4.9, .028), new T.MeshBasicMaterial({ color: 0x8deaff }));
+        seam.position.set(side * 1.28, 0, .18); door.add(seam);
+        const warning = new T.Mesh(new T.BoxGeometry(1.9, .075, .028), new T.MeshBasicMaterial({ color: 0x42d8ff }));
+        warning.position.set(0, -1.95, .18); door.add(warning);
+      }
       for (const x of [-2.72, 2.72]) {
         const rail = new T.Mesh(new T.BoxGeometry(.055, 4.9, .035), new T.MeshBasicMaterial({ color: 0x42d8ff }));
         rail.position.set(x, 3, 28.34);
