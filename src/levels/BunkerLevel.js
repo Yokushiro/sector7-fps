@@ -12,11 +12,11 @@ box(-7.15,H/2,-S-.5,10.9,H,1,mat('concrete',6,2,0,0xffffff));box(7.15,H/2,-S-.5,
 box(-7.15,H/2,S+.5,10.9,H,1,mat('concrete',6,2));box(7.15,H/2,S+.5,10.9,H,1,mat('concrete',6,2));box(0,H-.5,S+.5,4.2,1,1,mat('metal',2,1,.85),false);
 // Entry passage: the player begins here and walks into the bunker through the southern bulkhead.
 const entryFloor=new T.Mesh(new T.PlaneGeometry(5.2,14),mat('floor',2,5,.3));entryFloor.rotation.x=-Math.PI/2;entryFloor.position.set(0,.015,19);entryFloor.receiveShadow=true;scene.add(entryFloor);solids.push(entryFloor);
-box(-2.8,H/2,19,.45,H,14,mat('concrete',2,4,0,0xffffff));box(2.8,H/2,19,.45,H,14,mat('concrete',2,4));box(0,H-.35,19,5.9,.5,14,mat('metal',2,5,.8),false);box(0,H/2,26.5,5.6,H,.45,mat('metal',2,2,.9));
+box(-2.8,H/2,19,.45,H,14,mat('concrete',2,4,0,0xffffff));box(2.8,H/2,19,.45,H,14,mat('concrete',2,4));box(0,H-.35,19,6.2,.5,14,mat('metal',2,5,.8),false);box(0,H/2,26.5,5.6,H,.45,mat('metal',2,2,.9));
 const entryLamp=new T.PointLight(0x4c9dff,.85,16,2);entryLamp.position.set(0,4.8,19);scene.add(entryLamp);
 // Passageway to the lower laboratory wing: the doorway is part of the playable space, not a teleport.
 const corridorFloor=new T.Mesh(new T.PlaneGeometry(5.2,14),mat('floor',2,5,.3));corridorFloor.rotation.x=-Math.PI/2;corridorFloor.position.set(0,.015,-19);corridorFloor.receiveShadow=true;scene.add(corridorFloor);solids.push(corridorFloor);
-box(-2.8,H/2,-19,.45,H,14,mat('concrete',2,4));box(2.8,H/2,-19,.45,H,14,mat('concrete',2,4));box(0,H-.35,-19,5.9,.5,14,mat('metal',2,5,.8),false);
+box(-2.8,H/2,-19,.45,H,14,mat('concrete',2,4));box(2.8,H/2,-19,.45,H,14,mat('concrete',2,4));box(0,H-.35,-19,6.2,.5,14,mat('metal',2,5,.8),false);
 const corridorLight=new T.Mesh(new T.BoxGeometry(.25,.12,8),new T.MeshBasicMaterial({color:0xffa34d}));corridorLight.position.set(0,6.1,-18);scene.add(corridorLight);const corridorLamp=new T.PointLight(0xff7b32,1.1,18,2);corridorLamp.position.set(0,4.8,-18);scene.add(corridorLamp);
 // A clearly readable elevator portal: twin armored leaves, a heavy lintel and cyan status rails.
 const elevatorSteel=mat('metal',1,1,.9,0x657783);
