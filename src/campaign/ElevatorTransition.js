@@ -28,7 +28,7 @@
       this.destinationLabel = '01';
       this.disposed = false;
       this.doorOpen = 1;
-      this.cameraLocalZ = -2.7;
+      this.cameraLocalZ = 2.7;
       this.cameraYaw = 0;
       this.durations = { entering: 1.15, closing: .85, travel: 3.8, opening: .95, exiting: .85 };
     }
@@ -45,7 +45,7 @@
       this.radioComplete = false;
       this.destinationReady = false;
       this.doorOpen = 1;
-      this.cameraLocalZ = -2.7;
+      this.cameraLocalZ = 2.7;
       this.drawDisplay('01', 'ВХОД');
       this.updateCamera();
       this.onSound('door-open');
@@ -57,7 +57,7 @@
       const group = new T.Group();
       this.group = group;
       const forwardX = -Math.sin(yaw), forwardZ = -Math.cos(yaw);
-      group.position.set(position.x - forwardX * 2.4, position.y - 1.7, position.z - forwardZ * 2.4);
+      group.position.set(position.x + forwardX * 2.4, position.y - 1.7, position.z + forwardZ * 2.4);
       // Keep the cabin's local -Z axis aligned with the player's forward direction.
       group.rotation.y = yaw;
       const metal = new T.MeshStandardMaterial({ color: 0x25313b, metalness: .78, roughness: .34 });
@@ -76,7 +76,10 @@
       addBox(3.8, .12, 4.8, 0, 3.38, 0, dark);
       addBox(.14, 3.35, 4.8, -1.92, 1.62, 0, metal);
       addBox(.14, 3.35, 4.8, 1.92, 1.62, 0, metal);
-      addBox(3.8, 3.35, .14, 0, 1.62, 2.38, metal);
+      // The rear wall is an open doorway; the two sliding leaves close this entrance.
+      addBox(.14, 3.35, .14, -1.86, 1.62, 2.38, trim);
+      addBox(.14, 3.35, .14, 1.86, 1.62, 2.38, trim);
+      addBox(3.8, .16, .14, 0, 3.22, 2.38, trim);
       addBox(3.8, .08, .16, 0, 3.32, -2.32, trim);
       addBox(.12, 3.25, .18, -1.86, 1.62, -2.32, trim);
       addBox(.12, 3.25, .18, 1.86, 1.62, -2.32, trim);
@@ -84,8 +87,8 @@
       addBox(3.45, .035, .05, 0, 3.05, -2.22, trim);
       const doorMaterial = new T.MeshStandardMaterial({ color: 0x344650, metalness: .88, roughness: .28 });
       this.doors = [
-        addBox(1.12, 2.86, .12, -1.22, 1.62, -2.25, doorMaterial),
-        addBox(1.12, 2.86, .12, 1.22, 1.62, -2.25, doorMaterial)
+        addBox(1.12, 2.86, .12, -1.22, 1.62, 2.25, doorMaterial),
+        addBox(1.12, 2.86, .12, 1.22, 1.62, 2.25, doorMaterial)
       ];
       this.doors[0].userData.closedX = -.57;
       this.doors[1].userData.closedX = .57;
@@ -94,7 +97,7 @@
       for (const x of [-1.55, 1.55]) {
         const strip = new T.Mesh(new T.BoxGeometry(.035, 2.45, .025),
           new T.MeshBasicMaterial({ color: 0x4cc9ff }));
-        strip.position.set(x, 1.65, -2.16);
+        strip.position.set(x, 1.65, 2.16);
         group.add(strip);
       }
       const ceilingLight = new T.PointLight(0x9edcff, 1.2, 8, 2);
@@ -155,7 +158,7 @@
       this.destinationLabel = String(floorLabel || this.destinationLabel);
       this.destinationReady = true;
       this.cameraYaw = Number(yaw) || 0;
-      this.cameraLocalZ = -.55;
+      this.cameraLocalZ = .55;
       this.updateCamera();
       this.drawDisplay(this.destinationLabel, 'В ПУТИ');
     }
@@ -205,7 +208,7 @@
       this.phaseTime += dt;
       if (this.phase === 'entering') {
         const t = Math.min(1, this.phaseTime / this.durations.entering);
-        this.cameraLocalZ = -2.7 + t * 2.15;
+        this.cameraLocalZ = 2.7 - t * 2.15;
         this.updateCamera();
         if (t >= 1) {
           this.updateCamera();
@@ -232,11 +235,11 @@
         if (t >= 1) this.enterPhase('exiting');
       } else if (this.phase === 'exiting') {
         const t = Math.min(1, this.phaseTime / this.durations.exiting);
-        this.cameraLocalZ = -.55 - t * 2.15;
+        this.cameraLocalZ = .55 + t * 2.15;
         this.updateCamera();
         if (t >= 1) {
           this.phase = 'complete';
-          const exitPosition = this.group.localToWorld(new this.THREE.Vector3(0, 1.7, -2.7));
+          const exitPosition = this.group.localToWorld(new this.THREE.Vector3(0, 1.7, 2.7));
           this.dispose();
           this.onComplete(exitPosition);
         }
