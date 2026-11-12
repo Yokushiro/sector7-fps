@@ -34,6 +34,8 @@
       box(-2.8, H / 2, 25, .45, H, 14, concrete);
       box(2.8, H / 2, 25, .45, H, 14, concrete);
       box(0, H - .35, 25, 6.2, .5, 14, dark, false);
+      // The incoming lift corridor ends at a solid containment bulkhead beyond the cabin threshold.
+      box(0, H / 2, 32.25, 5.6, H, .5, concrete);
       const entryLamp = new T.PointLight(0x38cfff, .9, 18, 2);
       entryLamp.position.set(0, 5, 25);
       scene.add(entryLamp);
