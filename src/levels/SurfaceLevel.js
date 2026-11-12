@@ -58,6 +58,9 @@
       const beaconLight = new T.PointLight(0x36cfff, 2.5, 20, 2);
       beaconLight.position.set(0, 5.8, 4);
       scene.add(beaconLight);
+      const uplinkStatus = new T.Mesh(new T.SphereGeometry(.12, 12, 8), new T.MeshBasicMaterial({ color: 0xff4b3a }));
+      uplinkStatus.position.set(.48, 5.35, 4);
+      scene.add(uplinkStatus);
 
       // A downed transport and scattered cargo create hard cover and a visual focal point.
       box(-12, 1.2, 10, 8, 2.4, 3.8, dark);
@@ -123,9 +126,14 @@
           exitOpen = true;
           context.removeCollisionBox(exitGate.userData.collisionBox);
         },
+        onInteractionActivated(id) {
+          if (id !== 'surface-uplink') return;
+          uplinkStatus.material.color.setHex(0x42ffad);
+        },
         update(dt, time) {
           if (exitOpen) exitGate.position.y += (11 - exitGate.position.y) * Math.min(1, dt * 2.4);
-          beaconCap.material.color.setHex(Math.sin(time * 4) > 0 ? 0x42dfff : 0xff4b3a);
+          beaconCap.material.color.setHex(exitOpen ? 0x42ffad : (Math.sin(time * 4) > 0 ? 0x42dfff : 0xff4b3a));
+          uplinkStatus.material.color.setHex(exitOpen ? 0x42ffad : 0xff4b3a);
           beaconLight.intensity = 1.7 + Math.max(0, Math.sin(time * 4)) * 1.8;
           extractionLight.intensity = exitOpen ? 2 + Math.sin(time * 6) * .7 : .5;
           extractionMark.material.color.setHex(exitOpen ? 0x45eaff : 0x526b78);
