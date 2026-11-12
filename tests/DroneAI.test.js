@@ -87,7 +87,7 @@ test('drones do not fire through solid level geometry', () => {
   enemy.cd = 0;
   const projectiles = [];
   const three = {
-    Mesh: class { constructor() { this.position = { copy() {} }; } },
+    Mesh: class { constructor() { this.position = { copy() {} }; this.scale = { set() {} }; } },
     SphereGeometry: class {},
     MeshBasicMaterial: class {},
     Color: class {}
@@ -249,7 +249,7 @@ test('nonlethal hits stagger drones and temporarily suppress their attacks', () 
   enemy.cd = 0;
   const projectiles = [];
   const three = {
-    Mesh: class { constructor() { this.position = { copy() {} }; } },
+    Mesh: class { constructor() { this.position = { copy() {} }; this.scale = { set() {} }; } },
     SphereGeometry: class {},
     MeshBasicMaterial: class {},
     Color: class {}
@@ -326,7 +326,7 @@ test('drones reverse their strafe direction after firing to avoid static attack 
     multiplyScalar(n) { this.x *= n; this.y *= n; this.z *= n; return this; }
   }
   const three = {
-    Mesh: class { constructor() { this.position = { copy() {} }; } },
+    Mesh: class { constructor() { this.position = { copy() {} }; this.scale = { set() {} }; } },
     SphereGeometry: class {},
     MeshBasicMaterial: class {},
     Color: class {},
@@ -360,7 +360,7 @@ function makeAttackThree() {
   }
   return {
     Vector3,
-    Mesh: class { constructor() { this.position = { copy(other) { Object.assign(this, other); } }; } },
+    Mesh: class { constructor() { this.position = { copy(other) { Object.assign(this, other); } }; this.scale = { set() {} }; } },
     SphereGeometry: class {},
     MeshBasicMaterial: class {},
     Color: class {}
