@@ -188,6 +188,37 @@
       recorderLight.position.set(-8, 1.8, 12.65);
       scene.add(recorderLight);
 
+      // Emergency maintenance bay: tool cabinets, coolant drums and a heavy service trolley.
+      const maintenanceSteel = mat('metal', 1, 1, .88, 0x3e484e);
+      const warningAmber = new T.MeshBasicMaterial({ color: 0xff8a35 });
+      for (const x of [-11.5, 11.5]) {
+        box(x, 1.2, 4, 1.4, 2.4, 1.1, maintenanceSteel);
+        for (let y = .55; y < 2.2; y += .52) {
+          const handle = new T.Mesh(new T.BoxGeometry(.42, .045, .04), steel);
+          handle.position.set(x, y, 4.58); scene.add(handle);
+        }
+        const warning = new T.Mesh(new T.BoxGeometry(.9, .12, .025), warningAmber);
+        warning.position.set(x, 2.28, 4.58); scene.add(warning);
+      }
+      for (const [x, z] of [[-12, -9], [12, -9], [-12, 10], [12, 10]]) {
+        const drum = new T.Mesh(new T.CylinderGeometry(.52, .52, 1.35, 18), maintenanceSteel);
+        drum.position.set(x, .68, z); drum.castShadow = true; scene.add(drum);
+        for (const y of [.18, 1.18]) {
+          const rim = new T.Mesh(new T.TorusGeometry(.53, .055, 8, 20), steel);
+          rim.rotation.x = Math.PI / 2; rim.position.set(x, y, z); scene.add(rim);
+        }
+        const hazard = new T.Mesh(new T.BoxGeometry(.12, .5, .025), warningAmber);
+        hazard.position.set(x, .7, z + .525); scene.add(hazard);
+        boxes.push({ x0: x - .55, x1: x + .55, z0: z - .55, z1: z + .55, y0: 0, y1: 1.35, topY: 1.35 });
+      }
+      // Low service trolley beside the reactor access path.
+      box(-7.5, .72, -2.5, 2.2, .14, .9, maintenanceSteel);
+      for (const x of [-8.35, -6.65]) {
+        box(x, .36, -2.5, .1, .72, .1, steel, false);
+        const wheel = new T.Mesh(new T.CylinderGeometry(.16, .16, .08, 12), dark);
+        wheel.rotation.z = Math.PI / 2; wheel.position.set(x, .13, -2.5); scene.add(wheel);
+      }
+
       // Massive thermal ducts and segmented warning grilles frame the reactor chamber.
       const ductMat = new T.MeshStandardMaterial({ color: 0x343c43, metalness: .88, roughness: .38 });
       const hotMat = new T.MeshBasicMaterial({ color: 0xff6a2d });
