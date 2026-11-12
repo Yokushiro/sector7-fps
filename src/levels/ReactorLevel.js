@@ -188,6 +188,24 @@
       recorderLight.position.set(-8, 1.8, 12.65);
       scene.add(recorderLight);
 
+      // Massive thermal ducts and segmented warning grilles frame the reactor chamber.
+      const ductMat = new T.MeshStandardMaterial({ color: 0x343c43, metalness: .88, roughness: .38 });
+      const hotMat = new T.MeshBasicMaterial({ color: 0xff6a2d });
+      for (const x of [-14.8, 14.8]) {
+        const duct = new T.Mesh(new T.CylinderGeometry(.62, .62, 20, 16), ductMat);
+        duct.rotation.x = Math.PI / 2; duct.position.set(x, 7.4, 0); duct.castShadow = true; scene.add(duct);
+        for (let i = 0; i < 5; i++) {
+          const band = new T.Mesh(new T.TorusGeometry(.65, .075, 8, 20), steel);
+          band.rotation.x = Math.PI / 2; band.position.set(x, 7.4, -8 + i * 4); scene.add(band);
+        }
+        const vent = new T.Mesh(new T.BoxGeometry(.18, 3.4, .06), hotMat);
+        vent.position.set(x > 0 ? x - .7 : x + .7, 1.9, -2); scene.add(vent);
+      }
+      for (let i = 0; i < 8; i++) {
+        const grate = new T.Mesh(new T.BoxGeometry(3.2, .055, .12), ductMat);
+        grate.position.set(0, .08, -10 + i * 2.2); scene.add(grate);
+      }
+
       return {
         name: 'Реакторное ядро',
         bounds: { halfSize: 33, height: H },
