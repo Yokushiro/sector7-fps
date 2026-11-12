@@ -83,3 +83,19 @@ test('campaign completion routes through the cinematic elevator and preserves pl
   assert.ok(elevator.includes('this.player.pos.y+=dy'));
   assert.ok(elevator.includes('doorPassable'), 'the cabin must allow the player to leave after the doors open');
 });
+
+
+test('elevator travel keeps player movement but pauses combat, enemy spawning and mission countdowns', () => {
+  const game = read('src/game.js');
+  const start = game.indexOf('function loop(now)');
+  const stop = game.indexOf('comp.render()', start);
+  assert.ok(start >= 0 && stop > start);
+  const loop = game.slice(start, stop);
+  assert.match(loop, /const inElevator=elevatorTransition\.isActive\(\)/);
+  assert.match(loop, /if\(!inElevator&&mouse&&!combatCleared\)weapon\.fire/);
+  assert.match(loop, /if\(!inElevator&&evacuationRemaining>0\)/);
+  assert.match(loop, /if\(!inElevator\)\{\s*spawnT-=dt/);
+  assert.match(loop, /droneAI\.update\(enemies,P,dt/);
+  assert.match(loop, /projectileSystem\.update\(proj,dt/);
+  assert.match(loop, /P\.pos\.x\+=/);
+});
