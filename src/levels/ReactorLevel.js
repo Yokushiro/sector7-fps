@@ -272,6 +272,7 @@
         name: 'Реакторное ядро',
         bounds: { halfSize: 33, height: H },
         exitZone: { x0: -2.1, x1: 2.1, z0: -31.8, z1: -30.6 },
+        exitYaw: 0,
         requiredInteractionId: 'reactor-shutdown',
         evacuationSeconds: 90,
         playerSpawn: { x: 0, y: 1.7, z: 28, yaw: 0 },
