@@ -4,6 +4,8 @@ renderer.info.autoReset=false;
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;
 document.body.prepend(renderer.domElement);
 const scene=new T.Scene();scene.background=new T.Color(0x04060a);scene.fog=new T.FogExp2(0x070c12,.034);
+// A restrained global fill keeps unlit wall faces readable without flattening local lighting.
+scene.add(new T.HemisphereLight(0x9bbbd0,0x383027,.48));
 const cam=new T.PerspectiveCamera(75,1,.05,80);cam.rotation.order='YXZ';scene.add(cam);
 
 /* ---------- процедурные PBR-текстуры ---------- */
@@ -51,7 +53,7 @@ function styledTexture(kind,style){
 }
 function mat(k,rx,ry,m=0,tint=0xffffff,style='default'){const key=style+':'+k+rx+'_'+ry+m+tint;if(cache[key])return cache[key];
  const t=new T.CanvasTexture(styledTexture(k,style));t.wrapS=t.wrapT=T.RepeatWrapping;t.repeat.set(rx,ry);t.anisotropy=8;t.encoding=T.sRGBEncoding;
- const material=new T.MeshStandardMaterial({map:t,bumpMap:t,bumpScale:2.2,roughnessMap:t,roughness:1,metalness:m,color:tint,envMapIntensity:.6});material.userData.sector7Shared=true;return cache[key]=material}
+ const material=new T.MeshStandardMaterial({map:t,roughness:.86,metalness:m,color:tint,envMapIntensity:.6});material.userData.sector7Shared=true;return cache[key]=material}
 
 /* ---------- окружение (IBL) ---------- */
 {const es=new T.Scene(),g=canvas(256,(x,s)=>{const gr=x.createLinearGradient(0,0,0,s);gr.addColorStop(0,'#2a3b4d');gr.addColorStop(.5,'#10161d');gr.addColorStop(1,'#050607');x.fillStyle=gr;x.fillRect(0,0,s,s)});
@@ -103,7 +105,7 @@ const P={pos:new T.Vector3(activeLevel.playerSpawn.x,GROUND_Y,activeLevel.player
 const jumpController=new S7JumpController(GROUND_Y);
 let state='menu',kills=0,spawned=0,spawnT=0,hurt=0,tm=0,mouse=false,fallback=false,locked=false,missionCleared=false,combatCleared=false,outroShown=false,outroPlaying=false,introShown=false,evacuationRemaining=0;
 const keys=Object.create(null); // shared keyboard state for input handlers and the game loop
-const enemies=[],proj=[],sparks=[];
+const enemies=[],proj=[],sparks=[],explosions=[];
 const droneAI=new S7DroneAI();
 const $=id=>document.getElementById(id);
 const dialogueSystem=new S7DialogueSystem({rootElement:$('dialogue'),speakerElement:$('dialogueSpeaker'),textElement:$('dialogueText'),promptElement:$('dialoguePrompt')});
@@ -307,7 +309,7 @@ const weapon=new S7WeaponSystem({
 const damageSystem=new S7DamageSystem();
 const hitFeedback=new S7HitFeedback();
 const projectileSystem=new S7ProjectileSystem({scene});
-const destructibleSystem=new S7DestructibleSystem({collisionCollections:[boxes,activeLevel.boxes],onBreak:(object,point)=>{spawnDebris(object,point);if(point)for(let i=0;i<10;i++)spark(point,new T.Color(2.4,1.1,.35),R(2,5));snd(95,.24,'square',.18,true);}});
+const destructibleSystem=new S7DestructibleSystem({collisionCollections:[boxes,activeLevel.boxes],onBreak:(object,point)=>{spawnDebris(object,point);if(object.userData.explosive)explodeBarrel(object,point);if(point)for(let i=0;i<10;i++)spark(point,new T.Color(2.4,1.1,.35),R(2,5));snd(95,.24,'square',.18,true);}});
 function hitEnemy(enemy,hit){
  const result=damageSystem.applyEnemyDamage(enemy,Boolean(hit.object.userData.head));
  if(enemy.visual?.hitFlash){
@@ -339,11 +341,31 @@ function hitEnemy(enemy,hit){
  for(let i=0;i<6;i++)spark(hit.point,new T.Color(3,1.5,.4));
  if(result.killed)killE(enemy);
 }
+function explodeBarrel(object,point){
+  const origin=point?point.clone():object.getWorldPosition(new T.Vector3());
+  const spec=object.userData.explosive||{radius:7,damage:105};
+  const radius=Number(spec.radius)||7;
+  const blast=new T.Mesh(new T.SphereGeometry(1,20,14),new T.MeshBasicMaterial({color:0xff6a24,transparent:true,opacity:.78,blending:T.AdditiveBlending,depthWrite:false}));
+  blast.position.copy(origin);blast.scale.setScalar(.35);scene.add(blast);
+  explosions.push({mesh:blast,life:.52,maxLife:.52,radius});
+  for(let i=0;i<34;i++)spark(origin,new T.Color(3,Math.random()*.9,.12),R(5,12));
+  snd(42,.72,'sawtooth',.7);snd(105,.48,'sine',.38,true);
+  for(const enemy of [...enemies]){
+    const distance=enemy.g.position.distanceTo(origin);
+    if(distance>radius)continue;
+    const amount=Math.max(8,(Number(spec.damage)||105)*(1-distance/radius));
+    enemy.hp=Math.max(0,enemy.hp-amount);
+    enemy.m.emissive.setRGB(1,.32,.08);enemy.flash=.16;
+    if(enemy.hp<=0)killE(enemy);
+  }
+  const playerDistance=P.pos.distanceTo(origin);
+  if(playerDistance<radius)dmg(Math.ceil(68*(1-playerDistance/radius)));
+}
 function hitWorld(hit){
   const result=destructibleSystem.hit(hit.object,hit.point,1);
   for(let i=0;i<(result.destroyed?12:result.damaged?7:5);i++)spark(hit.point,new T.Color(3,2,1),result.destroyed?5:3);
   if(result.destroyed)snd(115,.2,'square',.16,true);
- }
+}
 function dmg(n){const result=damageSystem.applyPlayerDamage(P,n);hurt=1;snd(70,.25,'sine',.6);$('hpf').style.width=result.remaining+'%';if(result.killed)end(false)}
 function end(w){
  if(state==='over'||state==='transition')return;
@@ -489,6 +511,13 @@ function loop(now){requestAnimationFrame(loop);const dt=Math.min(.05,(now-last)/
   droneAI.update(enemies,P,dt,collide,scene,proj,snd,R,boxes);
   const exit=activeLevel.exitZone;if(missionCleared&&exit&&P.pos.x>=exit.x0&&P.pos.x<=exit.x1&&P.pos.z>=exit.z0&&P.pos.z<=exit.z1)end(true);
   projectileSystem.update(proj,dt,P.pos,boxes,LEVEL_BOUNDS,dmg);
+ }
+ for(let i=explosions.length-1;i>=0;i--){
+  const blast=explosions[i];blast.life-=dt;
+  const progress=1-blast.life/blast.maxLife;
+  blast.mesh.scale.setScalar(.35+progress*blast.radius*1.45);
+  blast.mesh.material.opacity=Math.max(0,blast.life/blast.maxLife)*.78;
+  if(blast.life<=0){scene.remove(blast.mesh);blast.mesh.geometry.dispose();blast.mesh.material.dispose();explosions.splice(i,1)}
  }
  for(let i=debris.length-1;i>=0;i--){
   const piece=debris[i];piece.life-=dt;
