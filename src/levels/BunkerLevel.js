@@ -75,6 +75,7 @@ const bunkerLights=[];
       generatorVent.position.set(-12, .95, 4.14); scene.add(generatorVent);
       const generatorLamp = new T.PointLight(0xff8a35, .55, 4, 2);
       generatorLamp.position.set(-12, 1.8, 4.7); scene.add(generatorLamp);
+      fieldGenerator.userData.breakLight = generatorLamp;
 
       // Heavy cross-bracing and hazard markings make this sector read as a military bunker.
       const bunkerRibMat = mat('metal', 1, 2, .92, 0x4b514e);
