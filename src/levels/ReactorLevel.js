@@ -169,6 +169,12 @@
       const terminalLight = new T.PointLight(0xff8a3b, 1, 7, 2);
       terminalLight.position.set(8, 2, 12.8);
       scene.add(terminalLight);
+      const shutdownScan = new T.Mesh(new T.PlaneGeometry(.82, .035), new T.MeshBasicMaterial({ color: 0xffe0b0, transparent: true, opacity: .7 }));
+      shutdownScan.position.set(8, 1.58, 12.49);
+      scene.add(shutdownScan);
+      const shutdownStatus = new T.Mesh(new T.SphereGeometry(.085, 12, 8), new T.MeshBasicMaterial({ color: 0xffa34d }));
+      shutdownStatus.position.set(8.42, 1.95, 12.49);
+      scene.add(shutdownStatus);
 
       // Optional black-box recorder reveals what the archive concealed about Ilya's final shift.
       const recorder = new T.Mesh(new T.BoxGeometry(1.05, 1.45, .65), dark);
@@ -191,7 +197,17 @@
         playerSpawn: { x: 0, y: 1.7, z: 28, yaw: 0 },
         enemySpawnPoints: [[-14, -14], [14, -14], [-14, 12], [14, 12], [0, -15], [-16, 0], [16, 0], [16, 16]],
         openExit() { exitOpen = true; reactorShutdown = true; context.removeCollisionBox(exitDoor.userData.collisionBox); },
+        onInteractionActivated(id) {
+          if (id !== 'reactor-shutdown') return;
+          terminalScreen.material.color.setHex(0x42ff9b);
+          shutdownScan.material.color.setHex(0x42ff9b);
+        },
         update(dt, time) {
+          shutdownScan.position.y = 1.34 + ((time * .38) % 1) * .48;
+          shutdownScan.material.opacity = reactorShutdown ? .05 : .35 + Math.sin(time * 5.5) * .22;
+          shutdownStatus.material.color.setHex(reactorShutdown ? 0x45ff9a : (Math.sin(time * 3.8) > 0 ? 0xffa34d : 0x6b351c));
+          terminalLight.color.setHex(reactorShutdown ? 0x45ff9a : 0xff8a3b);
+          terminalLight.intensity = reactorShutdown ? .35 : .8 + Math.sin(time * 4) * .16;
           if (exitOpen) exitDoor.position.y += (10 - exitDoor.position.y) * Math.min(1, dt * 2.2);
           reactorRings.forEach((ring, index) => {
             ring.rotation.y = Math.sin(time * .45 + index) * .12;
