@@ -71,6 +71,7 @@
       this.scene.add(rootGroup);
       const buildContext = {
         ...context,
+        mat: (...args) => context.mat(...args, id),
         THREE: this.THREE,
         scene: rootGroup,
         solids,
