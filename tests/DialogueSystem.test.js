@@ -73,21 +73,20 @@ test('radio dialogue advances automatically without requiring player input', () 
 
 
 test('Russian character voice synthesis uses distinct profiles and stops on dialogue advance', () => {
-  const originalWindow = global.window;
+  const originalSynthesis = global.speechSynthesis;
+  const originalUtterance = global.SpeechSynthesisUtterance;
   const spoken = [];
   let cancellations = 0;
   const russianVoice = { name: 'Russian Voice', lang: 'ru-RU' };
-  global.window = {
-    speechSynthesis: {
+  global.speechSynthesis = {
       speaking: false,
       getVoices: () => [russianVoice],
       speak: utterance => spoken.push(utterance),
       cancel: () => { cancellations++; }
-    },
-    SpeechSynthesisUtterance: class {
+    };
+  global.SpeechSynthesisUtterance = class {
       constructor(text) { this.text = text; }
-    }
-  };
+    };
   try {
     const dialogue = new S7DialogueSystem({
       rootElement: createElement(),
@@ -111,17 +110,17 @@ test('Russian character voice synthesis uses distinct profiles and stops on dial
     assert.equal(dialogue.voiceEnabled, false);
     dialogue.finish();
   } finally {
-    global.window = originalWindow;
+    global.speechSynthesis = originalSynthesis;
+    global.SpeechSynthesisUtterance = originalUtterance;
   }
 });
 
 test('voice synthesis stays silent when no Russian system voice is installed', () => {
-  const originalWindow = global.window;
+  const originalSynthesis = global.speechSynthesis;
+  const originalUtterance = global.SpeechSynthesisUtterance;
   let spoken = 0;
-  global.window = {
-    speechSynthesis: { getVoices: () => [{ name: 'English Voice', lang: 'en-US' }], speak: () => spoken++, cancel() {} },
-    SpeechSynthesisUtterance: class { constructor(text) { this.text = text; } }
-  };
+  global.speechSynthesis = { getVoices: () => [{ name: 'English Voice', lang: 'en-US' }], speak: () => spoken++, cancel() {} };
+  global.SpeechSynthesisUtterance = class { constructor(text) { this.text = text; } };
   try {
     const dialogue = new S7DialogueSystem({
       rootElement: createElement(),
@@ -134,6 +133,7 @@ test('voice synthesis stays silent when no Russian system voice is installed', (
     assert.equal(dialogue.textElement.textContent, 'Русская реплика.');
     dialogue.finish();
   } finally {
-    global.window = originalWindow;
+    global.speechSynthesis = originalSynthesis;
+    global.SpeechSynthesisUtterance = originalUtterance;
   }
 });
