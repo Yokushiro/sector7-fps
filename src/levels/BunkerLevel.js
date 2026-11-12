@@ -18,7 +18,21 @@ const entryLamp=new T.PointLight(0x4c9dff,.85,16,2);entryLamp.position.set(0,4.8
 const corridorFloor=new T.Mesh(new T.PlaneGeometry(5.2,14),mat('floor',2,5,.3));corridorFloor.rotation.x=-Math.PI/2;corridorFloor.position.set(0,.015,-19);corridorFloor.receiveShadow=true;scene.add(corridorFloor);solids.push(corridorFloor);
 box(-2.8,3,-19,.45,6,14,mat('concrete',2,4));box(2.8,3,-19,.45,6,14,mat('concrete',2,4));box(0,H-.35,-19,5.9,.5,14,mat('metal',2,5,.8),false);
 const corridorLight=new T.Mesh(new T.BoxGeometry(.25,.12,8),new T.MeshBasicMaterial({color:0xffa34d}));corridorLight.position.set(0,6.1,-18);scene.add(corridorLight);const corridorLamp=new T.PointLight(0xff7b32,1.1,18,2);corridorLamp.position.set(0,4.8,-18);scene.add(corridorLamp);
-const exitDoor=box(0,3,-26,5.6,6,.45,mat('metal',2,2,.9));
+// A clearly readable elevator portal: twin armored leaves, a heavy lintel and cyan status rails.
+const elevatorSteel=mat('metal',1,1,.9,0x657783);
+const elevatorDoors=[
+  box(-1.4,3,-26,2.8,5.7,.32,mat('metal',1,1,.88,0x3d4b54)),
+  box(1.4,3,-26,2.8,5.7,.32,mat('metal',1,1,.88,0x3d4b54))
+];
+elevatorDoors[0].userData.openX=-4.15;elevatorDoors[1].userData.openX=4.15;
+box(-2.95,3,-26,.28,6.1,.62,elevatorSteel,false);box(2.95,3,-26,.28,6.1,.62,elevatorSteel,false);
+box(0,6.12,-26,6.15,.32,.62,elevatorSteel,false);
+for(const x of[-2.72,2.72]){
+ const rail=new T.Mesh(new T.BoxGeometry(.055,4.9,.035),new T.MeshBasicMaterial({color:0x4bd7ff}));
+ rail.position.set(x,3,-25.66);scene.add(rail);
+}
+const elevatorHeader=new T.Mesh(new T.BoxGeometry(1.1,.24,.045),new T.MeshBasicMaterial({color:0x50dfff}));
+elevatorHeader.position.set(0,6.34,-25.65);scene.add(elevatorHeader);
 let exitOpen=false;
 box(-S-.5,H/2,0,1,H,S*2,mat('concrete',6,2));box(S+.5,H/2,0,1,H,S*2,mat('concrete',6,2));
 const mm=mat('metal',1,1,.85),mm2=mat('metal',2,1,.7,0xa9794f),mc=mat('concrete',1,3);
@@ -132,14 +146,14 @@ const bunkerLights=[];
         exitZone: { x0: -2.1, x1: 2.1, z0: -27.6, z1: -26.2 },
         playerSpawn: { x: 0, y: 1.7, z: 22, yaw: 0 },
         enemySpawnPoints: [[-10,-10],[10,-10],[-10,10],[10,10],[0,-10.5]],
-        openExit() { exitOpen = true; context.removeCollisionBox(exitDoor.userData.collisionBox); },
+        openExit() { exitOpen = true; elevatorDoors.forEach(door=>context.removeCollisionBox(door.userData.collisionBox)); },
         update(dt, time) {
           bunkerLights.forEach((light, index) => { light.intensity = .68 + Math.sin(time * 2.1 + index * 1.4) * .08; });
           terminalSweep.position.y = 1.12 + ((time * .42) % 1) * .46;
           terminalSweep.material.opacity = .38 + Math.sin(time * 5) * .18;
           terminalBeacon.material.color.setHex(Math.sin(time * 3.5) > -.35 ? 0x35dfff : 0x174c67);
           terminalLamp.intensity = .62 + Math.sin(time * 4.2) * .16;
-          if (exitOpen) exitDoor.position.y += (8 - exitDoor.position.y) * Math.min(1, dt * 2.2);
+          if(exitOpen){elevatorDoors[0].position.x+=(elevatorDoors[0].userData.openX-elevatorDoors[0].position.x)*Math.min(1,dt*3.2);elevatorDoors[1].position.x+=(elevatorDoors[1].userData.openX-elevatorDoors[1].position.x)*Math.min(1,dt*3.2);}
         },
         interactables: [{
           id: 'bunker-log',
