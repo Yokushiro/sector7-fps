@@ -421,3 +421,25 @@ test('Warden phase two launches a wider five-shot fan', () => {
   context.THREE = previousThree;
   assert.equal(projectiles.length, 5);
 });
+
+
+test('surviving drones break the firing lane with archetype evasive movement', () => {
+  const ai = new DroneAI();
+  const scout = makeEnemy('scout', 2.65, 5.5);
+  scout.hitStunRemaining = 0;
+  scout.evasionRemaining = 0.4;
+  scout.evasionVelocity = { x: 5, z: 0 };
+  const startX = scout.g.position.x;
+  ai.update(
+    [scout],
+    { pos: { x: 0, y: 1.7, z: 0 } },
+    0.1,
+    () => {},
+    { add() {} },
+    [],
+    () => {},
+    (min, max) => (min + max) / 2
+  );
+  assert.ok(scout.g.position.x > startX, 'strong scout evade should break its forward firing lane');
+  assert.ok(scout.evasionRemaining < 0.4, 'evasion window should count down');
+});
