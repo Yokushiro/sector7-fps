@@ -165,14 +165,28 @@
           }
           if (enemy.type === 'warden' && enemy.phase === 2) {
             enemy.phaseTransitionRemaining = Math.max(0, (enemy.phaseTransitionRemaining || 0) - dt);
+            const transitionProgress = 1 - enemy.phaseTransitionRemaining / 1.8;
             const transitionPulse = enemy.phaseTransitionRemaining > 0
-              ? 1 + Math.sin((1.8 - enemy.phaseTransitionRemaining) * 17) * 0.3 : 1;
+              ? 1 + Math.sin(transitionProgress * Math.PI * 5) * 0.3 : 1;
             if (visual.ring.material?.color) visual.ring.material.color.setHex(0xff58d4);
             visual.ring.scale.setScalar(transitionPulse);
             visual.ring.rotation.z += dt * (enemy.phaseTransitionRemaining > 0 ? 5.5 : 0);
             if (visual.core) {
               if (visual.core.material?.color) visual.core.material.color.setHex(0xff58d4);
               visual.core.scale.setScalar(transitionPulse * (1 + Math.sin(enemy.t * 7) * 0.12));
+            }
+            if (visual.phaseHalo) {
+              const halo = visual.phaseHalo;
+              const active = enemy.phaseTransitionRemaining > 0;
+              halo.visible = active;
+              if (active) {
+                const wave = Math.max(0, Math.sin(transitionProgress * Math.PI));
+                halo.scale.setScalar(0.35 + transitionProgress * 2.15);
+                if (halo.material) halo.material.opacity = wave * 0.9;
+                halo.rotation.z += dt * 2.4;
+              } else if (halo.material) {
+                halo.material.opacity = 0;
+              }
             }
           }
         }
