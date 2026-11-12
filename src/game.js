@@ -345,10 +345,19 @@ function explodeBarrel(object,point){
   const origin=point?point.clone():object.getWorldPosition(new T.Vector3());
   const spec=object.userData.explosive||{radius:7,damage:105};
   const radius=Number(spec.radius)||7;
-  const blast=new T.Mesh(new T.SphereGeometry(1,20,14),new T.MeshBasicMaterial({color:0xff6a24,transparent:true,opacity:.78,blending:T.AdditiveBlending,depthWrite:false}));
-  blast.position.copy(origin);blast.scale.setScalar(.35);scene.add(blast);
-  explosions.push({mesh:blast,life:.52,maxLife:.52,radius});
-  for(let i=0;i<34;i++)spark(origin,new T.Color(3,Math.random()*.9,.12),R(5,12));
+  const flame=new T.Mesh(new T.SphereGeometry(1,24,16),new T.MeshBasicMaterial({color:0xff6826,transparent:true,opacity:.9,blending:T.AdditiveBlending,depthWrite:false}));
+  flame.position.copy(origin);flame.scale.set(.42,.5,.42);scene.add(flame);
+  const ring=new T.Mesh(new T.TorusGeometry(1,.055,10,48),new T.MeshBasicMaterial({color:0xffb347,transparent:true,opacity:.95,blending:T.AdditiveBlending,depthWrite:false}));
+  ring.rotation.x=Math.PI/2;ring.position.copy(origin);ring.position.y=Math.max(.08,origin.y-.38);ring.scale.setScalar(.28);scene.add(ring);
+  const smoke=[];
+  for(let i=0;i<8;i++){
+    const mesh=new T.Mesh(new T.SphereGeometry(1,10,8),new T.MeshBasicMaterial({color:i%2?0x555b60:0x77716a,transparent:true,opacity:.34,depthWrite:false}));
+    mesh.position.copy(origin).add(new T.Vector3(R(-.28,.28),R(.1,.55),R(-.28,.28)));
+    const scale=R(.12,.25);mesh.scale.setScalar(scale);scene.add(mesh);
+    smoke.push({mesh,velocity:new T.Vector3(R(-.45,.45),R(1.1,2.1),R(-.45,.45)),scale,life:R(1.15,1.75),maxLife:1.75});
+  }
+  explosions.push({mesh:flame,ring,smoke,life:.72,maxLife:.72,radius});
+  for(let i=0;i<52;i++)spark(origin,new T.Color(3,R(.25,1.05),.08),R(5,14));
   snd(42,.72,'sawtooth',.7);snd(105,.48,'sine',.38,true);
   for(const enemy of [...enemies]){
     const distance=enemy.g.position.distanceTo(origin);
@@ -399,7 +408,7 @@ function loadMission(nextMission,transition={}){
   for(const enemy of enemies){scene.remove(enemy.g);disposeRenderable(enemy.g)}enemies.length=0;
   projectileSystem.clear(proj);
   for(const particle of sparks){scene.remove(particle.m);particle.m.material.dispose()}sparks.length=0;
-  for(const blast of explosions){scene.remove(blast.mesh);blast.mesh.geometry.dispose();blast.mesh.material.dispose()}explosions.length=0;
+  for(const blast of explosions){scene.remove(blast.mesh,blast.ring);blast.mesh.geometry.dispose();blast.mesh.material.dispose();blast.ring.geometry.dispose();blast.ring.material.dispose();for(const puff of blast.smoke){scene.remove(puff.mesh);puff.mesh.geometry.dispose();puff.mesh.material.dispose()}}explosions.length=0;
   for(const piece of debris){scene.remove(piece.mesh);piece.mesh.geometry.dispose();piece.mesh.material.dispose()}debris.length=0;
   currentMission=nextMission;
   saveSystem.setCurrentMission(currentMission.id);
@@ -554,9 +563,18 @@ function loop(now){requestAnimationFrame(loop);const dt=Math.min(.05,(now-last)/
  for(let i=explosions.length-1;i>=0;i--){
   const blast=explosions[i];blast.life-=dt;
   const progress=1-blast.life/blast.maxLife;
-  blast.mesh.scale.setScalar(.35+progress*blast.radius*1.45);
-  blast.mesh.material.opacity=Math.max(0,blast.life/blast.maxLife)*.78;
-  if(blast.life<=0){scene.remove(blast.mesh);blast.mesh.geometry.dispose();blast.mesh.material.dispose();explosions.splice(i,1)}
+  const fade=Math.max(0,blast.life/blast.maxLife);
+  blast.mesh.scale.set(.42+progress*1.15,.5+progress*.72,.42+progress*1.15);
+  blast.mesh.material.opacity=fade*.9;
+  blast.ring.scale.setScalar(.28+progress*blast.radius*1.35);
+  blast.ring.material.opacity=fade*.95;
+  for(let j=blast.smoke.length-1;j>=0;j--){
+   const puff=blast.smoke[j];puff.life-=dt;puff.mesh.position.addScaledVector(puff.velocity,dt);
+   puff.mesh.scale.setScalar(puff.scale+(1-puff.life/puff.maxLife)*.48);
+   puff.mesh.material.opacity=Math.max(0,puff.life/puff.maxLife)*.34;
+   if(puff.life<=0){scene.remove(puff.mesh);puff.mesh.geometry.dispose();puff.mesh.material.dispose();blast.smoke.splice(j,1)}
+  }
+  if(blast.life<=0){scene.remove(blast.mesh,blast.ring);blast.mesh.geometry.dispose();blast.mesh.material.dispose();blast.ring.geometry.dispose();blast.ring.material.dispose();for(const puff of blast.smoke){scene.remove(puff.mesh);puff.mesh.geometry.dispose();puff.mesh.material.dispose()}explosions.splice(i,1)}
  }
  for(let i=debris.length-1;i>=0;i--){
   const piece=debris[i];piece.life-=dt;
