@@ -169,6 +169,15 @@ function spawn(){
   phaseHalo.visible=false;
   g.add(phaseHalo);
   e.visual.phaseHalo=phaseHalo;
+  const attackMarker=new T.Mesh(
+   new T.TorusGeometry(1.18,.035,8,48),
+   new T.MeshBasicMaterial({color:0x55dfff,transparent:true,opacity:0,depthWrite:false})
+  );
+  attackMarker.rotation.x=Math.PI/2;
+  attackMarker.position.y=-1.22;
+  attackMarker.visible=false;
+  g.add(attackMarker);
+  e.visual.attackMarker=attackMarker;
   for(const side of[-1,1]){
    const shoulder=new T.Mesh(new T.BoxGeometry(.42,.9,.75),m);shoulder.position.set(side*.78,.45,0);shoulder.rotation.z=side*-.22;g.add(shoulder);
    const horn=new T.Mesh(new T.ConeGeometry(.16,.72,8),new T.MeshStandardMaterial({color:0x39445a,emissive:0x6b174f,emissiveIntensity:1.1}));horn.position.set(side*.62,1.35,-.08);horn.rotation.z=side*-.35;g.add(horn);
