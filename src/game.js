@@ -123,11 +123,12 @@ const elevatorTransition=new S7ElevatorTransition({
  },
  onTravel:()=>{
   try{
+   const playerYawOffset=elevatorTransition.capturePlayerYawOffset();
    if(!loadMission(elevatorNextMission,{elevator:true,preserveVitals:elevatorVitals})){
     elevatorTransition.dispose();
     return;
    }
-   elevatorTransition.setDestination(P.pos,P.yaw,String(currentMission.order).padStart(2,'0'));
+   elevatorTransition.setDestination(P.pos,P.yaw,String(currentMission.order).padStart(2,'0'),playerYawOffset);
    dialogueSystem.startRadio(currentMission.introDialogue,()=>elevatorTransition.setRadioComplete());
   }catch(error){
    console.error('Elevator destination load failed',error);
