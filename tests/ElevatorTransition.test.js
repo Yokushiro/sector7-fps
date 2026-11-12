@@ -35,8 +35,10 @@ test('elevator remains walkable during travel and opens into the next sector',()
     const camera={position:new Vector3(),rotation:{set(x,y,z){this.x=x;this.y=y;this.z=z;}}};
     const player={pos:new Vector3(0,1.7,0),yaw:0,pitch:.12};
     let travelCalls=0,completeCalls=0,exitPosition=null,elevator;
+    const sounds=[];
     elevator=new ElevatorTransition({
       THREE:fakeThree(),scene,camera,
+      onSound(type){sounds.push(type);},
       onTravel(){travelCalls++;elevator.setDestination({x:12,y:1.7,z:-8},Math.PI,'02');},
       onComplete(position){completeCalls++;exitPosition=position;}
     });
@@ -63,6 +65,7 @@ test('elevator remains walkable during travel and opens into the next sector',()
     for(let i=0;i<42;i++)elevator.update(.1);
     assert.equal(elevator.phase,'travel','the cabin waits for the radio dialogue before opening');
     assert.ok(player.pos.y<10,'the player descends with the moving cabin');
+    assert.equal(sounds.filter(type=>type==='floor-beep').length,3,'floor beeps occur only when the displayed floor or direction changes');
     elevator.setRadioComplete();
     elevator.update(.1);
     assert.equal(elevator.phase,'opening');
