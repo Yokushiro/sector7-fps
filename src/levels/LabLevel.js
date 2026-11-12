@@ -6,10 +6,10 @@
     build(context) {
       const { THREE: T, scene, mat, box, canvas, boxes } = context;
       const S = 14, H = 8;
-      const wall = mat('concrete', 7, 2, 0, 0x9aa7b0);
-      const steel = mat('metal', 2, 2, .8, 0x8dabb9);
+      const wall = mat('concrete', 7, 2, 0, 0xc2d6dc);
+      const steel = mat('metal', 2, 2, .8, 0xb8dce5);
       const darkSteel = mat('metal', 2, 1, .9, 0x35434d);
-      const floor = new T.Mesh(new T.PlaneGeometry(S * 2, S * 2), mat('floor', 7, 7, .25));
+      const floor = new T.Mesh(new T.PlaneGeometry(S * 2, S * 2), mat('floor', 7, 7, .25, 0xa9c3ca));
       floor.rotation.x = -Math.PI / 2;
       floor.receiveShadow = true;
       scene.add(floor);
