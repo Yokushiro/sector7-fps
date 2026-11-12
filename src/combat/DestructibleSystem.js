@@ -10,6 +10,11 @@
     }
 
     hit(object, point, damage = 1) {
+      // Raycasts may hit a decorative child (barrel bands, labels, handles).
+      // Resolve the owning destructible parent before applying damage.
+      let target = object;
+      while (target && !(target.userData && target.userData.destructible)) target = target.parent;
+      object = target;
       const state = object && object.userData && object.userData.destructible;
       if (!state || state.destroyed || object.visible === false) return { damaged: false, destroyed: false };
       const amount = Number.isFinite(damage) && damage > 0 ? damage : 1;
