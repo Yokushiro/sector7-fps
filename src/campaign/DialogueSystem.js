@@ -106,8 +106,8 @@
       if (!this.selectedVoice) return false;
       try {
         const utterance = this.utteranceFactory(line.text);
-        const profile = VOICE_PROFILES[line.speaker] || VOICE_PROFILES['СИСТЕМА'];
-        const isLev = /^ЛЕВ(?:\\s|$|\\/)/i.test(line.speaker);
+        const isLev = line.speaker === 'ЛЕВ' || line.speaker.startsWith('ЛЕВ /');
+        const profile = isLev ? VOICE_PROFILES['ЛЕВ'] : (VOICE_PROFILES[line.speaker] || VOICE_PROFILES['СИСТЕМА']);
         const voice = isLev ? (this.maleRussianVoice || this.selectedVoice) : this.selectedVoice;
         utterance.lang = voice.lang || 'ru-RU';
         utterance.voice = voice;
