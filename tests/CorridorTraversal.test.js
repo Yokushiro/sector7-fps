@@ -186,10 +186,14 @@ test('sector handoff uses a diegetic elevator and preserves player resources', (
   assert.match(game, /outroShown=true;outroPlaying=false;state='play';end\(true\)/);
   assert.match(game, /dialogueSystem\.update\(dt\)/);
   assert.match(game, /elevatorTransition\.update\(dt\)/);
-  assert.match(game, /onComplete:exitPosition=>\{\s*if\(exitPosition\)P\.pos\.copy\(exitPosition\)/);
+  assert.match(game, /onComplete:\(\)=>\{/);
+  assert.match(game, /elevatorTransition\.constrainPlayer\(P\.pos\)/);
+  assert.match(game, /state='play';mouse=false/);
   assert.match(game, /P\.hp=carried\.hp/);
   assert.match(game, /P\.hp=transition\.preserveVitals\?/);
-  assert.match(elevator, /this\.drawDisplay\(floor, flicker \? 'ПОДЪЁМ' : 'В ПУТИ'\)/);
+  assert.match(elevator, /this\.drawDisplay\(floor,this\.travelTime<2\.1\?'ПОДЪЁМ':'СНИЖЕНИЕ'\)/);
+  assert.match(elevator, /this\.player\.pos\.y\+=dy/);
+  assert.match(elevator, /doorPassable/);
   assert.match(elevator, /this\.setDoorOpen\(1 - t\)/);
   assert.match(elevator, /this\.setDoorOpen\(t\)/);
   const html = read('index.html');
@@ -267,12 +271,13 @@ test('the three interior sectors show paired elevator doors before the exit is u
 
 test('elevator cabin keeps the floor display centered on the front wall and preserves facing on arrival', () => {
   const elevator = read('src/campaign/ElevatorTransition.js');
-  assert.match(elevator, /group\.rotation\.y = yaw;/);
-  assert.match(elevator, /panel\.position\.set\(0, 1\.98, -2\.22\)/);
-  assert.match(elevator, /screen\.position\.set\(0, 2\.18, -2\.145\)/);
-  assert.match(elevator, /this\.cameraLocalZ = \.55/);
-  assert.match(elevator, /addBox\(1\.9, 2\.86, \.12, -1\.85, 1\.62, 2\.25, doorMaterial\)/);
-  assert.match(elevator, /this\.cameraYaw = Number\(yaw\) \|\| 0/);
+  assert.match(elevator, /group\.rotation\.y=yaw/);
+  assert.match(elevator, /panel\.position\.set\(0,1\.98,-2\.22\)/);
+  assert.match(elevator, /screen\.position\.set\(0,2\.18,-2\.145\)/);
+  assert.match(elevator, /this\.player\.pos\.copy\(inside\)/);
+  assert.match(elevator, /addBox\(1\.9,2\.86,\.12,-\.95,1\.62,2\.22,doorMaterial\)/);
+  assert.match(elevator, /this\.player\.yaw=destinationYaw/);
+  assert.match(elevator, /addBox\(3\.8,3\.35,\.14,0,1\.62,-2\.33,metal\)/);
 });
 
 
