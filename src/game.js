@@ -440,6 +440,7 @@ function loadMission(nextMission,transition={}){
   $('ov').style.display='none';
   $('s7-resume').hidden=true;pauseMenu=false;
   location.hash=currentMission.id;
+  if(!ac){ac=audioManager.unlock();if(ac)audioManager.startMusic()}
   audioManager.startAmbience(currentMission.audioProfile,(carried||transition.elevator)?1.25:0);
   if(transition.elevator){state='transition'}else{
    state='play';
