@@ -29,3 +29,18 @@ test('projectile system validates inputs',()=>{
  assert.throws(()=>system.update(null,.1,{},[],{halfSize:10},()=>{}),/array/);
  assert.throws(()=>system.update([],.1,{},[],{halfSize:10}),/callback/);
 });
+
+
+test('swept collision catches a fast projectile crossing a thin wall between frames',()=>{
+ const system=new System(),projectile=shot(-1,1,0,20,0,0),items=[projectile];
+ system.update(items,.1,{x:10,y:1,z:0},[{x0:-.08,x1:.08,y0:0,y1:2,z0:-1,z1:1}],{halfSize:40},()=>assert.fail('wall-blocked shot damaged player'));
+ assert.equal(items.length,0);
+ assert.equal(projectile.disposed.geometry,1);
+});
+
+test('swept player hit detection catches a fast projectile that passes through between frames',()=>{
+ const system=new System(),projectile=shot(-1,1,0,20,0,0,3,17),items=[projectile],hits=[];
+ system.update(items,.1,{x:0,y:1,z:0},[],{halfSize:40},damage=>hits.push(damage));
+ assert.deepEqual(hits,[17]);
+ assert.equal(items.length,0);
+});
