@@ -349,3 +349,75 @@ test('drones reverse their strafe direction after firing to avoid static attack 
   assert.equal(projectiles.length, 1);
   assert.equal(enemy.strafeSign, -1);
 });
+
+
+function makeAttackThree() {
+  class Vector3 {
+    constructor(x, y, z) { this.x = x; this.y = y; this.z = z; }
+    sub(other) { this.x -= other.x; this.y -= other.y; this.z -= other.z; return this; }
+    normalize() { const n = Math.hypot(this.x, this.y, this.z) || 1; this.x /= n; this.y /= n; this.z /= n; return this; }
+    multiplyScalar(n) { this.x *= n; this.y *= n; this.z *= n; return this; }
+  }
+  return {
+    Vector3,
+    Mesh: class { constructor() { this.position = { copy(other) { Object.assign(this, other); } }; } },
+    SphereGeometry: class {},
+    MeshBasicMaterial: class {},
+    Color: class {}
+  };
+}
+
+test('heavy drones telegraph a charged three-projectile volley', () => {
+  const ai = new DroneAI();
+  const enemy = makeEnemy('heavy', 0, 6.8);
+  enemy.cd = 0;
+  enemy.projectileSpeed = 10;
+  enemy.damage = 14;
+  const previousThree = context.THREE;
+  context.THREE = makeAttackThree();
+  const projectiles = [];
+  const args = [ [enemy], { pos: { x: 0, y: 1.7, z: 0 } }, 0.2, () => {}, { add() {} }, projectiles, () => {}, (min) => min ];
+  ai.update(...args);
+  assert.equal(projectiles.length, 0, 'heavy attack must have a readable charge window');
+  assert.ok(enemy.attackWindupRemaining > 0);
+  ai.update([enemy], args[1], 0.6, args[3], args[4], projectiles, args[6], args[7]);
+  context.THREE = previousThree;
+  assert.equal(projectiles.length, 3);
+  assert.ok(projectiles[0].damage < enemy.damage);
+  assert.ok(projectiles[1].v.x !== projectiles[2].v.x || projectiles[1].v.z !== projectiles[2].v.z);
+});
+
+test('sniper waits through a longer lock-on before firing one precise bolt', () => {
+  const ai = new DroneAI();
+  const enemy = makeEnemy('sniper', 0, 10);
+  enemy.cd = 0;
+  enemy.projectileSpeed = 19;
+  enemy.damage = 16;
+  const previousThree = context.THREE;
+  context.THREE = makeAttackThree();
+  const projectiles = [];
+  const player = { pos: { x: 0, y: 1.7, z: 0 } };
+  ai.update([enemy], player, 0.5, () => {}, { add() {} }, projectiles, () => {}, min => min);
+  assert.equal(projectiles.length, 0);
+  ai.update([enemy], player, 0.6, () => {}, { add() {} }, projectiles, () => {}, min => min);
+  context.THREE = previousThree;
+  assert.equal(projectiles.length, 1);
+  assert.ok(projectiles[0].v.length === undefined, 'velocity remains a vector-like object');
+  assert.ok(projectiles[0].damage > enemy.damage);
+});
+
+test('Warden phase two launches a wider five-shot fan', () => {
+  const ai = new DroneAI();
+  const enemy = makeEnemy('warden', 0, 7.2);
+  Object.assign(enemy, {
+    hp: 100, maxHp: 280, phase: 2, damage: 20,
+    projectileSpeed: 15, spread: 0.14, attackMin: 1.25, attackMax: 1.8,
+    eyeColor: 0xff8de5, cd: 0
+  });
+  const previousThree = context.THREE;
+  context.THREE = makeAttackThree();
+  const projectiles = [];
+  ai.update([enemy], { pos: { x: 0, y: 1.7, z: 0 } }, 0.5, () => {}, { add() {} }, projectiles, () => {}, min => min);
+  context.THREE = previousThree;
+  assert.equal(projectiles.length, 5);
+});
