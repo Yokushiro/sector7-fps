@@ -14,6 +14,8 @@
       floor.receiveShadow = true;
       scene.add(floor);
       solids.push(floor);
+      // Close the reactor hall above the pipework so the interior reads as a sealed containment chamber.
+      box(0, H, 0, S * 2 + 2, .6, S * 2 + 2, dark, false);
 
       // Main chamber walls; the north opening continues into the reactor access corridor.
       box(-10.15, H / 2, -S - .5, 15.9, H, 1, concrete);
