@@ -23,15 +23,15 @@
       box(-10.15, H / 2, S + .5, 15.9, H, 1, concrete);
       box(10.15, H / 2, S + .5, 15.9, H, 1, concrete);
       box(0, H - .5, S + .5, 4.2, 1, 1, steel, false);
-      const entryFloor = new T.Mesh(new T.PlaneGeometry(5.2, 14), mat('floor', 2, 5, .35));
+      const entryFloor = new T.Mesh(new T.PlaneGeometry(5.2, 15.5), mat('floor', 2, 5, .35));
       entryFloor.rotation.x = -Math.PI / 2;
-      entryFloor.position.set(0, .015, 25);
+      entryFloor.position.set(0, .015, 25.75);
       entryFloor.receiveShadow = true;
       scene.add(entryFloor);
       solids.push(entryFloor);
-      box(-2.8, 3.5, 25, .45, 7, 14, concrete);
-      box(2.8, 3.5, 25, .45, 7, 14, concrete);
-      box(0, H - .35, 25, 5.9, .5, 14, dark, false);
+      box(-2.8, H / 2, 25.75, .45, H, 15.5, concrete);
+      box(2.8, H / 2, 25.75, .45, H, 15.5, concrete);
+      box(0, H - .35, 25.75, 5.9, .5, 15.5, dark, false);
       const entryLamp = new T.PointLight(0x38cfff, .9, 18, 2);
       entryLamp.position.set(0, 5, 25);
       scene.add(entryLamp);
@@ -39,15 +39,15 @@
       box(S + .5, H / 2, 0, 1, H, S * 2, concrete);
 
       // Heavy service corridor links the laboratory wing to the reactor hall.
-      const corridorFloor = new T.Mesh(new T.PlaneGeometry(5.2, 14), mat('floor', 2, 5, .35));
+      const corridorFloor = new T.Mesh(new T.PlaneGeometry(5.2, 15.5), mat('floor', 2, 5, .35));
       corridorFloor.rotation.x = -Math.PI / 2;
-      corridorFloor.position.set(0, .015, -25);
+      corridorFloor.position.set(0, .015, -25.75);
       corridorFloor.receiveShadow = true;
       scene.add(corridorFloor);
       solids.push(corridorFloor);
-      box(-2.8, 3.5, -25, .45, 7, 14, concrete);
-      box(2.8, 3.5, -25, .45, 7, 14, concrete);
-      box(0, H - .35, -25, 5.9, .5, 14, dark, false);
+      box(-2.8, H / 2, -25.75, .45, H, 15.5, concrete);
+      box(2.8, H / 2, -25.75, .45, H, 15.5, concrete);
+      box(0, H - .35, -25.75, 5.9, .5, 15.5, dark, false);
       // Pressure-rated elevator doors at the end of the evacuation vestibule.
       const elevatorFrame = mat('metal', 1, 1, .92, 0x6a6260);
       const elevatorDoors = [
@@ -56,9 +56,18 @@
       ];
       elevatorDoors[0].userData.openX = -4.25;
       elevatorDoors[1].userData.openX = 4.25;
-      box(-3.05, 3.5, -32.5, .3, 7.2, .68, elevatorFrame, false);
-      box(3.05, 3.5, -32.5, .3, 7.2, .68, elevatorFrame, false);
-      box(0, 7.12, -32.5, 6.4, .32, .68, elevatorFrame, false);
+      box(-3.05, H / 2, -32.5, .32, H, .82, elevatorFrame, false);
+      box(3.05, H / 2, -32.5, .32, H, .82, elevatorFrame, false);
+      box(0, 7.12, -32.5, 6.4, .32, .82, elevatorFrame, false);
+      box(0, (H + 7.28) / 2, -32.5, 5.8, H - 7.28, .82, elevatorFrame, false);
+      box(0, .08, -32.5, 5.8, .16, .95, elevatorFrame, false);
+      for (const door of elevatorDoors) {
+        const side = door.position.x < 0 ? 1 : -1;
+        const seam = new T.Mesh(new T.BoxGeometry(.05, 5.8, .03), new T.MeshBasicMaterial({ color: 0xffb07a }));
+        seam.position.set(side * 1.32, 0, .19); door.add(seam);
+        const warning = new T.Mesh(new T.BoxGeometry(1.95, .08, .03), new T.MeshBasicMaterial({ color: 0xff8745 }));
+        warning.position.set(0, -2.35, .19); door.add(warning);
+      }
       for (const x of [-2.8, 2.8]) {
         const rail = new T.Mesh(new T.BoxGeometry(.06, 5.7, .04), new T.MeshBasicMaterial({ color: 0xff8745 }));
         rail.position.set(x, 3.5, -32.12);
@@ -69,15 +78,15 @@
       scene.add(elevatorHeader);
       let exitOpen = false;
       // Short, illuminated evacuation vestibule beyond the final bulkhead gives the player a real place to emerge.
-      const evacuationFloor = new T.Mesh(new T.PlaneGeometry(5.2, 8), mat('floor', 2, 3, .2));
+      const evacuationFloor = new T.Mesh(new T.PlaneGeometry(5.2, 9.5), mat('floor', 2, 3, .2));
       evacuationFloor.rotation.x = -Math.PI / 2;
-      evacuationFloor.position.set(0, .015, -36.5);
+      evacuationFloor.position.set(0, .015, -36.75);
       evacuationFloor.receiveShadow = true;
       scene.add(evacuationFloor);
       solids.push(evacuationFloor);
-      box(-2.8, 3.5, -36.5, .45, 7, 8, concrete);
-      box(2.8, 3.5, -36.5, .45, 7, 8, concrete);
-      box(0, H - .35, -36.5, 5.9, .5, 8, dark, false);
+      box(-2.8, H / 2, -36.75, .45, H, 9.5, concrete);
+      box(2.8, H / 2, -36.75, .45, H, 9.5, concrete);
+      box(0, H - .35, -36.75, 5.9, .5, 9.5, dark, false);
       const evacuationLight = new T.PointLight(0x8cecff, 2.1, 20, 2);
       evacuationLight.position.set(0, 5.2, -37.5);
       scene.add(evacuationLight);
