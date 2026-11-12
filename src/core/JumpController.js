@@ -16,6 +16,16 @@
       return true;
     }
 
+    isSupported(player, platforms = []) {
+      const platform = player && player.groundedPlatform;
+      if (!platform) return true;
+      if (!Array.isArray(platforms) || !platforms.includes(platform)) return false;
+      return player.pos.x + this.playerRadius > platform.x0
+        && player.pos.x - this.playerRadius < platform.x1
+        && player.pos.z + this.playerRadius > platform.z0
+        && player.pos.z - this.playerRadius < platform.z1;
+    }
+
     update(player, deltaTime, platforms = []) {
       if (!player || player.grounded) return false;
       const dt = Math.max(0, Math.min(.05, Number(deltaTime) || 0));
@@ -33,7 +43,9 @@
             && player.pos.z - this.playerRadius < platform.z1;
           if (!overlapsX || !overlapsZ) continue;
           if (previousFeet >= platform.topY - .06 && currentFeet <= platform.topY) {
-            player.pos.y = this.groundY + platform.topY;
+            player.groundedHeight = this.groundY + platform.topY;
+            player.pos.y = player.groundedHeight;
+            player.groundedPlatform = platform;
             player.velocityY = 0;
             player.grounded = true;
             return true;
@@ -42,6 +54,8 @@
       }
       if (player.pos.y <= this.groundY) {
         player.pos.y = this.groundY;
+        player.groundedHeight = this.groundY;
+        player.groundedPlatform = null;
         player.velocityY = 0;
         player.grounded = true;
         return true;
