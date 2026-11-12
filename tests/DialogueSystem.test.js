@@ -105,8 +105,8 @@ test('Russian character voice synthesis uses distinct profiles and stops on dial
     assert.ok(spoken[0].pitch < .8, 'Lev must use a lower masculine pitch profile');
     dialogue.advance();
     assert.equal(spoken.length, 2);
-    assert.equal(spoken[1].voice, russianVoice, 'the bunker AI must use a feminine Russian voice');
-    assert.ok(spoken[1].pitch > 1, 'the bunker AI should have a higher feminine pitch profile');
+    assert.equal(spoken[1].voice, russianVoice, 'the antagonist AI must use a feminine Russian voice');
+    assert.ok(spoken[1].pitch > 1, 'the antagonist AI should have a higher feminine pitch profile');
     assert.ok(cancellations >= 1, 'advancing must cancel the previous spoken line');
     dialogue.setVoiceEnabled(false);
     assert.equal(dialogue.voiceEnabled, false);
@@ -154,7 +154,7 @@ test('long radio lines are not cut off by the old twelve-second ceiling', () => 
 });
 
 
-test('bunker system selects a feminine Russian voice without confusing female and male labels', () => {
+test('antagonist AI selects a feminine Russian voice without confusing female and male labels', () => {
   const originalSynthesis = global.speechSynthesis;
   const originalUtterance = global.SpeechSynthesisUtterance;
   const spoken = [];
@@ -174,7 +174,7 @@ test('bunker system selects a feminine Russian voice without confusing female an
       textElement: createElement(),
       promptElement: createElement()
     });
-    dialogue.start([{ speaker: 'СИСТЕМА БУНКЕРА', text: 'Добро пожаловать обратно. Хотя, разумеется, вас никто не приглашал.' }]);
+    dialogue.start([{ speaker: 'ЯДРО', text: 'Добро пожаловать обратно. Хотя, разумеется, вас никто не приглашал.' }]);
     assert.equal(spoken[0].voice, female);
     assert.ok(spoken[0].pitch > 1);
     dialogue.finish();
