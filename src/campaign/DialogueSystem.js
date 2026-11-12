@@ -3,9 +3,10 @@
 
   const VOICE_PROFILES = {
     'ЛЕВ': { pitch: .72, rate: .94 },
-    'АРХИВ / 07': { pitch: .68, rate: .88 },
+    'СИСТЕМА БУНКЕРА': { pitch: 1.12, rate: .88 },
+    'АРХИВ / 07': { pitch: 1.12, rate: .88 },
     'НЕИЗВЕСТНЫЙ': { pitch: 1.08, rate: .91 },
-    'СИСТЕМА': { pitch: .72, rate: 1 }
+    'СИСТЕМА': { pitch: 1.12, rate: .9 }
   };
 
   class S7DialogueSystem {
@@ -30,6 +31,7 @@
         : null;
       this.selectedVoice = null;
       this.maleRussianVoice = null;
+      this.femaleRussianVoice = null;
       this.voicePending = false;
       this.voiceApi?.addEventListener?.('voiceschanged', () => this.refreshVoices());
       this.refreshVoices();
@@ -40,10 +42,12 @@
       const voices = this.voiceApi.getVoices() || [];
       const russianVoices = voices.filter(voice => /^ru([_-]|$)/i.test(voice.lang || ''));
       this.selectedVoice = russianVoices[0] || null;
-      // Web Speech exposes no gender metadata. Prefer known male Russian voice names
-      // (including common Windows voices) for Lev, then fall back to a lower pitch.
-      const maleName = /(pavel|yuri|yuriy|dmitri|dmitry|ivan|alex|andrei|andrey|sergei|sergey|nikolai|nikolay|maxim|maksim|mikhail|michael|male|муж|павел|юрий|дмитрий|иван|александр|андрей|сергей|николай|максим|михаил)/i;
+      // Web Speech has no standard gender metadata, so use conservative voice-name hints.
+      // Word boundaries prevent "female" from accidentally matching the token "male".
+      const maleName = /(^|[\\s_-])(pavel|yuri|yuriy|dmitri|dmitry|ivan|alex|andrei|andrey|sergei|sergey|nikolai|nikolay|maxim|maksim|mikhail|male|мужской|павел|юрий|дмитрий|иван|александр|андрей|сергей|николай|максим|михаил)(?=$|[\\s_-])/i;
+      const femaleName = /(^|[\\s_-])(irina|elena|anna|alena|olga|maria|mariya|natalia|natalya|svetlana|ekaterina|katya|female|женский|ирина|елена|анна|алёна|ольга|мария|наталья|светлана|екатерина)(?=$|[\\s_-])/i;
       this.maleRussianVoice = russianVoices.find(voice => maleName.test(voice.name || '')) || null;
+      this.femaleRussianVoice = russianVoices.find(voice => femaleName.test(voice.name || '')) || null;
       return voices;
     }
 
@@ -107,8 +111,11 @@
       try {
         const utterance = this.utteranceFactory(line.text);
         const isLev = line.speaker === 'ЛЕВ' || line.speaker.startsWith('ЛЕВ /');
+        const isBunkerSystem = line.speaker === 'СИСТЕМА БУНКЕРА' || line.speaker === 'АРХИВ / 07' || line.speaker === 'СИСТЕМА';
         const profile = isLev ? VOICE_PROFILES['ЛЕВ'] : (VOICE_PROFILES[line.speaker] || VOICE_PROFILES['СИСТЕМА']);
-        const voice = isLev ? (this.maleRussianVoice || this.selectedVoice) : this.selectedVoice;
+        const voice = isLev
+          ? (this.maleRussianVoice || this.selectedVoice)
+          : isBunkerSystem ? (this.femaleRussianVoice || this.selectedVoice) : this.selectedVoice;
         utterance.lang = voice.lang || 'ru-RU';
         utterance.voice = voice;
         utterance.pitch = Math.max(.5, Math.min(2, line.pitch ?? profile.pitch));
