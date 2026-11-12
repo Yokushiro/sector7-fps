@@ -194,7 +194,7 @@ test('sector handoff uses a diegetic elevator and preserves player resources', (
   assert.match(elevator, /this\.drawDisplay\(floor,this\.travelTime<2\.1\?'ПОДЪЁМ':'СНИЖЕНИЕ'\)/);
   assert.match(elevator, /this\.player\.pos\.y\+=dy/);
   assert.match(elevator, /doorPassable/);
-  assert.match(elevator, /this\.setDoorOpen\(1 - t\)/);
+  assert.match(elevator, /this\.setDoorOpen\(1-t\)/);
   assert.match(elevator, /this\.setDoorOpen\(t\)/);
   const html = read('index.html');
   assert.match(html, /src\/campaign\/ElevatorTransition\.js/);
