@@ -186,7 +186,43 @@ function spawn(){
  g.position.set(q[0],1.3,q[1]);scene.add(g);enemies.push(e);spawned++;
 }
 function disposeRenderable(root){const geometries=new Set(),materials=new Set();root.traverse(o=>{if(o.geometry)geometries.add(o.geometry);if(o.material){for(const material of(Array.isArray(o.material)?o.material:[o.material]))materials.add(material)}});geometries.forEach(geometry=>geometry.dispose());materials.forEach(material=>material.dispose())}
-function killE(e){scene.remove(e.g);disposeRenderable(e.g);enemies.splice(enemies.indexOf(e),1);if(e.type==='warden')$('bossHud').hidden=true;for(let i=0;i<18;i++)spark(e.g.position,new T.Color(3,1.6,.5),6);snd(90,.4,'sawtooth',.4);kills++;$('kl').textContent=`Дроны: ${kills} / ${GOAL}`;if(missionSystem.isObjectiveComplete(currentMission.id,missionObjective.id,kills)){combatCleared=true;mouse=false;projectileSystem.clear(proj);if(activeLevel.requiredInteractionId){$('kl').textContent='ОХРАНА УНИЧТОЖЕНА · АКТИВИРУЙ ПАНЕЛЬ'}else{missionCleared=true;activeLevel.openExit?.();$('kl').textContent='СЕКТОР ЗАЧИЩЕН · ИЩИ ВЫХОД В КОРИДОРЕ'}}}
+function killE(e){
+ const deathProfiles={
+  scout:{color:0x5fe8ff,count:15,speed:5.8,size:.7,life:.42},
+  assault:{color:0xff7138,count:22,speed:4.8,size:1.05,life:.62},
+  heavy:{color:0xffb04a,count:30,speed:3.4,size:1.8,life:.9},
+  sniper:{color:0xa58aff,count:13,speed:6.6,size:.55,life:.48},
+  warden:{color:0xff58d4,count:42,speed:5.2,size:1.65,life:1.15}
+ };
+ const death=deathProfiles[e.type]||deathProfiles.scout;
+ const origin=e.g.position.clone();
+ scene.remove(e.g);disposeRenderable(e.g);enemies.splice(enemies.indexOf(e),1);
+ if(e.type==='warden')$('bossHud').hidden=true;
+ for(let i=0;i<death.count;i++){
+  const particle=new T.Mesh(spGeo,new T.MeshBasicMaterial({color:death.color}));
+  particle.position.copy(origin);
+  const direction=new T.Vector3(R(-1,1),R(-.35,1.25),R(-1,1));
+  if(direction.lengthSq)direction.normalize();
+  direction.multiplyScalar(R(death.speed*.55,death.speed));
+  particle.scale.setScalar(R(.65,1.45)*death.size);
+  scene.add(particle);
+  sparks.push({m:particle,v:direction,l:R(death.life*.55,death.life)});
+ }
+ if(e.type==='warden'){
+  // The boss collapses in two distinct energy pulses rather than a generic drone pop.
+  for(let i=0;i<18;i++)spark(origin,new T.Color(2.8,.35,2.4),8);
+  snd(48,.85,'sawtooth',.55);
+ }else if(e.type==='heavy'){
+  for(let i=0;i<10;i++)spark(origin,new T.Color(3,1.25,.25),4);
+  snd(62,.58,'sawtooth',.42);
+ }else if(e.type==='sniper'){
+  for(let i=0;i<7;i++)spark(origin,new T.Color(.8,.55,3),5);
+  snd(720,.24,'triangle',.22);
+ }else{
+  for(let i=0;i<8;i++)spark(origin,new T.Color(3,1.1,.35),4);
+  snd(e.type==='assault'?125:260,.32,'sawtooth',.3);
+ }
+ kills++;$('kl').textContent=`Дроны: ${kills} / ${GOAL}`;if(missionSystem.isObjectiveComplete(currentMission.id,missionObjective.id,kills)){combatCleared=true;mouse=false;projectileSystem.clear(proj);if(activeLevel.requiredInteractionId){$('kl').textContent='ОХРАНА УНИЧТОЖЕНА · АКТИВИРУЙ ПАНЕЛЬ'}else{missionCleared=true;activeLevel.openExit?.();$('kl').textContent='СЕКТОР ЗАЧИЩЕН · ИЩИ ВЫХОД В КОРИДОРЕ'}}}
 const spGeo=new T.BoxGeometry(.03,.03,.03);
 function spark(p,c,sp=4){const m=new T.Mesh(spGeo,new T.MeshBasicMaterial({color:c}));m.position.copy(p);scene.add(m);sparks.push({m,v:new T.Vector3(R(-1,1),R(0,1.4),R(-1,1)).multiplyScalar(sp),l:R(.3,.7)})}
 
