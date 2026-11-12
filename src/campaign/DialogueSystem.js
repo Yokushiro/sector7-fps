@@ -2,7 +2,7 @@
   'use strict';
 
   const VOICE_PROFILES = {
-    'ИЛЬЯ': { pitch: .82, rate: .94 },
+    'ЛЕВ': { pitch: .72, rate: .94 },
     'АРХИВ / 07': { pitch: .68, rate: .88 },
     'НЕИЗВЕСТНЫЙ': { pitch: 1.08, rate: .91 },
     'СИСТЕМА': { pitch: .72, rate: 1 }
@@ -29,6 +29,7 @@
         ? text => new root.SpeechSynthesisUtterance(text)
         : null;
       this.selectedVoice = null;
+      this.maleRussianVoice = null;
       this.voicePending = false;
       this.voiceApi?.addEventListener?.('voiceschanged', () => this.refreshVoices());
       this.refreshVoices();
@@ -37,7 +38,12 @@
     refreshVoices() {
       if (!this.voiceApi || typeof this.voiceApi.getVoices !== 'function') return [];
       const voices = this.voiceApi.getVoices() || [];
-      this.selectedVoice = voices.find(voice => /^ru([_-]|$)/i.test(voice.lang || '')) || null;
+      const russianVoices = voices.filter(voice => /^ru([_-]|$)/i.test(voice.lang || ''));
+      this.selectedVoice = russianVoices[0] || null;
+      // Web Speech exposes no gender metadata. Prefer known male Russian voice names
+      // (including common Windows voices) for Lev, then fall back to a lower pitch.
+      const maleName = /(pavel|yuri|yuriy|dmitri|dmitry|ivan|alex|andrei|andrey|sergei|sergey|nikolai|nikolay|maxim|maksim|mikhail|michael|male|муж|павел|юрий|дмитрий|иван|александр|андрей|сергей|николай|максим|михаил)/i;
+      this.maleRussianVoice = russianVoices.find(voice => maleName.test(voice.name || '')) || null;
       return voices;
     }
 
@@ -101,8 +107,10 @@
       try {
         const utterance = this.utteranceFactory(line.text);
         const profile = VOICE_PROFILES[line.speaker] || VOICE_PROFILES['СИСТЕМА'];
-        utterance.lang = this.selectedVoice.lang || 'ru-RU';
-        utterance.voice = this.selectedVoice;
+        const isLev = /^ЛЕВ(?:\\s|$|\\/)/i.test(line.speaker);
+        const voice = isLev ? (this.maleRussianVoice || this.selectedVoice) : this.selectedVoice;
+        utterance.lang = voice.lang || 'ru-RU';
+        utterance.voice = voice;
         utterance.pitch = Math.max(.5, Math.min(2, line.pitch ?? profile.pitch));
         utterance.rate = Math.max(.65, Math.min(1.35, line.rate ?? profile.rate));
         utterance.volume = 1;
