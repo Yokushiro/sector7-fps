@@ -26,7 +26,7 @@
       this.destinationLabel = '01';
       this.disposed = false;
       this.doorOpen = 1;
-      this.cameraLocalZ = -3;
+      this.cameraLocalZ = -2.7;
       this.cameraYaw = 0;
       this.durations = { entering: 1.15, closing: .85, travel: 3.8, opening: .95, exiting: .85 };
     }
@@ -43,7 +43,7 @@
       this.radioComplete = false;
       this.destinationReady = false;
       this.doorOpen = 1;
-      this.cameraLocalZ = -3;
+      this.cameraLocalZ = -2.7;
       this.drawDisplay('01', 'ВХОД');
       this.updateCamera();
       this.onSound('door-open');
@@ -55,8 +55,9 @@
       const group = new T.Group();
       this.group = group;
       const forwardX = -Math.sin(yaw), forwardZ = -Math.cos(yaw);
-      group.position.set(position.x + forwardX * 3, position.y - 1.7, position.z + forwardZ * 3);
-      group.rotation.y = yaw + Math.PI;
+      group.position.set(position.x - forwardX * 2.4, position.y - 1.7, position.z - forwardZ * 2.4);
+      // Keep the cabin's local -Z axis aligned with the player's forward direction.
+      group.rotation.y = yaw;
       const metal = new T.MeshStandardMaterial({ color: 0x25313b, metalness: .78, roughness: .34 });
       const dark = new T.MeshStandardMaterial({ color: 0x080f16, metalness: .35, roughness: .58 });
       const trim = new T.MeshStandardMaterial({ color: 0x5d7787, metalness: .85, roughness: .25 });
@@ -101,19 +102,21 @@
       const emergency = new T.PointLight(0xff4c36, .12, 5, 2);
       emergency.position.set(0, 2.7, 1.8);
       group.add(emergency);
-      const panel = new T.Mesh(new T.BoxGeometry(.52, .82, .09), dark);
-      panel.position.set(1.78, 1.75, -.65);
+      const panel = new T.Mesh(new T.BoxGeometry(1.12, 1.28, .12), dark);
+      panel.position.set(0, 1.98, -2.22);
       group.add(panel);
+      const panelFrame = new T.Mesh(new T.BoxGeometry(1.2, 1.36, .035), trim);
+      panelFrame.position.set(0, 1.98, -2.29);
+      group.add(panelFrame);
       const canvas = document.createElement('canvas');
       canvas.width = 256;
       canvas.height = 128;
       const texture = new T.CanvasTexture(canvas);
       if (T.SRGBColorSpace && 'colorSpace' in texture) texture.colorSpace = T.SRGBColorSpace;
       else if (T.sRGBEncoding) texture.encoding = T.sRGBEncoding;
-      const screen = new T.Mesh(new T.PlaneGeometry(.42, .21),
+      const screen = new T.Mesh(new T.PlaneGeometry(.82, .46),
         new T.MeshBasicMaterial({ map: texture, toneMapped: false }));
-      screen.position.set(1.72, 2.12, -.71);
-      screen.rotation.y = -Math.PI / 2;
+      screen.position.set(0, 2.18, -2.145);
       group.add(screen);
       this.displayCanvas = canvas;
       this.displayTexture = texture;
@@ -149,7 +152,7 @@
       this.destinationLabel = String(floorLabel || this.destinationLabel);
       this.destinationReady = true;
       this.cameraYaw = Number(yaw) || 0;
-      this.cameraLocalZ = .15;
+      this.cameraLocalZ = -.55;
       this.updateCamera();
       this.drawDisplay(this.destinationLabel, 'В ПУТИ');
     }
@@ -226,11 +229,11 @@
         if (t >= 1) this.enterPhase('exiting');
       } else if (this.phase === 'exiting') {
         const t = Math.min(1, this.phaseTime / this.durations.exiting);
-        this.cameraLocalZ = .15 - t * 2.15;
+        this.cameraLocalZ = -.55 - t * 2.15;
         this.updateCamera();
         if (t >= 1) {
           this.phase = 'complete';
-          const exitPosition = this.group.localToWorld(new this.THREE.Vector3(0, 1.7, -2));
+          const exitPosition = this.group.localToWorld(new this.THREE.Vector3(0, 1.7, -2.7));
           this.dispose();
           this.onComplete(exitPosition);
         }
