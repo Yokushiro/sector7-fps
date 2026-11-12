@@ -230,6 +230,16 @@
         if (canAttack && enemy.cd <= 0 && !(enemy.attackWindupRemaining > 0)) {
           const windups = { scout: 0.08, assault: 0.16, heavy: 0.72, sniper: 1.05, warden: enemy.phase === 2 ? 0.42 : 0.68 };
           enemy.attackWindupRemaining = windups[enemy.type] ?? 0.2;
+          if (enemy.type === 'warden' && enemy.visual?.attackMarker) {
+            const marker = enemy.visual.attackMarker;
+            marker.visible = true;
+            marker.position.set(0, -1.22, -distance);
+            marker.scale.setScalar(0.72);
+            if (marker.material) {
+              marker.material.opacity = 0.28;
+              if (marker.material.color) marker.material.color.setHex(enemy.phase === 2 ? 0xff58d4 : 0x55dfff);
+            }
+          }
         }
         if (enemy.attackWindupRemaining > 0) {
           enemy.attackWindupRemaining = Math.max(0, enemy.attackWindupRemaining - dt);
