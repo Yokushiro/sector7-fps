@@ -9,9 +9,9 @@
       const steel = mat('metal', 3, 2, .85, 0x777d78);
       const dark = mat('metal', 2, 2, .9, 0x29343b);
       const floorMat = mat('floor', 12, 18, .18, 0x777b70);
-      const floor = new T.Mesh(new T.PlaneGeometry(46, 86), floorMat);
+      const floor = new T.Mesh(new T.PlaneGeometry(46, 73), floorMat);
       floor.rotation.x = -Math.PI / 2;
-      floor.position.set(0, 0, 0);
+      floor.position.set(0, 0, 6.5);
       floor.receiveShadow = true;
       scene.add(floor);
       context.solids.push(floor);
