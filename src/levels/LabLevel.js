@@ -29,6 +29,8 @@
       box(-2.8, H / 2, -21, .45, H, 14, wall);
       box(2.8, H / 2, -21, .45, H, 14, wall);
       box(0, H - .35, -21, 6.2, .5, 14, darkSteel, false);
+      // Seal the back of the incoming lift corridor so the player cannot leave the playable sector bounds.
+      box(0, H / 2, -28.25, 5.6, H, .5, wall);
       const corridorStrip = new T.Mesh(new T.BoxGeometry(.25, .12, 8), new T.MeshBasicMaterial({ color: 0xff3545 }));
       corridorStrip.position.set(0, 7.1, -20);
       scene.add(corridorStrip);
