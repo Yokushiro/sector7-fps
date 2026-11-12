@@ -127,12 +127,31 @@
 
         // Readable silhouette animation: light units bank sharply, heavy units
         // rock with inertia, and the Warden's frame becomes more aggressive in phase two.
+        const windup = Math.max(0, enemy.attackWindupRemaining || 0);
         if (group.rotation) {
           const bank = Math.sin(enemy.t * (enemy.type === 'scout' ? 3.8 : 1.7)) * (enemy.type === 'scout' ? 0.16 : enemy.type === 'heavy' ? 0.035 : 0.075);
-          const windup = Math.max(0, enemy.attackWindupRemaining || 0);
           group.rotation.z = bank + (windup > 0 ? (enemy.type === 'heavy' ? -0.13 : 0.09) : 0);
           group.rotation.x = enemy.type === 'warden' && enemy.phase === 2
             ? Math.sin(enemy.t * 4.5) * 0.055 : 0;
+        }
+        if (enemy.visual) {
+          const visual = enemy.visual;
+          if (visual.ring) {
+            visual.ring.rotation.z += dt * (enemy.type === 'sniper' ? 2.8 : enemy.type === 'warden' ? 2.2 : enemy.type === 'heavy' ? 0.42 : 1.15);
+            const pulse = 1 + Math.sin(enemy.t * (enemy.type === 'scout' ? 5 : 2.1)) * (enemy.type === 'scout' ? 0.07 : 0.025);
+            const chargeScale = windup > 0 ? 1 + Math.sin((1 - windup / ({ scout: 0.08, assault: 0.16, heavy: 0.72, sniper: 1.05, warden: enemy.phase === 2 ? 0.42 : 0.68 }[enemy.type] || 0.2)) * Math.PI) * 0.22 : 1;
+            visual.ring.scale.setScalar(pulse * chargeScale);
+          }
+          if (visual.sensor && visual.sensor.scale) {
+            const sensorPulse = 1 + Math.sin(enemy.t * (windup > 0 ? 22 : 3.2)) * (windup > 0 ? 0.28 : 0.06);
+            visual.sensor.scale.setScalar(sensorPulse);
+          }
+          if (visual.head && visual.head.rotation) visual.head.rotation.y = Math.sin(enemy.t * 1.4) * (enemy.type === 'sniper' ? 0.12 : 0.035);
+          if (visual.core) {
+            visual.core.rotation.y += dt * (windup > 0 ? 8 : enemy.phase === 2 ? 5 : 1.2);
+            const corePulse = windup > 0 ? 1 + Math.sin(enemy.t * 20) * 0.18 : 1 + Math.sin(enemy.t * 2.5) * 0.06;
+            visual.core.scale.setScalar(corePulse);
+          }
         }
 
         if (enemy.flash > 0) {
