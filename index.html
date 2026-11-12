@@ -32,11 +32,45 @@ canvas{display:block}
 #dialogue.radio #dialoguePrompt{font-size:9px;margin-top:6px}
 #dialogue[hidden]{display:none}#dialogueSpeaker{font-size:13px;letter-spacing:.18em;color:#ffad68;margin-bottom:10px}
 #dialogueText{font-size:17px;line-height:1.55;min-height:54px}#dialoguePrompt{text-align:right;font-size:11px;letter-spacing:.12em;color:#8db7c9;margin-top:14px}
+#ov{z-index:20;cursor:default}
+.s7-menu{width:min(620px,calc(100vw - 40px));padding:42px 48px;background:linear-gradient(145deg,#07131df2,#03080ff5);border:1px solid #65cce966;box-shadow:0 24px 90px #000d,inset 0 0 55px #1d526322;text-align:left}
+.s7-menu h1{font-size:clamp(42px,7vw,68px);margin:0;color:#ffb26a;letter-spacing:.2em;text-shadow:0 0 32px #ff6a2a88}
+.s7-menu .s7-kicker{margin:5px 0 28px;color:#79cfe7;font-size:11px;letter-spacing:.34em}
+.s7-menu .s7-menu-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.s7-menu button{min-height:48px;padding:12px 16px;border:1px solid #5caec477;background:linear-gradient(110deg,#102b3a,#0b1924);color:#d8f4ff;font:600 13px Bahnschrift,"Segoe UI",sans-serif;letter-spacing:.13em;text-align:left;cursor:pointer;transition:background .16s,border-color .16s,transform .16s}
+.s7-menu button:hover{background:linear-gradient(110deg,#17465a,#142534);border-color:#7be1ff;transform:translateX(3px)}
+.s7-menu button:disabled{opacity:.35;cursor:not-allowed;transform:none}
+.s7-menu .s7-primary{border-color:#e58e4c99;color:#ffd0a4}
+#s7-load-panel{margin-top:20px;padding:18px;background:#030a10;border:1px solid #47778a66}
+#s7-load-panel[hidden]{display:none}
+#s7-load-panel h2{margin:0 0 12px;color:#ffb26a;font-size:16px;letter-spacing:.16em}
+#s7-load-list{display:grid;gap:7px;max-height:220px;overflow:auto}
+#s7-load-list button{min-height:40px;font-size:11px}
+#s7-load-panel .s7-load-actions{display:flex;gap:8px;margin-top:12px}
+#s7-load-panel .s7-load-actions button{flex:1;text-align:center}
+.s7-menu .s7-help{margin:22px 0 0;color:#9bb7c5;font-size:11px;line-height:1.7}
+.s7-menu #saveInfo{margin-top:12px;color:#7896a5;font-size:11px}
+@media(max-width:560px){.s7-menu{padding:28px 22px}.s7-menu .s7-menu-actions{grid-template-columns:1fr}.s7-menu button{min-height:42px}}
 </style></head><body>
 <div id="hud"><div id="cross"></div><div id="hit"></div><div id="kl">Дроны: 0 / 10</div><div id="evacTimer" hidden></div><div id="bossHud" hidden><span id="bossName">СТОРОЖ</span><div><div id="bossHealth"></div></div></div>
 <div class="b" id="hp">ЗДОРОВЬЕ<div><div id="hpf"></div></div></div><div class="b" id="am"><small>ПЕРЕЗАРЯДКА: R</small><span id="ammo">30</span></div></div>
-<div id="ov"><div><h1>SECTOR 7</h1><p id="missionTitle" style="color:#ffb26a;letter-spacing:.12em"></p><p id="missionDescription">Уничтожь охранных дронов в заброшенном бункере.</p>
-<p>WASD — движение · Shift — бег · Space — прыжок<br>Мышь — прицел · ЛКМ — огонь · R — перезарядка · F — фонарь · E — взаимодействие<br>После зачистки следуй по коридору к выходу</p><p id="msg"><b>Нажми, чтобы начать</b></p><p id="saveInfo" style="font-size:13px;opacity:.65"></p></div></div>
+<div id="ov"><div class="s7-menu">
+<h1>SECTOR 7</h1><p class="s7-kicker">AUTONOMOUS DEFENSE FACILITY · STORY CAMPAIGN</p>
+<div class="s7-menu-actions">
+<button id="s7-new" class="s7-primary">НОВАЯ ИГРА</button>
+<button id="s7-load">ЗАГРУЗКА</button>
+<button id="s7-settings">НАСТРОЙКИ</button>
+<button id="s7-exit">ВЫХОД</button>
+<button id="s7-resume" class="s7-primary" hidden>ПРОДОЛЖИТЬ</button>
+</div>
+<div id="s7-load-panel" hidden>
+<h2>ЗАГРУЗКА КАМПАНИИ</h2>
+<div id="s7-load-list"></div>
+<div class="s7-load-actions"><button id="s7-load-back">НАЗАД</button></div>
+</div>
+<p class="s7-help">WASD — движение · Shift — бег · Space — прыжок<br>Мышь — прицел · ЛКМ — огонь · R — перезарядка · F — фонарь · E — взаимодействие<br>ESC — пауза · F2 — графические настройки · F3 — диагностика</p>
+<p id="msg">Выбери действие</p><p id="saveInfo"></p>
+</div></div>
 <div id="interactHint" hidden></div>
 <div id="transitionFade" aria-hidden="true"></div>
 <div id="dialogue" hidden role="dialog" aria-live="polite"><div id="dialogueSpeaker"></div><div id="dialogueText"></div><div id="dialoguePrompt"></div></div>
