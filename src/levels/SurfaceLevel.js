@@ -112,6 +112,25 @@
       sun.shadow.camera.updateProjectionMatrix();
       scene.add(sun);
 
+      // Broken concrete, exposed rock and abandoned field debris break up the exterior silhouette.
+      const rockMat = new T.MeshStandardMaterial({ color: 0x62665e, roughness: .96, metalness: .02 });
+      const slabMat = new T.MeshStandardMaterial({ color: 0x777b74, roughness: .88, metalness: .08 });
+      const debris = [
+        [-19, 2.2, -17, 2.8, 1.5, 2.1], [19, 1.8, -9, 2.2, 1.2, 2.8],
+        [-20, 1.5, 13, 3.2, 1.1, 1.8], [20, 2.1, 25, 2.5, 1.6, 2.2],
+        [-13, .7, 34, 3.4, .7, 1.1], [14, .8, -29, 2.8, .8, 1.4]
+      ];
+      debris.forEach(([x, y, z, sx, sy, sz], i) => {
+        const rock = new T.Mesh(new T.DodecahedronGeometry(1, 1), rockMat);
+        rock.position.set(x, y, z); rock.scale.set(sx, sy, sz);
+        rock.rotation.set(i * .17, i * .63, i * .11); rock.castShadow = true; rock.receiveShadow = true; scene.add(rock);
+      });
+      const brokenSlab = new T.Mesh(new T.BoxGeometry(5.5, .42, 2.1), slabMat);
+      brokenSlab.position.set(-16, .35, -2); brokenSlab.rotation.y = -.38; brokenSlab.rotation.z = .12;
+      brokenSlab.castShadow = true; scene.add(brokenSlab);
+      const wreckBeam = new T.Mesh(new T.BoxGeometry(7.5, .22, .28), steel);
+      wreckBeam.position.set(17, 1.15, 8); wreckBeam.rotation.set(.18, -.55, .48); wreckBeam.castShadow = true; scene.add(wreckBeam);
+
       return {
         name: 'Поверхность комплекса',
         bounds: { halfSize: 47, height: 12 },
