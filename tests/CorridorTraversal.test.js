@@ -106,7 +106,7 @@ test('each sector starts at the far end of its incoming corridor', () => {
   const lab = read('src/levels/LabLevel.js');
   const reactor = read('src/levels/ReactorLevel.js');
   assert.match(bunker, /entryFloor/);
-  assert.match(bunker, /exitZone: \{ x0: -2\.1, x1: 2\.1, z0: -27\.6, z1: -26\.2 \}/);
+  assert.match(bunker, /exitZone: \{ x0: -2\.1, x1: 2\.1, z0: -25\.6, z1: -24\.3 \}/);
   assert.match(bunker, /playerSpawn:\s*\{\s*x:\s*0,\s*y:\s*1\.7,\s*z:\s*22,\s*yaw:\s*0\s*\}/);
   assert.match(lab, /playerSpawn:\s*\{\s*x:\s*0,\s*y:\s*1\.7,\s*z:\s*-26,\s*yaw:\s*Math\.PI\s*\}/);
   assert.match(reactor, /playerSpawn:\s*\{\s*x:\s*0,\s*y:\s*1\.7,\s*z:\s*28,\s*yaw:\s*0\s*\}/);
@@ -146,7 +146,7 @@ test('laboratory route enters from the bunker side and exits through the opposit
   assert.match(lab, /exitCorridorFloor\.position\.set\(0, \.015, 21\)/);
   assert.match(lab, /const elevatorDoors = \[/);
   assert.match(lab, /box\(-1\.4, 3, 28, 2\.8, 5\.7, \.32/);
-  assert.match(lab, /exitZone: \{ x0: -2\.1, x1: 2\.1, z0: 28\.2, z1: 29\.5 \}/);
+  assert.match(lab, /exitZone: \{ x0: -2\.1, x1: 2\.1, z0: 26\.3, z1: 27\.7 \}/);
   assert.doesNotMatch(lab, /const exitDoor = box\(0, 3, -28,/);
 });
 
@@ -155,7 +155,7 @@ test('reactor entry continues from the laboratory exit while the evacuation corr
   assert.match(reactor, /entryFloor\.position\.set\(0, \.015, 25\)/);
   assert.match(reactor, /corridorFloor\.position\.set\(0, \.015, -25\)/);
   assert.match(reactor, /playerSpawn: \{ x: 0, y: 1\.7, z: 28, yaw: 0 \}/);
-  assert.match(reactor, /exitZone: \{ x0: -2\.1, x1: 2\.1, z0: -33\.8, z1: -32\.7 \}/);
+  assert.match(reactor, /exitZone: \{ x0: -2\.1, x1: 2\.1, z0: -31\.8, z1: -30\.6 \}/);
   assert.match(reactor, /evacuationFloor\.position\.set\(0, \.015, -36\.5\)/);
 });
 
@@ -273,4 +273,14 @@ test('elevator cabin keeps the floor display centered on the front wall and pres
   assert.match(elevator, /this\.cameraLocalZ = \.55/);
   assert.match(elevator, /addBox\(1\.9, 2\.86, \.12, -1\.85, 1\.62, 2\.25, doorMaterial\)/);
   assert.match(elevator, /this\.cameraYaw = Number\(yaw\) \|\| 0/);
+});
+
+
+test('elevator trigger volumes are on the approach side of the visible doors', () => {
+  const bunker = read('src/levels/BunkerLevel.js');
+  const lab = read('src/levels/LabLevel.js');
+  const reactor = read('src/levels/ReactorLevel.js');
+  assert.match(bunker, /exitZone: \{ x0: -2\.1, x1: 2\.1, z0: -25\.6, z1: -24\.3 \}/);
+  assert.match(lab, /exitZone: \{ x0: -2\.1, x1: 2\.1, z0: 26\.3, z1: 27\.7 \}/);
+  assert.match(reactor, /exitZone: \{ x0: -2\.1, x1: 2\.1, z0: -31\.8, z1: -30\.6 \}/);
 });
