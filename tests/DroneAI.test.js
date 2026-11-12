@@ -443,3 +443,45 @@ test('surviving drones break the firing lane with archetype evasive movement', (
   assert.ok(scout.g.position.x > startX, 'strong scout evade should break its forward firing lane');
   assert.ok(scout.evasionRemaining < 0.4, 'evasion window should count down');
 });
+
+
+test('Warden phase transition visibly recolors and surges its reactor and ring', () => {
+  const ai = new DroneAI();
+  const enemy = makeEnemy('warden', 1.65, 7.2);
+  let ringColor = 0, coreColor = 0, ringScale = 0, coreScale = 0;
+  enemy.hp = 140;
+  enemy.maxHp = 280;
+  enemy.phase = 1;
+  enemy.damage = 18;
+  enemy.projectileSpeed = 15;
+  enemy.spread = .14;
+  enemy.attackMin = 1.25;
+  enemy.attackMax = 1.8;
+  enemy.visual = {
+    ring: {
+      rotation: { z: 0 },
+      scale: { setScalar(value) { ringScale = value; } },
+      material: { color: { setHex(value) { ringColor = value; } } }
+    },
+    core: {
+      rotation: { y: 0 },
+      scale: { setScalar(value) { coreScale = value; } },
+      material: { color: { setHex(value) { coreColor = value; } } }
+    }
+  };
+  ai.update(
+    [enemy],
+    { pos: { x: 0, y: 1.7, z: 0 } },
+    0.1,
+    () => {},
+    { add() {} },
+    [],
+    () => {},
+    (min, max) => (min + max) / 2
+  );
+  assert.equal(ringColor, 0xff58d4);
+  assert.equal(coreColor, 0xff58d4);
+  assert.ok(ringScale > 1);
+  assert.ok(coreScale > 1);
+  assert.ok(enemy.phaseTransitionRemaining > 0);
+});
