@@ -23,10 +23,7 @@
         position.addScaledVector(projectile.v, dt);
         projectile.l -= dt;
         const end = { x: position.x, y: position.y, z: position.z };
-        let remove = projectile.l <= 0
-          || Math.abs(end.x) > bounds.halfSize
-          || Math.abs(end.z) > bounds.halfSize
-          || end.y < 0;
+        let remove = false;
 
         // Sweep the full movement segment so fast bolts cannot tunnel through thin walls or props.
         const intersectsBox = box => {
@@ -76,6 +73,11 @@
             remove = true;
           }
         }
+
+        if (!remove && (projectile.l <= 0
+          || Math.abs(end.x) > bounds.halfSize
+          || Math.abs(end.z) > bounds.halfSize
+          || end.y < 0)) remove = true;
 
         if (remove) {
           this.dispose(projectile);
