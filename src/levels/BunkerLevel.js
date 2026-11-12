@@ -48,6 +48,22 @@ const bunkerLights=[];
 // пыль
 {const n=500,p=new Float32Array(n*3);for(let i=0;i<n;i++){p[i*3]=R(-S,S);p[i*3+1]=R(.2,H-1);p[i*3+2]=R(-S,S)}
  const g=new T.BufferGeometry();g.setAttribute('position',new T.BufferAttribute(p,3));var dust=new T.Points(g,new T.PointsMaterial({size:.035,color:0xaac8e0,transparent:true,opacity:.45,depthWrite:false}));scene.add(dust)}
+      // Heavy cross-bracing and hazard markings make this sector read as a military bunker.
+      const bunkerRibMat = mat('metal', 1, 2, .92, 0x4b514e);
+      const hazardMat = new T.MeshBasicMaterial({ color: 0xd28a32 });
+      for (const z of [-9, 0, 9]) {
+        const rib = new T.Mesh(new T.BoxGeometry(23.2, .34, .42), bunkerRibMat);
+        rib.position.set(0, 6.45, z); rib.castShadow = true; scene.add(rib);
+        for (const x of [-10.8, 10.8]) {
+          const brace = new T.Mesh(new T.BoxGeometry(.34, 6.2, .42), bunkerRibMat);
+          brace.position.set(x, 3.25, z); brace.castShadow = true; scene.add(brace);
+        }
+      }
+      for (const x of [-2.2, 2.2]) {
+        const stripe = new T.Mesh(new T.BoxGeometry(.16, .018, 2.4), hazardMat);
+        stripe.position.set(x, .035, 11.2); scene.add(stripe);
+      }
+
       return {
         name: 'Заброшенный бункер',
         bounds: { halfSize: 27, height: H },
