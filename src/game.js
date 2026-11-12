@@ -307,7 +307,7 @@ const weapon=new S7WeaponSystem({
 const damageSystem=new S7DamageSystem();
 const hitFeedback=new S7HitFeedback();
 const projectileSystem=new S7ProjectileSystem({scene});
-const destructibleSystem=new S7DestructibleSystem({collisionBoxes:boxes,onBreak:(object,point)=>{spawnDebris(object,point);if(point)for(let i=0;i<10;i++)spark(point,new T.Color(2.4,1.1,.35),R(2,5));snd(95,.24,'square',.18,true);}});
+const destructibleSystem=new S7DestructibleSystem({collisionCollections:[boxes,activeLevel.boxes],onBreak:(object,point)=>{spawnDebris(object,point);if(point)for(let i=0;i<10;i++)spark(point,new T.Color(2.4,1.1,.35),R(2,5));snd(95,.24,'square',.18,true);}});
 function hitEnemy(enemy,hit){
  const result=damageSystem.applyEnemyDamage(enemy,Boolean(hit.object.userData.head));
  if(enemy.visual?.hitFlash){
@@ -383,6 +383,7 @@ function loadMission(nextMission,transition={}){
   if(!missionObjective)throw new Error('The next mission has no supported elimination objective');
   GOAL=missionObjective.target;
   activeLevel=levelManager.load(currentMission.levelId,{mat,canvas,randomRange:R,box});
+  destructibleSystem.collisionCollections=[boxes,activeLevel.boxes];
   LEVEL_BOUNDS=activeLevel.bounds;
   setTimeout(preloadNextMission,750);
   dust=activeLevel.dust||{rotation:{y:0},position:{y:0}};
