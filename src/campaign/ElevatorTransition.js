@@ -87,13 +87,13 @@
       addBox(3.45, .035, .05, 0, 3.05, -2.22, trim);
       const doorMaterial = new T.MeshStandardMaterial({ color: 0x344650, metalness: .88, roughness: .28 });
       this.doors = [
-        addBox(1.12, 2.86, .12, -1.22, 1.62, 2.25, doorMaterial),
-        addBox(1.12, 2.86, .12, 1.22, 1.62, 2.25, doorMaterial)
+        addBox(1.9, 2.86, .12, -1.85, 1.62, 2.25, doorMaterial),
+        addBox(1.9, 2.86, .12, 1.85, 1.62, 2.25, doorMaterial)
       ];
-      this.doors[0].userData.closedX = -.57;
-      this.doors[1].userData.closedX = .57;
-      this.doors[0].userData.openX = -1.22;
-      this.doors[1].userData.openX = 1.22;
+      this.doors[0].userData.closedX = -.95;
+      this.doors[1].userData.closedX = .95;
+      this.doors[0].userData.openX = -1.85;
+      this.doors[1].userData.openX = 1.85;
       for (const x of [-1.55, 1.55]) {
         const strip = new T.Mesh(new T.BoxGeometry(.035, 2.45, .025),
           new T.MeshBasicMaterial({ color: 0x4cc9ff }));
