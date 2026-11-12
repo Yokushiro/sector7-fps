@@ -79,3 +79,13 @@ test('reactor completion unlocks the final surface extraction mission', () => {
   assert.equal(data.campaign.unlockedMission, 4);
   assert.deepEqual(data.campaign.completedMissions, ['bunker-01', 'lab-02', 'reactor-03']);
 });
+
+
+test('active mission is persisted and restored for the load menu', () => {
+  const storage = memoryStorage();
+  const first = new SaveSystem(storage);
+  first.load();
+  assert.equal(first.setCurrentMission('lab-02'), true);
+  const restored = new SaveSystem(storage).load();
+  assert.equal(restored.campaign.currentMission, 'lab-02');
+});
