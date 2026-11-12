@@ -84,6 +84,13 @@
       const securityLamp = new T.PointLight(0xff3542, 1.15, 6, 2);
       securityLamp.position.set(0, 2.2, 3.2);
       scene.add(securityLamp);
+      const securityStatus = new T.Mesh(new T.SphereGeometry(.085, 12, 8), new T.MeshBasicMaterial({ color: 0xff3448 }));
+      securityStatus.position.set(.43, 2.05, 3.02);
+      scene.add(securityStatus);
+      const securityScan = new T.Mesh(new T.PlaneGeometry(.78, .035), new T.MeshBasicMaterial({ color: 0xffa0a4, transparent: true, opacity: .72 }));
+      securityScan.position.set(0, 1.7, 3.005);
+      scene.add(securityScan);
+      let securityDisabled = false;
 
       // Герметичные капсулы с аварийной подсветкой.
       [-5.2, 5.2].forEach((x, index) => {
@@ -177,8 +184,19 @@
         enemySpawnPoints: [[-11, -11], [11, -11], [-11, 11], [11, 11], [0, -12.5], [-12.5, 0], [12.5, 0]],
         openExit() { exitOpen = true; context.removeCollisionBox(exitDoor.userData.collisionBox); },
         update(dt, time) {
-          alarm.intensity = .85 + Math.max(0, Math.sin(time * 4.2)) * .8;
+          alarm.intensity = securityDisabled ? .22 : .85 + Math.max(0, Math.sin(time * 4.2)) * .8;
+          securityScan.position.y = 1.43 + ((time * .5) % 1) * .52;
+          securityScan.material.opacity = securityDisabled ? .08 : .42 + Math.sin(time * 6) * .2;
+          securityStatus.material.color.setHex(securityDisabled ? 0x45ff9a : (Math.sin(time * 4) > 0 ? 0xff3448 : 0x6c1821));
+          securityLamp.color.setHex(securityDisabled ? 0x45ff9a : 0xff3542);
+          securityLamp.intensity = securityDisabled ? .42 : 1.15 + Math.max(0, Math.sin(time * 4.2)) * .35;
           if (exitOpen) exitDoor.position.y += (9 - exitDoor.position.y) * Math.min(1, dt * 2.2);
+        },
+        onInteractionActivated(id) {
+          if (id !== 'lab-security-console') return;
+          securityDisabled = true;
+          securityScreen.material.color.setHex(0x42ff9b);
+          securityScan.material.color.setHex(0x42ff9b);
         },
         interactables: [{
           id: 'lab-security-console',
