@@ -45,8 +45,8 @@
       this.selectedVoice = russianVoices[0] || null;
       // Web Speech has no standard gender metadata, so use conservative voice-name hints.
       // Word boundaries prevent "female" from accidentally matching the token "male".
-      const maleName = /(^|[\\s_-])(pavel|yuri|yuriy|dmitri|dmitry|ivan|alex|andrei|andrey|sergei|sergey|nikolai|nikolay|maxim|maksim|mikhail|male|мужской|павел|юрий|дмитрий|иван|александр|андрей|сергей|николай|максим|михаил)(?=$|[\\s_-])/i;
-      const femaleName = /(^|[\\s_-])(irina|elena|anna|alena|olga|maria|mariya|natalia|natalya|svetlana|ekaterina|katya|female|женский|ирина|елена|анна|алёна|ольга|мария|наталья|светлана|екатерина)(?=$|[\\s_-])/i;
+      const maleName = /(^|[\s_-])(pavel|yuri|yuriy|dmitri|dmitry|ivan|alex|andrei|andrey|sergei|sergey|nikolai|nikolay|maxim|maksim|mikhail|male|мужской|павел|юрий|дмитрий|иван|александр|андрей|сергей|николай|максим|михаил)(?=$|[\s_-])/i;
+      const femaleName = /(^|[\s_-])(irina|elena|anna|alena|olga|maria|mariya|natalia|natalya|svetlana|ekaterina|katya|female|женский|ирина|елена|анна|алёна|ольга|мария|наталья|светлана|екатерина)(?=$|[\s_-])/i;
       this.maleRussianVoice = russianVoices.find(voice => maleName.test(voice.name || '')) || null;
       this.femaleRussianVoice = russianVoices.find(voice => femaleName.test(voice.name || '')) || null;
       return voices;
