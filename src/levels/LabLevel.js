@@ -233,6 +233,14 @@
         strip.position.set(x, 7.55, 0); scene.add(strip);
       }
 
+      // A wall-mounted emergency luminaire can be shot out, briefly changing the corridor's lighting.
+      const emergencyFixture = box(-7.2, 5.85, 19.2, .95, .24, .42, darkSteel);
+      emergencyFixture.userData.destructible = { health: 1, destroyed: false };
+      const emergencyGlow = new T.PointLight(0x58dff5, .9, 7, 2);
+      emergencyGlow.position.set(-7.2, 5.55, 19.1);
+      scene.add(emergencyGlow);
+      emergencyFixture.userData.breakLight = emergencyGlow;
+
       return {
         name: 'Исследовательский комплекс',
         requiredInteractionId: 'lab-security-console',
