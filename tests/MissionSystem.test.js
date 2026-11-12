@@ -10,7 +10,7 @@ test('campaign exposes the implemented bunker mission and its objective', () => 
   assert.equal(mission.objectives[0].target, 10);
   assert.equal(mission.spawn.maxActive, 5);
   assert.equal(mission.introDialogue.length, 3);
-  assert.equal(mission.introDialogue[0].speaker, 'НЕИЗВЕСТНЫЙ');
+  assert.equal(mission.introDialogue[0].speaker, 'ЛЕВ / ЗАПИСЬ');
   assert.equal(mission.outroDialogue.length, 2);
   assert.deepEqual(missions.getUnlockedMissions({ unlockedMission: 1 }).map(item => item.id), ['bunker-01']);
 });
