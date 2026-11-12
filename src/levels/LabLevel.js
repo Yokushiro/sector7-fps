@@ -187,7 +187,8 @@
         display.position.set(x, 1.43, z + .326); scene.add(display);
       }
       for (const [x, z] of [[-12, -1], [12, -1], [-12, 10], [12, 10]]) {
-        box(x, 1.15, z, 1.15, 2.3, 1.05, cabinetMat);
+        const sampleCabinet = box(x, 1.15, z, 1.15, 2.3, 1.05, cabinetMat);
+        sampleCabinet.userData.destructible = { health: 3, destroyed: false };
         for (let y = .55; y < 2.1; y += .42) {
           const handle = new T.Mesh(new T.BoxGeometry(.26, .035, .035), steel);
           handle.position.set(x, y, z + .54); scene.add(handle);
