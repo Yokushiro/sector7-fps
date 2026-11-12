@@ -153,8 +153,10 @@
 
     setDestination(position, yaw, floorLabel) {
       if (!this.group || !position) throw new Error('Elevator cabin has not started');
-      this.group.position.set(position.x, position.y - 1.7, position.z);
-      this.group.rotation.y = Number(yaw) || 0;
+      const destinationYaw = Number(yaw) || 0;
+      const forwardX = -Math.sin(destinationYaw), forwardZ = -Math.cos(destinationYaw);
+      this.group.position.set(position.x + forwardX * 2.4, position.y - 1.7, position.z + forwardZ * 2.4);
+      this.group.rotation.y = destinationYaw;
       this.destinationLabel = String(floorLabel || this.destinationLabel);
       this.destinationReady = true;
       this.cameraYaw = Number(yaw) || 0;
