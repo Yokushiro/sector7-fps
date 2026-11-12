@@ -192,7 +192,8 @@
       const maintenanceSteel = mat('metal', 1, 1, .88, 0x3e484e);
       const warningAmber = new T.MeshBasicMaterial({ color: 0xff8a35 });
       for (const x of [-11.5, 11.5]) {
-        box(x, 1.2, 4, 1.4, 2.4, 1.1, maintenanceSteel);
+        const toolCabinet = box(x, 1.2, 4, 1.4, 2.4, 1.1, maintenanceSteel);
+        toolCabinet.userData.destructible = { health: 4, destroyed: false };
         for (let y = .55; y < 2.2; y += .52) {
           const handle = new T.Mesh(new T.BoxGeometry(.42, .045, .04), steel);
           handle.position.set(x, y, 4.58); scene.add(handle);
@@ -209,7 +210,10 @@
         }
         const hazard = new T.Mesh(new T.BoxGeometry(.12, .5, .025), warningAmber);
         hazard.position.set(x, .7, z + .525); scene.add(hazard);
-        boxes.push({ x0: x - .55, x1: x + .55, z0: z - .55, z1: z + .55, y0: 0, y1: 1.35, topY: 1.35 });
+        const drumCollisionBox = { x0: x - .55, x1: x + .55, z0: z - .55, z1: z + .55, y0: 0, y1: 1.35, topY: 1.35 };
+        boxes.push(drumCollisionBox);
+        drum.userData.collisionBox = drumCollisionBox;
+        drum.userData.destructible = { health: 2, destroyed: false };
       }
       // Low service trolley beside the reactor access path.
       box(-7.5, .72, -2.5, 2.2, .14, .9, maintenanceSteel);
