@@ -9,6 +9,8 @@
       const steel = mat('metal', 3, 2, .85, 0x777d78);
       const dark = mat('metal', 2, 2, .9, 0x29343b);
       const floorMat = mat('floor', 12, 18, .18, 0x777b70);
+      const tunnelFloorMat = mat('floor', 1.36, 3.75, .18, 0x777b70);
+      const sideFloorMat = mat('floor', 5.2, 2.7, .18, 0x777b70);
       const floor = new T.Mesh(new T.PlaneGeometry(46, 73), floorMat);
       floor.rotation.x = -Math.PI / 2;
       floor.position.set(0, 0, 6.5);
@@ -17,7 +19,7 @@
       context.solids.push(floor);
 
       // The reactor evacuation tunnel continues directly into the storm-battered surface yard.
-      const tunnelFloor = new T.Mesh(new T.PlaneGeometry(5.2, 18), floorMat);
+      const tunnelFloor = new T.Mesh(new T.PlaneGeometry(5.2, 18), tunnelFloorMat);
       tunnelFloor.rotation.x = -Math.PI / 2;
       tunnelFloor.position.set(0, .012, -39);
       tunnelFloor.receiveShadow = true;
@@ -25,7 +27,7 @@
       context.solids.push(tunnelFloor);
       // Keep the yard ground on both sides of the tunnel without overlapping its floor plane.
       for (const x of [-13.0125, 13.0125]) {
-        const sideFloor = new T.Mesh(new T.PlaneGeometry(19.975, 13), floorMat);
+        const sideFloor = new T.Mesh(new T.PlaneGeometry(19.975, 13), sideFloorMat);
         sideFloor.rotation.x = -Math.PI / 2;
         sideFloor.position.set(x, 0, -36.5);
         sideFloor.receiveShadow = true;
