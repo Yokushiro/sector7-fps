@@ -70,6 +70,7 @@ const bunkerLights=[];
       }
       // A damaged field generator adds a readable silhouette and a small pool of warning light.
       const fieldGenerator = box(-12, .85, 3.5, 1.8, 1.7, 1.25, furnitureMetal);
+      fieldGenerator.userData.destructible = { health: 4, destroyed: false };
       const generatorVent = new T.Mesh(new T.BoxGeometry(.9, .58, .025), new T.MeshBasicMaterial({ color: 0x182126 }));
       generatorVent.position.set(-12, .95, 4.14); scene.add(generatorVent);
       const generatorLamp = new T.PointLight(0xff8a35, .55, 4, 2);
