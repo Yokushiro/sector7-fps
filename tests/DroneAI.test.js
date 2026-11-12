@@ -449,6 +449,7 @@ test('Warden phase transition visibly recolors and surges its reactor and ring',
   const ai = new DroneAI();
   const enemy = makeEnemy('warden', 1.65, 7.2);
   let ringColor = 0, coreColor = 0, ringScale = 0, coreScale = 0;
+  let haloVisible = false, haloOpacity = 0, haloScale = 0;
   enemy.hp = 140;
   enemy.maxHp = 280;
   enemy.phase = 1;
@@ -467,8 +468,22 @@ test('Warden phase transition visibly recolors and surges its reactor and ring',
       rotation: { y: 0 },
       scale: { setScalar(value) { coreScale = value; } },
       material: { color: { setHex(value) { coreColor = value; } } }
+    },
+    phaseHalo: {
+      visible: false,
+      rotation: { z: 0 },
+      scale: { setScalar(value) { haloScale = value; } },
+      material: { opacity: 0 }
     }
   };
+  Object.defineProperty(enemy.visual.phaseHalo, 'visible', {
+    get() { return haloVisible; },
+    set(value) { haloVisible = value; }
+  });
+  Object.defineProperty(enemy.visual.phaseHalo.material, 'opacity', {
+    get() { return haloOpacity; },
+    set(value) { haloOpacity = value; }
+  });
   ai.update(
     [enemy],
     { pos: { x: 0, y: 1.7, z: 0 } },
@@ -484,4 +499,7 @@ test('Warden phase transition visibly recolors and surges its reactor and ring',
   assert.ok(ringScale > 1);
   assert.ok(coreScale > 1);
   assert.ok(enemy.phaseTransitionRemaining > 0);
+  assert.equal(haloVisible, true);
+  assert.ok(haloOpacity > 0);
+  assert.ok(haloScale > 0.35);
 });
