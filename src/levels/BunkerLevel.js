@@ -22,10 +22,43 @@ const exitDoor=box(0,3,-26,5.6,6,.45,mat('metal',2,2,.9));
 let exitOpen=false;
 box(-S-.5,H/2,0,1,H,S*2,mat('concrete',6,2));box(S+.5,H/2,0,1,H,S*2,mat('concrete',6,2));
 const mm=mat('metal',1,1,.85),mm2=mat('metal',2,1,.7,0xa9794f),mc=mat('concrete',1,3);
+function barrel(x,z){
+  const red=new T.MeshStandardMaterial({color:0x9f241b,roughness:.38,metalness:.68});
+  const steel=new T.MeshStandardMaterial({color:0x737b80,roughness:.32,metalness:.9});
+  const body=new T.Mesh(new T.CylinderGeometry(.48,.48,1.3,32,1,false),red);
+  body.position.set(x,.68,z);body.castShadow=body.receiveShadow=true;
+  for(const y of[-.43,.43]){
+    const rim=new T.Mesh(new T.TorusGeometry(.48,.035,8,32),steel);
+    rim.rotation.x=Math.PI/2;rim.position.y=y;rim.castShadow=true;body.add(rim);
+  }
+  for(const y of[-.65,.65]){
+    const cap=new T.Mesh(new T.CylinderGeometry(.455,.455,.045,32),steel);
+    cap.position.y=y;cap.castShadow=true;body.add(cap);
+  }
+  const bung=new T.Mesh(new T.CylinderGeometry(.065,.065,.025,16),red);
+  bung.position.set(.19,.681,-.12);body.add(bung);
+  const label=canvas(256,(ctx,s)=>{
+    ctx.fillStyle='#e7d8bd';ctx.fillRect(0,0,s,s);
+    ctx.fillStyle='#9f241b';ctx.fillRect(0,0,s,30);ctx.fillRect(0,s-30,s,30);
+    ctx.fillStyle='#272727';ctx.font='bold 34px Arial';ctx.textAlign='center';
+    ctx.fillText('DANGER',s/2,82);ctx.font='bold 25px Arial';ctx.fillText('FLAMMABLE',s/2,118);
+    ctx.fillStyle='#d18a21';ctx.beginPath();ctx.moveTo(s/2,132);ctx.lineTo(s/2-36,196);ctx.lineTo(s/2+36,196);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#171717';ctx.font='bold 45px Arial';ctx.fillText('!',s/2,184);
+  });
+  const labelMap=new T.CanvasTexture(label);labelMap.encoding=T.sRGBEncoding;
+  const decal=new T.Mesh(new T.PlaneGeometry(.34,.48),new T.MeshBasicMaterial({map:labelMap,side:T.DoubleSide}));
+  decal.position.set(0,0,.482);body.add(decal);
+  scene.add(body);solids.push(body);
+  const collisionBox={x0:x-.5,x1:x+.5,z0:z-.5,z1:z+.5,y0:.03,y1:1.33,topY:1.33};
+  boxes.push(collisionBox);
+  body.userData.collisionBox=collisionBox;
+  body.userData.destructible={health:2,destroyed:false};
+  body.userData.explosive={radius:7,damage:105};
+  return body;
+}
 box(0,.65,-1,7,1.3,.6,mc);box(-6.5,H/2-.3,0,1.2,H,1.2,mc);box(6.5,H/2-.3,0,1.2,H,1.2,mc);
 [[-8,1.1,-7,2.2],[8.3,1.1,-6.5,2.2],[3.5,.8,-6,1.6],[-4.5,.8,6,1.6],[9,1.1,8,2.2],[-9,.8,5,1.6],[0,.8,6.5,1.6]].forEach(([x,y,z,s],i)=>box(x,y,z,s,s,s,i%2?mm2:mm));
-[[-3,-5],[5,3],[-10,-2],[10.5,-1.5]].forEach(([x,z])=>{const b=new T.Mesh(new T.CylinderGeometry(.48,.48,1.3,24),new T.MeshStandardMaterial({color:0x7a2a1a,roughness:.45,metalness:.8,envMapIntensity:.8}));
- b.position.set(x,.65,z);b.castShadow=b.receiveShadow=true;scene.add(b);solids.push(b);boxes.push({x0:x-.5,x1:x+.5,z0:z-.5,z1:z+.5})});
+[[-3,-5],[5,3],[-10,-2],[10.5,-1.5]].forEach(([x,z])=>barrel(x,z));
 for(const z of[-S+1.2,S-1.2]){const p=new T.Mesh(new T.CylinderGeometry(.22,.22,S*2,16),mm);p.rotation.z=Math.PI/2;p.position.set(0,H-1.2,z);p.castShadow=true;scene.add(p)}
 // неоновая вывеска
 const sg=canvas(512,(x,s)=>{x.fillStyle='#000';x.fillRect(0,0,s,s);x.fillStyle='#ff5a2a';x.font='bold 150px Bahnschrift,Arial';x.textAlign='center';x.fillText('SECTOR 7',256,230);x.font='60px Arial';x.fillStyle='#ffd0a0';x.fillText('ДОСТУП ЗАПРЕЩЁН',256,330)});
