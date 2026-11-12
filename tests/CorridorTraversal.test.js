@@ -288,4 +288,9 @@ test('elevator trigger volumes are on the approach side of the visible doors', (
   assert.match(bunker, /exitZone: \{ x0: -2\.1, x1: 2\.1, z0: -25\.6, z1: -24\.3 \}/);
   assert.match(lab, /exitZone: \{ x0: -2\.1, x1: 2\.1, z0: 26\.3, z1: 27\.7 \}/);
   assert.match(reactor, /exitZone: \{ x0: -2\.1, x1: 2\.1, z0: -31\.8, z1: -30\.6 \}/);
+  assert.match(bunker, /exitYaw: 0/);
+  assert.match(lab, /exitYaw: Math\.PI/);
+  assert.match(reactor, /exitYaw: 0/);
+  const game = read('src/game.js');
+  assert.match(game, /yaw:Number\.isFinite\(activeLevel\.exitYaw\)\?activeLevel\.exitYaw:P\.yaw/);
 });
