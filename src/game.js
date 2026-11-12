@@ -213,6 +213,10 @@ function hitEnemy(enemy,hit){
   if(!enemy.hitReactionVelocity)enemy.hitReactionVelocity={x:0,z:0};
   enemy.hitReactionVelocity.x+=dx/distance*impulse;
   enemy.hitReactionVelocity.z+=dz/distance*impulse;
+  const evadeSide = enemy.strafeSign || 1;
+  const evadeSpeed = ({ scout: 4.8, assault: 2.4, heavy: 0.8, sniper: 3.6, warden: 1.7 })[enemy.type] || 2;
+  enemy.evasionVelocity = { x: (-dz / distance) * evadeSide * evadeSpeed, z: (dx / distance) * evadeSide * evadeSpeed };
+  enemy.evasionRemaining = ({ scout: 0.48, assault: 0.3, heavy: 0.12, sniper: 0.42, warden: 0.22 })[enemy.type] || 0.25;
  }
  hitFeedback.trigger($('hit'),{headshot:result.headshot,killed:result.killed});
  snd(900,.06,'square',.15);
