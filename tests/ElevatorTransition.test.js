@@ -99,7 +99,7 @@ test('elevator closes, travels, waits for radio, opens and cleans up', () => {
     assert.equal(elevator.phase, 'travel');
     assert.equal(travelCalls, 1);
     assert.equal(camera.position.x, 12);
-    assert.equal(camera.position.z, -6.15);
+    assert.ok(Math.abs(camera.position.z + 6.15) < 1e-9, 'destination camera position must remain aligned with the cabin');
     assert.equal(camera.rotation.y, Math.PI, 'destination handoff must preserve the new level facing direction');
     assert.equal(elevator.cameraLocalZ, .55, 'player must stand inside the cabin facing its front panel');
 
