@@ -202,7 +202,7 @@
       this.phaseTime += dt;
       if (this.phase === 'entering') {
         const t = Math.min(1, this.phaseTime / this.durations.entering);
-        this.cameraLocalZ = -3 + t * 1.2;
+        this.cameraLocalZ = -2.7 + t * 2.15;
         this.updateCamera();
         if (t >= 1) {
           this.updateCamera();
