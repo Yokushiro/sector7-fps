@@ -39,6 +39,7 @@
           enemy.spread *= 0.9;
           enemy.cd = Math.min(enemy.cd, 0.7);
           enemy.eyeColor = 0xff8de5;
+          enemy.phaseTransitionRemaining = 1.8;
           sound(180, 0.3, 'sawtooth', 0.2);
         }
         const dx = player.pos.x - group.position.x;
@@ -162,6 +163,18 @@
             const corePulse = windup > 0 ? 1 + Math.sin(enemy.t * 20) * 0.18 : 1 + Math.sin(enemy.t * 2.5) * 0.06;
             visual.core.scale.setScalar(corePulse);
           }
+          if (enemy.type === 'warden' && enemy.phase === 2) {
+            enemy.phaseTransitionRemaining = Math.max(0, (enemy.phaseTransitionRemaining || 0) - dt);
+            const transitionPulse = enemy.phaseTransitionRemaining > 0
+              ? 1 + Math.sin((1.8 - enemy.phaseTransitionRemaining) * 17) * 0.3 : 1;
+            if (visual.ring.material?.color) visual.ring.material.color.setHex(0xff58d4);
+            visual.ring.scale.setScalar(transitionPulse);
+            visual.ring.rotation.z += dt * (enemy.phaseTransitionRemaining > 0 ? 5.5 : 0);
+            if (visual.core) {
+              if (visual.core.material?.color) visual.core.material.color.setHex(0xff58d4);
+              visual.core.scale.setScalar(transitionPulse * (1 + Math.sin(enemy.t * 7) * 0.12));
+            }
+          }
         }
 
         if (enemy.flash > 0) {
@@ -192,14 +205,18 @@
             const speed = enemy.projectileSpeed || 13;
             const damage = enemy.damage || 8;
             const shot = (offsetX = 0, offsetY = 0, shotSpeed = speed, shotDamage = damage, spreadZ = 0) => {
+              const projectileStyle = {
+                scout: { color: 0x65e8ff, radius: 0.085, stretch: 1.35 },
+                assault: { color: 0xff6338, radius: 0.105, stretch: 1.5 },
+                heavy: { color: 0xffb04a, radius: 0.17, stretch: 1.8 },
+                sniper: { color: 0xa58aff, radius: 0.075, stretch: 2.8 },
+                warden: { color: enemy.phase === 2 ? 0xff58d4 : 0x55dfff, radius: 0.145, stretch: 1.9 }
+              }[enemy.type] || { color: 0xff3928, radius: 0.1, stretch: 1.4 };
               const projectile = new THREE.Mesh(
-                new THREE.SphereGeometry(enemy.type === 'heavy' ? 0.16 : enemy.type === 'warden' ? 0.14 : 0.11, 10, 8),
-                new THREE.MeshBasicMaterial({ color: new THREE.Color(
-                  enemy.type === 'sniper' ? 1.8 : enemy.type === 'heavy' ? 3.2 : enemy.type === 'warden' ? 3 : 5,
-                  enemy.type === 'sniper' ? 1.2 : enemy.type === 'heavy' ? 1.05 : 2.2,
-                  enemy.type === 'sniper' ? 5 : enemy.type === 'warden' ? 3.8 : 0.4
-                ) })
+                new THREE.SphereGeometry(projectileStyle.radius, 12, 10),
+                new THREE.MeshBasicMaterial({ color: projectileStyle.color })
               );
+              projectile.scale.set(1, 1, projectileStyle.stretch);
               projectile.position.copy(group.position);
               const velocity = new THREE.Vector3(
                 player.pos.x + offsetX,
