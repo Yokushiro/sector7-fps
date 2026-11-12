@@ -137,3 +137,16 @@ test('voice synthesis stays silent when no Russian system voice is installed', (
     global.SpeechSynthesisUtterance = originalUtterance;
   }
 });
+
+
+test('long radio lines are not cut off by the old twelve-second ceiling', () => {
+  const dialogue = new S7DialogueSystem({
+    rootElement: createElement(),
+    speakerElement: createElement(),
+    textElement: createElement(),
+    promptElement: createElement()
+  });
+  const line = { speaker: 'ИЛЬЯ', text: 'Аварийный канал нестабилен. '.repeat(9) };
+  assert.ok(dialogue.lineDuration(line) > 12);
+  assert.ok(dialogue.lineDuration(line) <= 26);
+});
