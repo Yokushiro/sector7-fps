@@ -277,6 +277,7 @@
       this.displayTexture?.dispose?.();
       this.displayTexture = null;
       this.displayCanvas = null;
+      this.panel = null;
       this.doors = [];
     }
   }
