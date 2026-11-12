@@ -11,12 +11,12 @@ box(0,H,0,S*2+2,.6,S*2+2,mat('concrete',6,2,0,0xffffff),false);
 box(-7.15,H/2,-S-.5,10.9,H,1,mat('concrete',6,2,0,0xffffff));box(7.15,H/2,-S-.5,10.9,H,1,mat('concrete',6,2));box(0,H-.5,-S-.5,4.2,1,1,mat('metal',2,1,.85),false);
 box(-7.15,H/2,S+.5,10.9,H,1,mat('concrete',6,2));box(7.15,H/2,S+.5,10.9,H,1,mat('concrete',6,2));box(0,H-.5,S+.5,4.2,1,1,mat('metal',2,1,.85),false);
 // Entry passage: the player begins here and walks into the bunker through the southern bulkhead.
-const entryFloor=new T.Mesh(new T.PlaneGeometry(5.2,14),mat('floor',2,5,.3));entryFloor.rotation.x=-Math.PI/2;entryFloor.position.set(0,.015,19);entryFloor.receiveShadow=true;scene.add(entryFloor);solids.push(entryFloor);
-box(-2.8,3,19,.45,6,14,mat('concrete',2,4,0,0xffffff));box(2.8,3,19,.45,6,14,mat('concrete',2,4));box(0,H-.35,19,5.9,.5,14,mat('metal',2,5,.8),false);box(0,3,26.5,5.6,6,.45,mat('metal',2,2,.9));
+const entryFloor=new T.Mesh(new T.PlaneGeometry(5.2,15.5),mat('floor',2,5,.3));entryFloor.rotation.x=-Math.PI/2;entryFloor.position.set(0,.015,19.75);entryFloor.receiveShadow=true;scene.add(entryFloor);solids.push(entryFloor);
+box(-2.8,H/2,19.75,.45,H,15.5,mat('concrete',2,4,0,0xffffff));box(2.8,H/2,19.75,.45,H,15.5,mat('concrete',2,4));box(0,H-.35,19.75,5.9,.5,15.5,mat('metal',2,5,.8),false);box(0,H/2,26.5,5.6,H,.45,mat('metal',2,2,.9));
 const entryLamp=new T.PointLight(0x4c9dff,.85,16,2);entryLamp.position.set(0,4.8,19);scene.add(entryLamp);
 // Passageway to the lower laboratory wing: the doorway is part of the playable space, not a teleport.
-const corridorFloor=new T.Mesh(new T.PlaneGeometry(5.2,14),mat('floor',2,5,.3));corridorFloor.rotation.x=-Math.PI/2;corridorFloor.position.set(0,.015,-19);corridorFloor.receiveShadow=true;scene.add(corridorFloor);solids.push(corridorFloor);
-box(-2.8,3,-19,.45,6,14,mat('concrete',2,4));box(2.8,3,-19,.45,6,14,mat('concrete',2,4));box(0,H-.35,-19,5.9,.5,14,mat('metal',2,5,.8),false);
+const corridorFloor=new T.Mesh(new T.PlaneGeometry(5.2,15.5),mat('floor',2,5,.3));corridorFloor.rotation.x=-Math.PI/2;corridorFloor.position.set(0,.015,-19.75);corridorFloor.receiveShadow=true;scene.add(corridorFloor);solids.push(corridorFloor);
+box(-2.8,H/2,-19.75,.45,H,15.5,mat('concrete',2,4));box(2.8,H/2,-19.75,.45,H,15.5,mat('concrete',2,4));box(0,H-.35,-19.75,5.9,.5,15.5,mat('metal',2,5,.8),false);
 const corridorLight=new T.Mesh(new T.BoxGeometry(.25,.12,8),new T.MeshBasicMaterial({color:0xffa34d}));corridorLight.position.set(0,6.1,-18);scene.add(corridorLight);const corridorLamp=new T.PointLight(0xff7b32,1.1,18,2);corridorLamp.position.set(0,4.8,-18);scene.add(corridorLamp);
 // A clearly readable elevator portal: twin armored leaves, a heavy lintel and cyan status rails.
 const elevatorSteel=mat('metal',1,1,.9,0x657783);
@@ -25,8 +25,18 @@ const elevatorDoors=[
   box(1.4,3,-26,2.8,5.7,.32,mat('metal',1,1,.88,0x3d4b54))
 ];
 elevatorDoors[0].userData.openX=-4.15;elevatorDoors[1].userData.openX=4.15;
-box(-2.95,3,-26,.28,6.1,.62,elevatorSteel,false);box(2.95,3,-26,.28,6.1,.62,elevatorSteel,false);
-box(0,6.12,-26,6.15,.32,.62,elevatorSteel,false);
+box(-2.95,H/2,-26,.3,H,.72,elevatorSteel,false);box(2.95,H/2,-26,.3,H,.72,elevatorSteel,false);
+box(0,6.12,-26,6.15,.32,.72,elevatorSteel,false);
+// Close the space above the lintel and tie the portal into the corridor roof.
+box(0,(H+6.28)/2,-26,5.6,H-6.28,.72,elevatorSteel,false);
+box(0,.08,-26,5.6,.16,.82,elevatorSteel,false);
+for(const door of elevatorDoors){
+ const side=door.position.x<0?1:-1;
+ const seam=new T.Mesh(new T.BoxGeometry(.045,4.9,.028),new T.MeshBasicMaterial({color:0x77dfff}));
+ seam.position.set(side*1.28,0,.18);door.add(seam);
+ const warning=new T.Mesh(new T.BoxGeometry(1.9,.075,.028),new T.MeshBasicMaterial({color:0xd49a42}));
+ warning.position.set(0,-1.95,.18);door.add(warning);
+}
 for(const x of[-2.72,2.72]){
  const rail=new T.Mesh(new T.BoxGeometry(.055,4.9,.035),new T.MeshBasicMaterial({color:0x4bd7ff}));
  rail.position.set(x,3,-25.66);scene.add(rail);
