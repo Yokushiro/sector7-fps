@@ -121,9 +121,19 @@
             hitVelocity.z = 0;
           }
         }
-        group.position.y = 1.3 + Math.sin(enemy.t * 2) * 0.12;
+        group.position.y = 1.3 + Math.sin(enemy.t * (enemy.type === 'heavy' ? 1.25 : 2.2)) * (enemy.type === 'heavy' ? 0.045 : 0.12);
         collide(group.position, 0.5);
         group.lookAt(player.pos.x, group.position.y, player.pos.z);
+
+        // Readable silhouette animation: light units bank sharply, heavy units
+        // rock with inertia, and the Warden's frame becomes more aggressive in phase two.
+        if (group.rotation) {
+          const bank = Math.sin(enemy.t * (enemy.type === 'scout' ? 3.8 : 1.7)) * (enemy.type === 'scout' ? 0.16 : enemy.type === 'heavy' ? 0.035 : 0.075);
+          const windup = Math.max(0, enemy.attackWindupRemaining || 0);
+          group.rotation.z = bank + (windup > 0 ? (enemy.type === 'heavy' ? -0.13 : 0.09) : 0);
+          group.rotation.x = enemy.type === 'warden' && enemy.phase === 2
+            ? Math.sin(enemy.t * 4.5) * 0.055 : 0;
+        }
 
         if (enemy.flash > 0) {
           enemy.flash -= dt;
@@ -132,28 +142,77 @@
 
         enemy.cd -= dt;
         const eyeColor = enemy.eyeColor || 0xff3928;
-        const eyePulse = enemy.cd < 0.4 ? 1.8 : 1;
+        const windupBefore = Math.max(0, enemy.attackWindupRemaining || 0);
+        const eyePulse = windupBefore > 0
+          ? 1.2 + Math.abs(Math.sin(enemy.t * (enemy.type === 'sniper' ? 18 : 11))) * (enemy.type === 'sniper' ? 3.2 : 1.8)
+          : enemy.cd < 0.4 ? 1.8 : 1;
         enemy.eye.color.setRGB(
           ((eyeColor >> 16) & 255) / 255 * eyePulse,
           ((eyeColor >> 8) & 255) / 255 * eyePulse,
           (eyeColor & 255) / 255 * eyePulse
         );
-        if (!hitStunned && enemy.cd <= 0 && distance < 20 && hasLineOfSight(group.position, player.pos)) {
-          enemy.cd = randomRange(enemy.attackMin || 1.4, enemy.attackMax || 2.4);
-          const projectile = new THREE.Mesh(
-            new THREE.SphereGeometry(0.11, 10, 8),
-            new THREE.MeshBasicMaterial({ color: new THREE.Color(5, 2.2, 0.4) })
-          );
-          projectile.position.copy(group.position);
-          const velocity = new THREE.Vector3(
-            player.pos.x + randomRange(-(enemy.spread || 0.5), enemy.spread || 0.5),
-            1.2 + randomRange(-0.3, 0.3),
-            player.pos.z + randomRange(-0.5, 0.5)
-          ).sub(group.position).normalize().multiplyScalar(enemy.projectileSpeed || 13);
-          scene.add(projectile);
-          projectiles.push({ m: projectile, v: velocity, l: 3, damage: enemy.damage || 8 });
-          enemy.strafeSign = -(enemy.strafeSign || 1);
-          sound(500, 0.12, 'square', 0.08);
+
+        const canAttack = !hitStunned && distance < 20 && hasLineOfSight(group.position, player.pos);
+        if (canAttack && enemy.cd <= 0 && !(enemy.attackWindupRemaining > 0)) {
+          const windups = { scout: 0.08, assault: 0.16, heavy: 0.72, sniper: 1.05, warden: enemy.phase === 2 ? 0.42 : 0.68 };
+          enemy.attackWindupRemaining = windups[enemy.type] ?? 0.2;
+        }
+        if (enemy.attackWindupRemaining > 0) {
+          enemy.attackWindupRemaining = Math.max(0, enemy.attackWindupRemaining - dt);
+          if (enemy.attackWindupRemaining === 0 && canAttack) {
+            const speed = enemy.projectileSpeed || 13;
+            const damage = enemy.damage || 8;
+            const shot = (offsetX = 0, offsetY = 0, shotSpeed = speed, shotDamage = damage, spreadZ = 0) => {
+              const projectile = new THREE.Mesh(
+                new THREE.SphereGeometry(enemy.type === 'heavy' ? 0.16 : enemy.type === 'warden' ? 0.14 : 0.11, 10, 8),
+                new THREE.MeshBasicMaterial({ color: new THREE.Color(
+                  enemy.type === 'sniper' ? 1.8 : enemy.type === 'heavy' ? 3.2 : enemy.type === 'warden' ? 3 : 5,
+                  enemy.type === 'sniper' ? 1.2 : enemy.type === 'heavy' ? 1.05 : 2.2,
+                  enemy.type === 'sniper' ? 5 : enemy.type === 'warden' ? 3.8 : 0.4
+                ) })
+              );
+              projectile.position.copy(group.position);
+              const velocity = new THREE.Vector3(
+                player.pos.x + offsetX,
+                1.2 + offsetY,
+                player.pos.z + spreadZ
+              ).sub(group.position).normalize().multiplyScalar(shotSpeed);
+              scene.add(projectile);
+              projectiles.push({ m: projectile, v: velocity, l: 3.2, damage: shotDamage });
+            };
+
+            if (enemy.type === 'assault') {
+              // Three-round fan: aggressive pressure, but the spread gives the player a lane to dodge.
+              shot(-0.42, 0, speed * 0.96, damage * 0.62, -0.12);
+              shot(0, 0, speed, damage * 0.62, 0);
+              shot(0.42, 0, speed * 0.96, damage * 0.62, 0.12);
+              sound(420, 0.2, 'sawtooth', 0.12);
+            } else if (enemy.type === 'heavy') {
+              // Slow, broad shock volley, clearly telegraphed by its long charge.
+              shot(-1.05, 0, speed * 0.78, damage * 0.48, -0.32);
+              shot(0, 0, speed * 0.88, damage * 0.58, 0);
+              shot(1.05, 0, speed * 0.78, damage * 0.48, 0.32);
+              sound(105, 0.34, 'sawtooth', 0.18);
+            } else if (enemy.type === 'sniper') {
+              // Long lock-on, then a fast, narrow precision bolt.
+              shot(randomRange(-0.035, 0.035), randomRange(-0.025, 0.025), speed * 1.28, damage * 1.15);
+              sound(980, 0.16, 'triangle', 0.12);
+            } else if (enemy.type === 'warden') {
+              const phaseTwo = enemy.phase === 2;
+              if (phaseTwo) {
+                for (let i = -2; i <= 2; i++) shot(i * 0.48, 0, speed * 0.94, damage * 0.48, i * 0.2);
+              } else {
+                shot(-0.24, 0, speed, damage * 0.72, -0.08);
+                shot(0.24, 0, speed, damage * 0.72, 0.08);
+              }
+              sound(phaseTwo ? 150 : 115, 0.28, 'sawtooth', 0.2);
+            } else {
+              shot(randomRange(-0.24, 0.24), randomRange(-0.12, 0.12), speed, damage * 0.82);
+              sound(620, 0.1, 'square', 0.08);
+            }
+            enemy.cd = randomRange(enemy.attackMin || 1.4, enemy.attackMax || 2.4);
+            enemy.strafeSign = -(enemy.strafeSign || 1);
+          }
         }
       }
     }
