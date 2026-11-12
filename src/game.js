@@ -158,7 +158,9 @@ function spawn(){
  const ring=new T.Mesh(new T.TorusGeometry(type==='warden'?1.02:type==='heavy'?.65:type==='assault'?.5:.46,.055,10,40),new T.MeshBasicMaterial({color:ringColor}));
  ring.rotation.x=Math.PI/2;ring.position.y=.08;
  g.add(body,head,sensor,ring);
- e.visual={body,head,sensor,ring,core:null,phaseHalo:null};
+ const hitFlash=new T.Mesh(new T.OctahedronGeometry(.18,0),new T.MeshBasicMaterial({color:0xffd18a,transparent:true,opacity:0,depthWrite:false}));
+ hitFlash.visible=false;g.add(hitFlash);
+ e.visual={body,head,sensor,ring,core:null,phaseHalo:null,hitFlash};
  if(type==='warden'){
   const phaseHalo=new T.Mesh(
    new T.TorusGeometry(1.28,.028,8,56),
@@ -256,6 +258,14 @@ const hitFeedback=new S7HitFeedback();
 const projectileSystem=new S7ProjectileSystem({scene});
 function hitEnemy(enemy,hit){
  const result=damageSystem.applyEnemyDamage(enemy,Boolean(hit.object.userData.head));
+ if(enemy.visual?.hitFlash){
+  enemy.g.updateMatrixWorld(true);
+  enemy.visual.hitFlash.position.copy(enemy.g.worldToLocal(hit.point.clone()));
+  enemy.visual.hitFlash.visible=true;
+  enemy.visual.hitFlash.scale.setScalar(result.headshot?.48:.3);
+  enemy.visual.hitFlash.material.opacity=1;
+  enemy.hitFlashRemaining=result.headshot?.24:.17;
+ }
  enemy.m.emissive.setRGB(1,.6,.3);
  enemy.flash=.08;
  if(!result.killed){
