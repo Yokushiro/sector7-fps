@@ -80,3 +80,13 @@ test('main menu exposes new game, load, settings and exit actions', () => {
     assert.match(source, new RegExp('id="' + id + '"'));
   }
 });
+
+
+test('every static DOM element referenced by the game exists in the HTML', () => {
+  const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+  const game = fs.readFileSync(path.join(__dirname, '..', 'src/game.js'), 'utf8');
+  const ids = new Set([...html.matchAll(/\\bid=["']([^"']+)["']/g)].map(match => match[1]));
+  const references = [...game.matchAll(/\\$\\(['"]([^'"]+)['"]\\)/g)].map(match => match[1]);
+  const missing = [...new Set(references.filter(id => !ids.has(id)))];
+  assert.deepEqual(missing, [], 'all literal $(id) references must resolve to HTML elements');
+});
