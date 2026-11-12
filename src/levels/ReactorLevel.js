@@ -33,7 +33,7 @@
       solids.push(entryFloor);
       box(-2.8, H / 2, 25, .45, H, 14, concrete);
       box(2.8, H / 2, 25, .45, H, 14, concrete);
-      box(0, H - .35, 25, 5.9, .5, 14, dark, false);
+      box(0, H - .35, 25, 6.2, .5, 14, dark, false);
       const entryLamp = new T.PointLight(0x38cfff, .9, 18, 2);
       entryLamp.position.set(0, 5, 25);
       scene.add(entryLamp);
@@ -49,7 +49,7 @@
       solids.push(corridorFloor);
       box(-2.8, H / 2, -25, .45, H, 14, concrete);
       box(2.8, H / 2, -25, .45, H, 14, concrete);
-      box(0, H - .35, -25, 5.9, .5, 14, dark, false);
+      box(0, H - .35, -25, 6.2, .5, 14, dark, false);
       // Pressure-rated elevator doors at the end of the evacuation vestibule.
       const elevatorFrame = mat('metal', 1, 1, .92, 0x6a6260);
       const elevatorDoors = [
@@ -88,7 +88,7 @@
       solids.push(evacuationFloor);
       box(-2.8, H / 2, -36.5, .45, H, 8, concrete);
       box(2.8, H / 2, -36.5, .45, H, 8, concrete);
-      box(0, H - .35, -36.5, 5.9, .5, 8, dark, false);
+      box(0, H - .35, -36.5, 6.2, .5, 8, dark, false);
       const evacuationLight = new T.PointLight(0x8cecff, 2.1, 20, 2);
       evacuationLight.position.set(0, 5.2, -37.5);
       scene.add(evacuationLight);
