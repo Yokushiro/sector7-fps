@@ -25,7 +25,7 @@
       context.solids.push(tunnelFloor);
       box(-2.8, 3, -39, .45, 6, 18, wall);
       box(2.8, 3, -39, .45, 6, 18, wall);
-      box(0, 7.65, -39, 5.9, .5, 18, dark, false);
+      box(0, 7.65, -39, 6.2, .5, 18, dark, false);
       const tunnelLamp = new T.PointLight(0xff6738, 1.2, 18, 2);
       tunnelLamp.position.set(0, 4.7, -39);
       scene.add(tunnelLamp);
