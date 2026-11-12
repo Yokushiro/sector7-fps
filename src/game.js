@@ -14,19 +14,19 @@ function speck(x,s,n){for(let i=0;i<n;i++){const v=R(20,230)|0;x.fillStyle=`rgba
 function stain(x,s,n,col,r0=20,r1=90){for(let i=0;i<n;i++){const px=R(0,s),py=R(0,s),r=R(r0,r1),g=x.createRadialGradient(px,py,0,px,py,r);g.addColorStop(0,col);g.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=g;x.fillRect(px-r,py-r,r*2,r*2)}}
 const cv={
  concrete:canvas(512,(x,s)=>{x.fillStyle='#6d6e6b';x.fillRect(0,0,s,s);speck(x,s,16000);stain(x,s,14,'rgba(20,22,22,.5)');stain(x,s,5,'rgba(70,45,25,.35)',10,40);
-  x.strokeStyle='rgba(15,15,15,.7)';x.lineWidth=3;for(let i=0;i<=s;i+=256){x.beginPath();x.moveTo(i,0);x.lineTo(i,s);x.moveTo(0,i);x.lineTo(s,i);x.stroke()}}),
+  x.strokeStyle='rgba(15,15,15,.32)';x.lineWidth=2;for(let i=0;i<=s;i+=256){x.beginPath();x.moveTo(i,0);x.lineTo(i,s);x.moveTo(0,i);x.lineTo(s,i);x.stroke()}}),
  metal:canvas(512,(x,s)=>{x.fillStyle='#4a525a';x.fillRect(0,0,s,s);speck(x,s,12000);stain(x,s,10,'rgba(130,70,30,.45)',10,50);
-  x.strokeStyle='rgba(10,12,14,.85)';x.lineWidth=4;x.strokeRect(2,2,s-4,s-4);x.beginPath();x.moveTo(0,s/2);x.lineTo(s,s/2);x.stroke();
+  x.strokeStyle='rgba(10,12,14,.48)';x.lineWidth=2;x.strokeRect(2,2,s-4,s-4);x.beginPath();x.moveTo(0,s/2);x.lineTo(s,s/2);x.stroke();
   x.fillStyle='rgba(200,210,220,.5)';for(let i=0;i<s;i+=32){for(const j of[14,s-14,s/2-14,s/2+14]){x.beginPath();x.arc(i+16,j,3,0,7);x.fill()}}}),
  floor:canvas(512,(x,s)=>{x.fillStyle='#34373a';x.fillRect(0,0,s,s);speck(x,s,14000);stain(x,s,12,'rgba(0,0,0,.45)',30,110);stain(x,s,3,'rgba(90,100,110,.25)',40,100);
-  x.strokeStyle='rgba(5,5,6,.9)';x.lineWidth=5;x.strokeRect(0,0,s,s);x.beginPath();x.moveTo(s/2,0);x.lineTo(s/2,s);x.moveTo(0,s/2);x.lineTo(s,s/2);x.stroke()}),
+  x.strokeStyle='rgba(5,5,6,.48)';x.lineWidth=3;x.strokeRect(0,0,s,s);x.beginPath();x.moveTo(s/2,0);x.lineTo(s/2,s);x.moveTo(0,s/2);x.lineTo(s,s/2);x.stroke()}),
 };
 const cache={},styledCanvases={};
 const levelPalettes={
- 'bunker-01':{tint:'#756d58',line:'rgba(213,151,72,.28)',accent:'rgba(45,31,22,.24)',spacing:64,pattern:'rivets'},
- 'lab-02':{tint:'#a9d7df',line:'rgba(80,205,224,.28)',accent:'rgba(225,250,255,.32)',spacing:96,pattern:'grid'},
- 'reactor-03':{tint:'#393d43',line:'rgba(255,104,47,.34)',accent:'rgba(12,16,20,.5)',spacing:48,pattern:'thermal'},
- 'surface-04':{tint:'#777568',line:'rgba(151,143,112,.32)',accent:'rgba(45,49,43,.22)',spacing:128,pattern:'fracture'}
+ 'bunker-01':{tint:'#756d58',line:'rgba(213,151,72,.12)',accent:'rgba(45,31,22,.14)',spacing:96,pattern:'rivets'},
+ 'lab-02':{tint:'#a9d7df',line:'rgba(80,205,224,.11)',accent:'rgba(225,250,255,.16)',spacing:160,pattern:'grid'},
+ 'reactor-03':{tint:'#393d43',line:'rgba(255,104,47,.14)',accent:'rgba(12,16,20,.22)',spacing:144,pattern:'plates'},
+ 'surface-04':{tint:'#777568',line:'rgba(151,143,112,.14)',accent:'rgba(45,49,43,.16)',spacing:160,pattern:'fracture'}
 };
 function styledTexture(kind,style){
  const key=style+':'+kind;if(styledCanvases[key])return styledCanvases[key];
@@ -41,9 +41,12 @@ function styledTexture(kind,style){
    x.fillStyle=palette.accent;for(let y=32;y<s;y+=128)for(let xx=32;xx<s;xx+=128)x.fillRect(xx-3,y-3,6,6);
   }else if(palette.pattern==='rivets'){
    for(let y=24;y<s;y+=palette.spacing){x.beginPath();x.moveTo(0,y);x.lineTo(s,y);x.stroke();for(let xx=24;xx<s;xx+=palette.spacing){x.fillStyle=palette.accent;x.fillRect(xx-4,y-4,8,8)}}
-  }else if(palette.pattern==='thermal'){
-   x.lineWidth=kind==='floor'?10:6;for(let i=-s;i<s*2;i+=palette.spacing){x.beginPath();x.moveTo(i,0);x.lineTo(i-s,s);x.stroke()}
-   x.fillStyle=palette.accent;for(let y=0;y<s;y+=128)x.fillRect(0,y,s,8);
+  }else if(palette.pattern==='plates'){
+   x.lineWidth=2;
+   for(let y=28;y<s;y+=palette.spacing)for(let xx=24;xx<s;xx+=palette.spacing){
+    x.strokeRect(xx,y,Math.min(112,s-xx-4),Math.min(72,s-y-4));
+    x.fillStyle=palette.accent;x.fillRect(xx+7,y+7,4,4);x.fillRect(Math.min(s-8,xx+104),y+7,4,4);
+   }
   }else{
    x.lineWidth=4;for(let i=0;i<9;i++){const px=(i*73+31)%s,py=(i*137+47)%s;x.beginPath();x.moveTo(px,py);x.lineTo((px+65+i*9)%s,(py+37+i*13)%s);x.lineTo((px+91+i*7)%s,(py+112+i*5)%s);x.stroke()}
    x.fillStyle=palette.accent;for(let i=0;i<32;i++){const px=(i*97)%s,py=(i*151)%s;x.fillRect(px,py,3,3)}
