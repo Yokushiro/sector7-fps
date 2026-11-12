@@ -14,11 +14,11 @@ test('dialogue displays each line in order and completes once', () => {
   const dialogue = new S7DialogueSystem({ rootElement: root, speakerElement: speaker, textElement: text, promptElement: prompt });
   let completed = 0;
   assert.equal(dialogue.start([
-    { speaker: 'ИЛЬЯ', text: 'Первое сообщение' },
+    { speaker: 'ЛЕВ', text: 'Первое сообщение' },
     { speaker: 'СИСТЕМА', text: 'Второе сообщение' }
   ], () => completed++), true);
   assert.equal(root.hidden, false);
-  assert.equal(speaker.textContent, 'ИЛЬЯ');
+  assert.equal(speaker.textContent, 'ЛЕВ');
   assert.equal(text.textContent, 'Первое сообщение');
   assert.equal(prompt.textContent, 'ENTER / E — ПРОДОЛЖИТЬ');
   dialogue.advance();
@@ -56,7 +56,7 @@ test('radio dialogue advances automatically without requiring player input', () 
   const dialogue = new S7DialogueSystem({ rootElement: root, speakerElement: speaker, textElement: text, promptElement: prompt });
   let completed = 0;
   dialogue.startRadio([
-    { speaker: 'ИЛЬЯ', text: 'Продолжай движение. Впереди шлюз лаборатории.' },
+    { speaker: 'ЛЕВ', text: 'Продолжай движение. Впереди шлюз лаборатории.' },
     { speaker: 'АРХИВ / 07', text: 'Внимание. Следующий сектор переведён в режим изоляции.' }
   ], () => completed++);
   assert.equal(root.hidden, false);
@@ -95,7 +95,7 @@ test('Russian character voice synthesis uses distinct profiles and stops on dial
       promptElement: createElement()
     });
     dialogue.start([
-      { speaker: 'ИЛЬЯ', text: 'Проверь канал связи.' },
+      { speaker: 'ЛЕВ', text: 'Проверь канал связи.' },
       { speaker: 'АРХИВ / 07', text: 'Канал связи нестабилен.' }
     ]);
     assert.equal(spoken.length, 1);
@@ -128,7 +128,7 @@ test('voice synthesis stays silent when no Russian system voice is installed', (
       textElement: createElement(),
       promptElement: createElement()
     });
-    dialogue.start([{ speaker: 'ИЛЬЯ', text: 'Русская реплика.' }]);
+    dialogue.start([{ speaker: 'ЛЕВ', text: 'Русская реплика.' }]);
     assert.equal(spoken, 0);
     assert.equal(dialogue.textElement.textContent, 'Русская реплика.');
     dialogue.finish();
@@ -146,7 +146,7 @@ test('long radio lines are not cut off by the old twelve-second ceiling', () => 
     textElement: createElement(),
     promptElement: createElement()
   });
-  const line = { speaker: 'ИЛЬЯ', text: 'Аварийный канал нестабилен. '.repeat(9) };
+  const line = { speaker: 'ЛЕВ', text: 'Аварийный канал нестабилен. '.repeat(9) };
   assert.ok(dialogue.lineDuration(line) > 12);
   assert.ok(dialogue.lineDuration(line) <= 26);
 });
