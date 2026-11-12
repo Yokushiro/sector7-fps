@@ -46,13 +46,14 @@ test('elevator remains walkable during travel and opens into the next sector',()
     assert.equal(elevator.panel.position.x,0);
     assert.equal(elevator.panel.position.z,-2.22);
     assert.equal(player.yaw,0);
+    player.yaw=.35; // The player looks around while the doors close.
     assert.ok(player.pos.z<0,'player is placed just inside the cabin threshold');
     assert.equal(camera.rotation.y,undefined,'the elevator must not force the camera yaw');
 
     for(let i=0;i<10;i++)elevator.update(.1);
     assert.equal(elevator.phase,'travel');
     assert.equal(travelCalls,1);
-    assert.equal(player.yaw,Math.PI);
+    assert.ok(Math.abs(player.yaw-(Math.PI+.35))<1e-9,'the cabin rotates without snapping the camera to a new view');
     assert.ok(player.pos.y>8,'player rides with the cabin instead of being detached from it');
     const beforeWalk=player.pos.x;
     player.pos.x+=.5;
