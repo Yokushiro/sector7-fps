@@ -189,6 +189,24 @@
               }
             }
           }
+          if (enemy.type === 'warden' && visual.attackMarker) {
+            const marker = visual.attackMarker;
+            const telegraphActive = windup > 0;
+            marker.visible = telegraphActive;
+            if (telegraphActive) {
+              const totalWindup = enemy.phase === 2 ? 0.42 : 0.68;
+              const charge = Math.max(0, Math.min(1, 1 - windup / totalWindup));
+              marker.position.set(0, -1.22, -distance);
+              marker.scale.setScalar(0.72 + charge * 0.42);
+              marker.rotation.z += dt * (enemy.phase === 2 ? 3.8 : 2.4);
+              if (marker.material) {
+                marker.material.opacity = 0.28 + charge * 0.58;
+                if (marker.material.color) marker.material.color.setHex(enemy.phase === 2 ? 0xff58d4 : 0x55dfff);
+              }
+            } else if (marker.material) {
+              marker.material.opacity = 0;
+            }
+          }
         }
 
         if (enemy.flash > 0) {
