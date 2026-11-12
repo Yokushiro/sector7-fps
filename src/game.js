@@ -474,7 +474,7 @@ function transitionToMission(nextMission){
  elevatorVitals={hp:P.hp};
  elevatorTransition.begin({
   position:{x:P.pos.x,y:P.pos.y,z:P.pos.z},
-  yaw:P.yaw,
+  yaw:Number.isFinite(activeLevel.exitYaw)?activeLevel.exitYaw:P.yaw,
   player:P,
   destinationLabel:String(nextMission.order).padStart(2,'0')
  });
