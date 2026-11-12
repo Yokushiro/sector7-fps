@@ -270,6 +270,7 @@ test('elevator cabin keeps the floor display centered on the front wall and pres
   assert.match(elevator, /group\.rotation\.y = yaw;/);
   assert.match(elevator, /panel\.position\.set\(0, 1\.98, -2\.22\)/);
   assert.match(elevator, /screen\.position\.set\(0, 2\.18, -2\.145\)/);
-  assert.match(elevator, /this\.cameraLocalZ = -\.55/);
+  assert.match(elevator, /this\.cameraLocalZ = \.55/);
+  assert.match(elevator, /addBox\(1\.12, 2\.86, \.12, -1\.22, 1\.62, 2\.25, doorMaterial\)/);
   assert.match(elevator, /this\.cameraYaw = Number\(yaw\) \|\| 0/);
 });
