@@ -158,14 +158,16 @@ function spawn(){
  const ring=new T.Mesh(new T.TorusGeometry(type==='warden'?1.02:type==='heavy'?.65:type==='assault'?.5:.46,.055,10,40),new T.MeshBasicMaterial({color:ringColor}));
  ring.rotation.x=Math.PI/2;ring.position.y=.08;
  g.add(body,head,sensor,ring);
+ e.visual={body,head,sensor,ring,core:null};
  if(type==='warden'){
   for(const side of[-1,1]){
    const shoulder=new T.Mesh(new T.BoxGeometry(.42,.9,.75),m);shoulder.position.set(side*.78,.45,0);shoulder.rotation.z=side*-.22;g.add(shoulder);
    const horn=new T.Mesh(new T.ConeGeometry(.16,.72,8),new T.MeshStandardMaterial({color:0x39445a,emissive:0x6b174f,emissiveIntensity:1.1}));horn.position.set(side*.62,1.35,-.08);horn.rotation.z=side*-.35;g.add(horn);
   }
-  const reactorCore=new T.Mesh(new T.OctahedronGeometry(.3,1),new T.MeshBasicMaterial({color:0xff4fcb}));reactorCore.position.set(0,.42,.58);g.add(reactorCore);
+  const reactorCore=new T.Mesh(new T.OctahedronGeometry(.3,1),new T.MeshBasicMaterial({color:0xff4fcb}));reactorCore.position.set(0,.42,.58);g.add(reactorCore);e.visual.core=reactorCore;
  }else if(type==='heavy'){
   const armor=new T.Mesh(new T.BoxGeometry(1.12,.2,.5),m);armor.position.set(0,.38,0);g.add(armor);
+  const chargeCore=new T.Mesh(new T.SphereGeometry(.2,16,12),new T.MeshBasicMaterial({color:0xff9a38}));chargeCore.position.set(0,.48,.48);g.add(chargeCore);e.visual.core=chargeCore;
   for(const side of[-1,1]){const plate=new T.Mesh(new T.BoxGeometry(.2,.48,.42),m);plate.position.set(side*.55,.28,0);g.add(plate)}
  }else if(type==='assault'){
   for(const side of[-1,1]){
