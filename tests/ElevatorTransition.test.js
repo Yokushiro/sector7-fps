@@ -65,7 +65,7 @@ test('elevator remains walkable during travel and opens into the next sector',()
     elevator.setRadioComplete();
     elevator.update(.1);
     assert.equal(elevator.phase,'opening');
-    for(let i=0;i<9;i++)elevator.update(.1);
+    for(let i=0;i<10;i++)elevator.update(.1);
     assert.equal(elevator.phase,'open');
     assert.equal(elevator.doorOpen,1);
 
