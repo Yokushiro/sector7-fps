@@ -77,10 +77,11 @@ test('Russian character voice synthesis uses distinct profiles and stops on dial
   const originalUtterance = global.SpeechSynthesisUtterance;
   const spoken = [];
   let cancellations = 0;
-  const russianVoice = { name: 'Russian Voice', lang: 'ru-RU' };
+  const russianVoice = { name: 'Russian Female Voice', lang: 'ru-RU' };
+  const maleRussianVoice = { name: 'Microsoft Pavel', lang: 'ru-RU' };
   global.speechSynthesis = {
       speaking: false,
-      getVoices: () => [russianVoice],
+      getVoices: () => [russianVoice, maleRussianVoice],
       speak: utterance => spoken.push(utterance),
       cancel: () => { cancellations++; }
     };
@@ -99,9 +100,9 @@ test('Russian character voice synthesis uses distinct profiles and stops on dial
       { speaker: 'АРХИВ / 07', text: 'Канал связи нестабилен.' }
     ]);
     assert.equal(spoken.length, 1);
-    assert.equal(spoken[0].voice, russianVoice);
+    assert.equal(spoken[0].voice, maleRussianVoice, 'Lev must use an available male Russian voice');
     assert.equal(spoken[0].lang, 'ru-RU');
-    assert.ok(spoken[0].pitch < 1);
+    assert.ok(spoken[0].pitch < .8, 'Lev must use a lower masculine pitch profile');
     dialogue.advance();
     assert.equal(spoken.length, 2);
     assert.ok(spoken[1].pitch < spoken[0].pitch);
