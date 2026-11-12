@@ -158,8 +158,17 @@ function spawn(){
  const ring=new T.Mesh(new T.TorusGeometry(type==='warden'?1.02:type==='heavy'?.65:type==='assault'?.5:.46,.055,10,40),new T.MeshBasicMaterial({color:ringColor}));
  ring.rotation.x=Math.PI/2;ring.position.y=.08;
  g.add(body,head,sensor,ring);
- e.visual={body,head,sensor,ring,core:null};
+ e.visual={body,head,sensor,ring,core:null,phaseHalo:null};
  if(type==='warden'){
+  const phaseHalo=new T.Mesh(
+   new T.TorusGeometry(1.28,.028,8,56),
+   new T.MeshBasicMaterial({color:0xff58d4,transparent:true,opacity:0,depthWrite:false})
+  );
+  phaseHalo.rotation.x=Math.PI/2;
+  phaseHalo.position.y=.12;
+  phaseHalo.visible=false;
+  g.add(phaseHalo);
+  e.visual.phaseHalo=phaseHalo;
   for(const side of[-1,1]){
    const shoulder=new T.Mesh(new T.BoxGeometry(.42,.9,.75),m);shoulder.position.set(side*.78,.45,0);shoulder.rotation.z=side*-.22;g.add(shoulder);
    const horn=new T.Mesh(new T.ConeGeometry(.16,.72,8),new T.MeshStandardMaterial({color:0x39445a,emissive:0x6b174f,emissiveIntensity:1.1}));horn.position.set(side*.62,1.35,-.08);horn.rotation.z=side*-.35;g.add(horn);
