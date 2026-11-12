@@ -48,6 +48,33 @@ const bunkerLights=[];
 // пыль
 {const n=500,p=new Float32Array(n*3);for(let i=0;i<n;i++){p[i*3]=R(-S,S);p[i*3+1]=R(.2,H-1);p[i*3+2]=R(-S,S)}
  const g=new T.BufferGeometry();g.setAttribute('position',new T.BufferAttribute(p,3));var dust=new T.Points(g,new T.PointsMaterial({size:.035,color:0xaac8e0,transparent:true,opacity:.45,depthWrite:false}));scene.add(dust)}
+      // A lived-in watch station: desks, lockers, field crates and wall-mounted utility cabinets.
+      const furnitureMetal = mat('metal', 1, 1, .72, 0x41494b);
+      const wornSurface = mat('concrete', 1, 1, .08, 0x625d4e);
+      for (const [x, z] of [[-10, 13], [10, 13]]) {
+        box(x, .78, z, 3.2, .16, 1.25, wornSurface);
+        box(x - 1.35, .38, z, .16, .76, 1.05, furnitureMetal, false);
+        box(x + 1.35, .38, z, .16, .76, 1.05, furnitureMetal, false);
+        box(x, 1.35, z - .42, 2.5, .95, .12, furnitureMetal, false);
+        box(x, 1.02, z - .34, 1.75, .035, .025, new T.MeshBasicMaterial({ color: 0x9bb8bd }), false);
+      }
+      // Lockers and a low supply rack sit against the perimeter, leaving the combat lane clear.
+      for (let i = 0; i < 4; i++) {
+        const locker = box(12.1, 1.15, -10.5 + i * 1.45, .82, 2.3, .9, furnitureMetal);
+        const vent = new T.Mesh(new T.BoxGeometry(.34, .035, .025), new T.MeshBasicMaterial({ color: 0x161d20 }));
+        vent.position.set(12.1, 1.72, -10.02 + i * 1.45); scene.add(vent);
+      }
+      for (let i = 0; i < 3; i++) {
+        box(-12.2, .55 + i * .72, -8.5, 2.1, .12, 1.1, furnitureMetal, false);
+        for (const x of [-13.1, -11.3]) box(x, .35 + i * .72, -8.5, .12, .52, .12, furnitureMetal, false);
+      }
+      // A damaged field generator adds a readable silhouette and a small pool of warning light.
+      const fieldGenerator = box(-12, .85, 3.5, 1.8, 1.7, 1.25, furnitureMetal);
+      const generatorVent = new T.Mesh(new T.BoxGeometry(.9, .58, .025), new T.MeshBasicMaterial({ color: 0x182126 }));
+      generatorVent.position.set(-12, .95, 4.14); scene.add(generatorVent);
+      const generatorLamp = new T.PointLight(0xff8a35, .55, 4, 2);
+      generatorLamp.position.set(-12, 1.8, 4.7); scene.add(generatorLamp);
+
       // Heavy cross-bracing and hazard markings make this sector read as a military bunker.
       const bunkerRibMat = mat('metal', 1, 2, .92, 0x4b514e);
       const hazardMat = new T.MeshBasicMaterial({ color: 0xd28a32 });
