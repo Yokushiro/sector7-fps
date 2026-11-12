@@ -12,7 +12,7 @@
       this.doors=[]; this.ceilingLight=null; this.player=null;
       this.phase='idle'; this.phaseTime=0; this.travelTime=0;
       this.destinationReady=false; this.radioComplete=false; this.destinationLabel='02';
-      this.destinationY=0; this.travelStartY=0; this.doorOpen=1; this.disposed=false;
+      this.destinationY=0; this.travelStartY=0; this.doorOpen=1; this.disposed=false; this.lastDisplayKey=null;
       this.durations={closing:.9,travel:4.2,opening:.9};
       this.cabinHalfWidth=1.9; this.cabinHalfDepth=2.4;
     }
@@ -152,7 +152,7 @@
     enterPhase(phase){
       this.phase=phase;this.phaseTime=0;
       if(phase==='travel'){
-        this.travelTime=0;this.drawDisplay('B1','ПОДЪЁМ');
+        this.travelTime=0;this.lastDisplayKey='B1|ПОДЪЁМ';this.drawDisplay('B1','ПОДЪЁМ');
         this.onSound('motor-start');this.onTravel();
       }else if(phase==='opening'){
         this.drawDisplay(this.destinationLabel,'ПРИБЫТИЕ');this.onSound('arrival');
@@ -178,9 +178,12 @@
           const dy=nextY-this.group.position.y;
           this.group.position.y=nextY;
           if(this.player?.pos)this.player.pos.y+=dy;
-          if(Math.floor(this.travelTime*2)!==Math.floor((this.travelTime-dt)*2)){
-            const floor=this.travelTime<1.4?'B1':this.travelTime<2.8?'B2':this.destinationLabel;
-            this.drawDisplay(floor,this.travelTime<2.1?'ПОДЪЁМ':'СНИЖЕНИЕ');
+          const floor=this.travelTime<1.4?'B1':this.travelTime<2.8?'B2':this.destinationLabel;
+          const status=this.travelTime<2.1?'ПОДЪЁМ':'СНИЖЕНИЕ';
+          const displayKey=floor+'|'+status;
+          if(displayKey!==this.lastDisplayKey){
+            this.lastDisplayKey=displayKey;
+            this.drawDisplay(floor,status);
             this.onSound('floor-beep');
           }
           if(t>=1&&this.radioComplete)this.enterPhase('opening');
