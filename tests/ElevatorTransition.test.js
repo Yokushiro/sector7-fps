@@ -49,7 +49,7 @@ test('elevator remains walkable during travel and opens into the next sector',()
     assert.ok(player.pos.z<0,'player is placed just inside the cabin threshold');
     assert.equal(camera.rotation.y,undefined,'the elevator must not force the camera yaw');
 
-    for(let i=0;i<9;i++)elevator.update(.1);
+    for(let i=0;i<10;i++)elevator.update(.1);
     assert.equal(elevator.phase,'travel');
     assert.equal(travelCalls,1);
     assert.equal(player.yaw,Math.PI);
