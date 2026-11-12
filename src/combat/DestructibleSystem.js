@@ -17,6 +17,9 @@
       if (state.health > 0) return { damaged: true, destroyed: false, remaining: state.health };
       state.destroyed = true;
       object.visible = false;
+      if (object.userData.breakLight && Number.isFinite(object.userData.breakLight.intensity)) {
+        object.userData.breakLight.intensity = 0;
+      }
       const collisionBox = object.userData.collisionBox;
       if (collisionBox) {
         // A level's local list and the active world's collision list contain the same box reference.
