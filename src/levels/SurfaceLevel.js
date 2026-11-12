@@ -37,6 +37,8 @@
       box(-2.8, 3, -39, .45, 6, 18, wall);
       box(2.8, 3, -39, .45, 6, 18, wall);
       box(0, 6.25, -39, 6.2, .5, 18, dark, false);
+      // Close the rear of the evacuation tunnel; the surface yard is reached through its open front.
+      box(0, 3, -48.25, 5.6, 6, .5, steel);
       const tunnelLamp = new T.PointLight(0xff6738, 1.2, 18, 2);
       tunnelLamp.position.set(0, 4.7, -39);
       scene.add(tunnelLamp);
