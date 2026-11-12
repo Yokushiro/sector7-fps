@@ -14,9 +14,9 @@ function speck(x,s,n){for(let i=0;i<n;i++){const v=R(20,230)|0;x.fillStyle=`rgba
 function stain(x,s,n,col,r0=20,r1=90){for(let i=0;i<n;i++){const px=R(0,s),py=R(0,s),r=R(r0,r1),g=x.createRadialGradient(px,py,0,px,py,r);g.addColorStop(0,col);g.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=g;x.fillRect(px-r,py-r,r*2,r*2)}}
 const cv={
  concrete:canvas(512,(x,s)=>{x.fillStyle='#6d6e6b';x.fillRect(0,0,s,s);speck(x,s,16000);stain(x,s,14,'rgba(20,22,22,.5)');stain(x,s,5,'rgba(70,45,25,.35)',10,40);
-  x.strokeStyle='rgba(15,15,15,.32)';x.lineWidth=2;for(let i=0;i<=s;i+=256){x.beginPath();x.moveTo(i,0);x.lineTo(i,s);x.moveTo(0,i);x.lineTo(s,i);x.stroke()}}),
+  x.strokeStyle='rgba(15,15,15,.16)';x.lineWidth=2;for(let i=0;i<=s;i+=256){x.beginPath();x.moveTo(i,0);x.lineTo(i,s);x.moveTo(0,i);x.lineTo(s,i);x.stroke()}}),
  metal:canvas(512,(x,s)=>{x.fillStyle='#4a525a';x.fillRect(0,0,s,s);speck(x,s,12000);stain(x,s,10,'rgba(130,70,30,.45)',10,50);
-  x.strokeStyle='rgba(10,12,14,.48)';x.lineWidth=2;x.strokeRect(2,2,s-4,s-4);x.beginPath();x.moveTo(0,s/2);x.lineTo(s,s/2);x.stroke();
+  x.strokeStyle='rgba(10,12,14,.2)';x.lineWidth=2;x.strokeRect(2,2,s-4,s-4);x.beginPath();x.moveTo(0,s/2);x.lineTo(s,s/2);x.stroke();
   x.fillStyle='rgba(200,210,220,.5)';for(let i=0;i<s;i+=32){for(const j of[14,s-14,s/2-14,s/2+14]){x.beginPath();x.arc(i+16,j,3,0,7);x.fill()}}}),
  floor:canvas(512,(x,s)=>{x.fillStyle='#34373a';x.fillRect(0,0,s,s);speck(x,s,14000);stain(x,s,12,'rgba(0,0,0,.45)',30,110);stain(x,s,3,'rgba(90,100,110,.25)',40,100);
   x.strokeStyle='rgba(5,5,6,.48)';x.lineWidth=3;x.strokeRect(0,0,s,s);x.beginPath();x.moveTo(s/2,0);x.lineTo(s/2,s);x.moveTo(0,s/2);x.lineTo(s,s/2);x.stroke()}),
