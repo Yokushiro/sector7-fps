@@ -202,3 +202,22 @@ test('opening a preloaded level door removes collision from both local and activ
   assert.deepEqual(level.boxes, []);
   assert.deepEqual(boxes, []);
 });
+
+
+test('level material factory receives the active mission style', () => {
+  const scene = new Group();
+  const manager = new LevelManager({ THREE: fakeThree, scene, solids: [], boxes: [] });
+  const calls = [];
+  manager.register({
+    id: 'reactor-03',
+    build(context) {
+      context.mat('floor', 4, 4, .2, 0xffffff);
+      return { name: 'Reactor' };
+    }
+  });
+  manager.load('reactor-03', {
+    mat(...args) { calls.push(args); return {}; },
+    box() {}
+  });
+  assert.deepEqual(calls, [['floor', 4, 4, .2, 0xffffff, 'reactor-03']]);
+});
