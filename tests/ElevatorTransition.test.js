@@ -39,7 +39,7 @@ test('elevator remains walkable during travel and opens into the next sector',()
     elevator=new ElevatorTransition({
       THREE:fakeThree(),scene,camera,
       onSound(type){sounds.push(type);},
-      onTravel(){travelCalls++;elevator.setDestination({x:12,y:1.7,z:-8},Math.PI,'02');},
+      onTravel(){travelCalls++;const offset=elevator.capturePlayerYawOffset();player.yaw=0;elevator.setDestination({x:12,y:1.7,z:-8},Math.PI,'02',offset);},
       onComplete(position){completeCalls++;exitPosition=position;}
     });
     elevator.begin({position:{x:0,y:1.7,z:0},yaw:0,destinationLabel:'02',player});
