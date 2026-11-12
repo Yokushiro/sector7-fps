@@ -399,6 +399,7 @@ function loadMission(nextMission,transition={}){
   for(const enemy of enemies){scene.remove(enemy.g);disposeRenderable(enemy.g)}enemies.length=0;
   projectileSystem.clear(proj);
   for(const particle of sparks){scene.remove(particle.m);particle.m.material.dispose()}sparks.length=0;
+  for(const blast of explosions){scene.remove(blast.mesh);blast.mesh.geometry.dispose();blast.mesh.material.dispose()}explosions.length=0;
   for(const piece of debris){scene.remove(piece.mesh);piece.mesh.geometry.dispose();piece.mesh.material.dispose()}debris.length=0;
   currentMission=nextMission;
   saveSystem.setCurrentMission(currentMission.id);
