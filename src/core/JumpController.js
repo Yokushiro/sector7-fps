@@ -6,6 +6,7 @@
       this.groundY = Number.isFinite(groundY) ? groundY : 1.7;
       this.jumpSpeed = jumpSpeed;
       this.gravity = gravity;
+      this.playerRadius = .4;
     }
 
     jump(player) {
@@ -15,11 +16,30 @@
       return true;
     }
 
-    update(player, deltaTime) {
+    update(player, deltaTime, platforms = []) {
       if (!player || player.grounded) return false;
       const dt = Math.max(0, Math.min(.05, Number(deltaTime) || 0));
+      const previousY = player.pos.y;
       player.velocityY -= this.gravity * dt;
       player.pos.y += player.velocityY * dt;
+      if (player.velocityY <= 0) {
+        const previousFeet = previousY - this.groundY;
+        const currentFeet = player.pos.y - this.groundY;
+        for (const platform of platforms) {
+          if (!Number.isFinite(platform.topY) || platform.topY <= 0) continue;
+          const overlapsX = player.pos.x + this.playerRadius > platform.x0
+            && player.pos.x - this.playerRadius < platform.x1;
+          const overlapsZ = player.pos.z + this.playerRadius > platform.z0
+            && player.pos.z - this.playerRadius < platform.z1;
+          if (!overlapsX || !overlapsZ) continue;
+          if (previousFeet >= platform.topY - .06 && currentFeet <= platform.topY) {
+            player.pos.y = this.groundY + platform.topY;
+            player.velocityY = 0;
+            player.grounded = true;
+            return true;
+          }
+        }
+      }
       if (player.pos.y <= this.groundY) {
         player.pos.y = this.groundY;
         player.velocityY = 0;
