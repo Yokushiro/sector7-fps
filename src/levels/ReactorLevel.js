@@ -48,7 +48,25 @@
       box(-2.8, 3.5, -25, .45, 7, 14, concrete);
       box(2.8, 3.5, -25, .45, 7, 14, concrete);
       box(0, H - .35, -25, 5.9, .5, 14, dark, false);
-      const exitDoor = box(0, 3.5, -32.5, 5.8, 7, .5, steel);
+      // Pressure-rated elevator doors at the end of the evacuation vestibule.
+      const elevatorFrame = mat('metal', 1, 1, .92, 0x6a6260);
+      const elevatorDoors = [
+        box(-1.45, 3.5, -32.5, 2.9, 6.7, .34, mat('metal', 1, 1, .9, 0x493d3b)),
+        box(1.45, 3.5, -32.5, 2.9, 6.7, .34, mat('metal', 1, 1, .9, 0x493d3b))
+      ];
+      elevatorDoors[0].userData.openX = -4.25;
+      elevatorDoors[1].userData.openX = 4.25;
+      box(-3.05, 3.5, -32.5, .3, 7.2, .68, elevatorFrame, false);
+      box(3.05, 3.5, -32.5, .3, 7.2, .68, elevatorFrame, false);
+      box(0, 7.12, -32.5, 6.4, .32, .68, elevatorFrame, false);
+      for (const x of [-2.8, 2.8]) {
+        const rail = new T.Mesh(new T.BoxGeometry(.06, 5.7, .04), new T.MeshBasicMaterial({ color: 0xff8745 }));
+        rail.position.set(x, 3.5, -32.12);
+        scene.add(rail);
+      }
+      const elevatorHeader = new T.Mesh(new T.BoxGeometry(1.25, .25, .05), new T.MeshBasicMaterial({ color: 0xff8745 }));
+      elevatorHeader.position.set(0, 7.35, -32.12);
+      scene.add(elevatorHeader);
       let exitOpen = false;
       // Short, illuminated evacuation vestibule beyond the final bulkhead gives the player a real place to emerge.
       const evacuationFloor = new T.Mesh(new T.PlaneGeometry(5.2, 8), mat('floor', 2, 3, .2));
@@ -249,7 +267,7 @@
         evacuationSeconds: 90,
         playerSpawn: { x: 0, y: 1.7, z: 28, yaw: 0 },
         enemySpawnPoints: [[-14, -14], [14, -14], [-14, 12], [14, 12], [0, -15], [-16, 0], [16, 0], [16, 16]],
-        openExit() { exitOpen = true; reactorShutdown = true; context.removeCollisionBox(exitDoor.userData.collisionBox); },
+        openExit() { exitOpen = true; reactorShutdown = true; elevatorDoors.forEach(door => context.removeCollisionBox(door.userData.collisionBox)); },
         onInteractionActivated(id) {
           if (id !== 'reactor-shutdown') return;
           terminalScreen.material.color.setHex(0x42ff9b);
@@ -261,7 +279,7 @@
           shutdownStatus.material.color.setHex(reactorShutdown ? 0x45ff9a : (Math.sin(time * 3.8) > 0 ? 0xffa34d : 0x6b351c));
           terminalLight.color.setHex(reactorShutdown ? 0x45ff9a : 0xff8a3b);
           terminalLight.intensity = reactorShutdown ? .35 : .8 + Math.sin(time * 4) * .16;
-          if (exitOpen) exitDoor.position.y += (10 - exitDoor.position.y) * Math.min(1, dt * 2.2);
+          if (exitOpen) elevatorDoors.forEach(door => { door.position.x += (door.userData.openX - door.position.x) * Math.min(1, dt * 3.2); });
           reactorRings.forEach((ring, index) => {
             ring.rotation.y = Math.sin(time * .45 + index) * .12;
             ring.rotation.z += dt * (index % 2 ? -.18 : .24);
