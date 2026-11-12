@@ -109,6 +109,14 @@
         const reactionScale = hitStunned ? 0.18 : 1;
         group.position.x += moveX * dt * reactionScale;
         group.position.z += moveZ * dt * reactionScale;
+        // A surviving unit tries to break the player's firing lane after impact.
+        enemy.evasionRemaining = Math.max(0, (enemy.evasionRemaining || 0) - dt);
+        if (!hitStunned && enemy.evasionRemaining > 0) {
+          const evasion = enemy.evasionVelocity || { x: 0, z: 0 };
+          const fade = Math.min(1, enemy.evasionRemaining / 0.18);
+          group.position.x += evasion.x * fade * dt;
+          group.position.z += evasion.z * fade * dt;
+        }
         const hitVelocity = enemy.hitReactionVelocity;
         if (hitVelocity && Number.isFinite(hitVelocity.x) && Number.isFinite(hitVelocity.z)) {
           group.position.x += hitVelocity.x * dt;
@@ -130,7 +138,9 @@
         const windup = Math.max(0, enemy.attackWindupRemaining || 0);
         if (group.rotation) {
           const bank = Math.sin(enemy.t * (enemy.type === 'scout' ? 3.8 : 1.7)) * (enemy.type === 'scout' ? 0.16 : enemy.type === 'heavy' ? 0.035 : 0.075);
-          group.rotation.z = bank + (windup > 0 ? (enemy.type === 'heavy' ? -0.13 : 0.09) : 0);
+          const evadeTilt = !hitStunned && enemy.evasionRemaining > 0
+            ? (enemy.evasionVelocity?.x || 0) * 0.035 : 0;
+          group.rotation.z = bank + evadeTilt + (windup > 0 ? (enemy.type === 'heavy' ? -0.13 : 0.09) : 0);
           group.rotation.x = enemy.type === 'warden' && enemy.phase === 2
             ? Math.sin(enemy.t * 4.5) * 0.055 : 0;
         }
