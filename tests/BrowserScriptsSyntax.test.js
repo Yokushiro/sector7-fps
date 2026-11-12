@@ -64,10 +64,19 @@ test('campaign UI systems load before the main game script', () => {
 });
 
 
-test('resuming a paused mission does not replay its opening briefing', () => {
+test('the pause menu resumes the active mission without replaying its briefing', () => {
   const filename = path.join(__dirname, '..', 'src/game.js');
   const source = fs.readFileSync(filename, 'utf8');
-  assert.match(source, /introShown=false/);
-  assert.match(source, /if\(!introShown\).*introShown=true;state='dialogue'/);
-  assert.match(source, /else\{state='play';try\{dom\.requestPointerLock\(\)\}/);
+  assert.match(source, /pauseMenu=false/);
+  assert.match(source, /\$\('s7-resume'\)\.addEventListener\('click'/);
+  assert.match(source, /pauseMenu=false;state='play';\$\('ov'\)\.style\.display='none'/);
+  assert.doesNotMatch(source, /\$\('s7-resume'\)[\s\S]{0,260}dialogueSystem\.start\(/);
+});
+
+test('main menu exposes new game, load, settings and exit actions', () => {
+  const filename = path.join(__dirname, '..', 'index.html');
+  const source = fs.readFileSync(filename, 'utf8');
+  for (const id of ['s7-new', 's7-load', 's7-settings', 's7-exit', 's7-resume', 's7-load-list']) {
+    assert.match(source, new RegExp('id="' + id + '"'));
+  }
 });
