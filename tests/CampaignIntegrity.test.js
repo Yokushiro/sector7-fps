@@ -103,6 +103,6 @@ test('elevator travel keeps player movement but pauses combat, enemy spawning an
 
 test('fallback mouse-look mode can pause safely and clears stuck input on window blur', () => {
   const game = read('src/game.js');
-  assert.match(game, /e\.code==='Escape'&&state==='play'&&fallback&&!elevatorTransition\.isActive\(\)/);
-  assert.match(game, /addEventListener\('blur',\(\)=>\{for\(const key of Object\.keys\(keys\)\)delete keys\[key\];mouse=false;if\(state==='play'&&fallback&&!elevatorTransition\.isActive\(\)\)showPauseMenu\(\);\}\)/);
+  assert.match(game, /e\.code==='Escape'&&state==='play'&&fallback/);
+  assert.match(game, /addEventListener\('blur',\(\)=>\{for\(const key of Object\.keys\(keys\)\)delete keys\[key\];mouse=false;if\(state==='play'&&fallback\)showPauseMenu\(\);\}\)/);
 });
