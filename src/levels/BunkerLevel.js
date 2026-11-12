@@ -6,13 +6,13 @@
     build(context) {
       const { THREE: T, scene, mat, box, canvas, randomRange: R, solids, boxes } = context;
       const S=12,H=7;
-const fl=new T.Mesh(new T.PlaneGeometry(S*2,S*2),mat('floor',6,6,.3,0x77796d));fl.rotation.x=-Math.PI/2;fl.receiveShadow=true;scene.add(fl);solids.push(fl);
-box(0,H,0,S*2+2,.6,S*2+2,mat('concrete',6,2,0,0x77776d),false);
-box(-7.15,H/2,-S-.5,10.9,H,1,mat('concrete',6,2,0,0x77776d));box(7.15,H/2,-S-.5,10.9,H,1,mat('concrete',6,2));box(0,H-.5,-S-.5,4.2,1,1,mat('metal',2,1,.85),false);
+const fl=new T.Mesh(new T.PlaneGeometry(S*2,S*2),mat('floor',6,6,.3,0x99958a));fl.rotation.x=-Math.PI/2;fl.receiveShadow=true;scene.add(fl);solids.push(fl);
+box(0,H,0,S*2+2,.6,S*2+2,mat('concrete',6,2,0,0xffffff),false);
+box(-7.15,H/2,-S-.5,10.9,H,1,mat('concrete',6,2,0,0xffffff));box(7.15,H/2,-S-.5,10.9,H,1,mat('concrete',6,2));box(0,H-.5,-S-.5,4.2,1,1,mat('metal',2,1,.85),false);
 box(-7.15,H/2,S+.5,10.9,H,1,mat('concrete',6,2));box(7.15,H/2,S+.5,10.9,H,1,mat('concrete',6,2));box(0,H-.5,S+.5,4.2,1,1,mat('metal',2,1,.85),false);
 // Entry passage: the player begins here and walks into the bunker through the southern bulkhead.
 const entryFloor=new T.Mesh(new T.PlaneGeometry(5.2,14),mat('floor',2,5,.3));entryFloor.rotation.x=-Math.PI/2;entryFloor.position.set(0,.015,19);entryFloor.receiveShadow=true;scene.add(entryFloor);solids.push(entryFloor);
-box(-2.8,3,19,.45,6,14,mat('concrete',2,4,0,0x77776d));box(2.8,3,19,.45,6,14,mat('concrete',2,4));box(0,H-.35,19,5.9,.5,14,mat('metal',2,5,.8),false);box(0,3,26.5,5.6,6,.45,mat('metal',2,2,.9));
+box(-2.8,3,19,.45,6,14,mat('concrete',2,4,0,0xffffff));box(2.8,3,19,.45,6,14,mat('concrete',2,4));box(0,H-.35,19,5.9,.5,14,mat('metal',2,5,.8),false);box(0,3,26.5,5.6,6,.45,mat('metal',2,2,.9));
 const entryLamp=new T.PointLight(0x4c9dff,.85,16,2);entryLamp.position.set(0,4.8,19);scene.add(entryLamp);
 // Passageway to the lower laboratory wing: the doorway is part of the playable space, not a teleport.
 const corridorFloor=new T.Mesh(new T.PlaneGeometry(5.2,14),mat('floor',2,5,.3));corridorFloor.rotation.x=-Math.PI/2;corridorFloor.position.set(0,.015,-19);corridorFloor.receiveShadow=true;scene.add(corridorFloor);solids.push(corridorFloor);
@@ -39,14 +39,20 @@ const mm=mat('metal',1,1,.85),mm2=mat('metal',2,1,.7,0xa9794f),mc=mat('concrete'
 function barrel(x,z){
   const red=new T.MeshStandardMaterial({color:0x9f241b,roughness:.38,metalness:.68});
   const steel=new T.MeshStandardMaterial({color:0x737b80,roughness:.32,metalness:.9});
-  const body=new T.Mesh(new T.CylinderGeometry(.48,.48,1.3,32,1,false),red);
+  // A pressed-steel profile gives the drum its characteristic bulging shoulders.
+  const profile=[
+    new T.Vector2(.405,-.65),new T.Vector2(.445,-.61),new T.Vector2(.475,-.48),
+    new T.Vector2(.505,-.27),new T.Vector2(.525,0),new T.Vector2(.505,.27),
+    new T.Vector2(.475,.48),new T.Vector2(.445,.61),new T.Vector2(.405,.65)
+  ];
+  const body=new T.Mesh(new T.LatheGeometry(profile,40),red);
   body.position.set(x,.68,z);body.castShadow=body.receiveShadow=true;
   for(const y of[-.43,.43]){
-    const rim=new T.Mesh(new T.TorusGeometry(.48,.035,8,32),steel);
+    const rim=new T.Mesh(new T.TorusGeometry(.477,.045,10,40),steel);
     rim.rotation.x=Math.PI/2;rim.position.y=y;rim.castShadow=true;body.add(rim);
   }
   for(const y of[-.65,.65]){
-    const cap=new T.Mesh(new T.CylinderGeometry(.455,.455,.045,32),steel);
+    const cap=new T.Mesh(new T.CylinderGeometry(.405,.405,.055,40),steel);
     cap.position.y=y;cap.castShadow=true;body.add(cap);
   }
   const bung=new T.Mesh(new T.CylinderGeometry(.065,.065,.025,16),red);
@@ -61,7 +67,7 @@ function barrel(x,z){
   });
   const labelMap=new T.CanvasTexture(label);labelMap.encoding=T.sRGBEncoding;
   const decal=new T.Mesh(new T.PlaneGeometry(.34,.48),new T.MeshBasicMaterial({map:labelMap,side:T.DoubleSide}));
-  decal.position.set(0,0,.482);body.add(decal);
+  decal.position.set(0,0,.508);body.add(decal);
   scene.add(body);solids.push(body);
   const collisionBox={x0:x-.5,x1:x+.5,z0:z-.5,z1:z+.5,y0:.03,y1:1.33,topY:1.33};
   boxes.push(collisionBox);
