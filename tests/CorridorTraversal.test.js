@@ -28,6 +28,17 @@ test('combat completion opens the route instead of ending the mission immediatel
 });
 
 
+test('connector floors meet edge-to-edge without coplanar overlap', () => {
+  const reactor = read('src/levels/ReactorLevel.js');
+  const surface = read('src/levels/SurfaceLevel.js');
+  assert.match(reactor, /corridorFloor\.position\.set\(0, \.015, -25\.25\)/);
+  assert.match(reactor, /new T\.PlaneGeometry\(5\.2, 14\.5\)/);
+  assert.match(reactor, /evacuationFloor\.position\.set\(0, \.015, -36\.75\)/);
+  assert.match(reactor, /new T\.PlaneGeometry\(5\.2, 8\.5\)/);
+  assert.match(surface, /new T\.PlaneGeometry\(46, 73\), floorMat/);
+  assert.match(surface, /floor\.position\.set\(0, 0, 6\.5\)/);
+});
+
 test('all enclosed campaign chambers have a roof while the surface yard stays open', () => {
   const bunker = read('src/levels/BunkerLevel.js');
   const lab = read('src/levels/LabLevel.js');
@@ -168,7 +179,7 @@ test('reactor entry continues from the laboratory exit while the evacuation corr
   assert.match(reactor, /corridorFloor\.position\.set\(0, \.015, -25\)/);
   assert.match(reactor, /playerSpawn: \{ x: 0, y: 1\.7, z: 28, yaw: 0 \}/);
   assert.match(reactor, /exitZone: \{ x0: -2\.1, x1: 2\.1, z0: -31\.8, z1: -30\.6 \}/);
-  assert.match(reactor, /evacuationFloor\.position\.set\(0, \.015, -36\.5\)/);
+  assert.match(reactor, /evacuationFloor\.position\.set\(0, \.015, -36\.75\)/);
 });
 
 test('the next sector is prebuilt invisibly and its collision is isolated until activation', () => {
