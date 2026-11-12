@@ -535,3 +535,25 @@ test('Warden marks the targeted ground lane during its charged volley and clears
   assert.equal(marker.visible, false, 'warning ring should disappear as the volley launches');
   assert.equal(marker.material.opacity, 0);
 });
+
+
+test('localized impact flash expands and fades after a hit', () => {
+  const ai = new DroneAI();
+  const enemy = makeEnemy('scout', 0, 5.5);
+  const flash = {
+    visible: true,
+    scale: { value: 0, setScalar(value) { this.value = value; } },
+    material: { opacity: 1 }
+  };
+  enemy.visual = { hitFlash: flash };
+  enemy.hitFlashRemaining = 0.2;
+  ai.update([enemy], { pos: { x: 0, y: 1.7, z: 0 } }, 0.1,
+    () => {}, { add() {} }, [], () => {}, (min, max) => min);
+  assert.equal(flash.visible, true);
+  assert.ok(flash.material.opacity > 0 && flash.material.opacity < 1);
+  assert.ok(flash.scale.value > 0.3, 'impact shard should expand as it fades');
+  ai.update([enemy], { pos: { x: 0, y: 1.7, z: 0 } }, 0.2,
+    () => {}, { add() {} }, [], () => {}, (min, max) => min);
+  assert.equal(flash.visible, false);
+  assert.equal(flash.material.opacity, 0);
+});
