@@ -19,6 +19,7 @@
     "productName": "SECTOR 7",
     "files": [
       "main.js",
+      "preload.js",
       "index.html",
       "src/**/*",
       "vendor/**/*"
