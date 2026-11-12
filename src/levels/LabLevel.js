@@ -28,7 +28,7 @@
       context.solids.push(corridorFloor);
       box(-2.8, H / 2, -21, .45, H, 14, wall);
       box(2.8, H / 2, -21, .45, H, 14, wall);
-      box(0, H - .35, -21, 5.9, .5, 14, darkSteel, false);
+      box(0, H - .35, -21, 6.2, .5, 14, darkSteel, false);
       const corridorStrip = new T.Mesh(new T.BoxGeometry(.25, .12, 8), new T.MeshBasicMaterial({ color: 0xff3545 }));
       corridorStrip.position.set(0, 7.1, -20);
       scene.add(corridorStrip);
@@ -48,7 +48,7 @@
       context.solids.push(exitCorridorFloor);
       box(-2.8, H / 2, 21, .45, H, 14, wall);
       box(2.8, H / 2, 21, .45, H, 14, wall);
-      box(0, H - .35, 21, 5.9, .5, 14, darkSteel, false);
+      box(0, H - .35, 21, 6.2, .5, 14, darkSteel, false);
       const exitStrip = new T.Mesh(new T.BoxGeometry(.25, .12, 8), new T.MeshBasicMaterial({ color: 0x42d8ff }));
       exitStrip.position.set(0, 7.1, 21);
       scene.add(exitStrip);
