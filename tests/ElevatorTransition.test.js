@@ -91,6 +91,7 @@ test('elevator closes, travels, waits for radio, opens and cleans up', () => {
     assert.equal(elevator.group.rotation.y, 0, 'cabin must keep the player facing forward');
     assert.equal(elevator.panel.position.x, 0, 'floor display must be centered in front of the player');
     assert.equal(elevator.panel.position.z, -2.22, 'floor display must be mounted on the front wall');
+    assert.equal(elevator.cameraLocalZ, 2.7, 'entry begins just outside the cabin doorway');
     for (let i = 0; i < 12; i++) elevator.update(.1);
     assert.equal(elevator.phase, 'closing');
     assert.equal(camera.rotation.y, 0, 'entry must not rotate the player away from the doorway');
@@ -98,9 +99,9 @@ test('elevator closes, travels, waits for radio, opens and cleans up', () => {
     assert.equal(elevator.phase, 'travel');
     assert.equal(travelCalls, 1);
     assert.equal(camera.position.x, 12);
-    assert.equal(camera.position.z, -7.45);
+    assert.equal(camera.position.z, -6.15);
     assert.equal(camera.rotation.y, Math.PI, 'destination handoff must preserve the new level facing direction');
-    assert.equal(elevator.cameraLocalZ, -.55, 'player must stand inside the cabin facing its front panel');
+    assert.equal(elevator.cameraLocalZ, .55, 'player must stand inside the cabin facing its front panel');
 
     for (let i = 0; i < 39; i++) elevator.update(.1);
     assert.equal(elevator.phase, 'travel', 'doors must remain closed until the radio dialogue ends');
