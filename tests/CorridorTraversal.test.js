@@ -290,7 +290,8 @@ test('elevator cabin keeps the floor display centered on the front wall and pres
   assert.match(elevator, /screen\.position\.set\(0,2\.18,-2\.145\)/);
   assert.match(elevator, /this\.player\.pos\.copy\(inside\)/);
   assert.match(elevator, /addBox\(1\.9,2\.86,\.12,-\.95,1\.62,2\.22,doorMaterial\)/);
-  assert.match(elevator, /this\.player\.yaw=destinationYaw\+playerYawOffset/);
+  assert.match(elevator, /this\.player\.yaw=destinationYaw\+yawOffset/);
+  assert.match(elevator, /capturePlayerYawOffset\(\)/);
   assert.match(elevator, /addBox\(3\.8,3\.35,\.14,0,1\.62,-2\.33,metal\)/);
 });
 
