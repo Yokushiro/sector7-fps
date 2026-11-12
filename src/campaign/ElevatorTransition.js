@@ -135,9 +135,9 @@
       const c=Math.cos(this.group.rotation.y),s=Math.sin(this.group.rotation.y);
       const dx=position.x-this.group.position.x,dz=position.z-this.group.position.z;
       let x=dx*c-dz*s,z=dx*s+dz*c;
-      x=Math.max(-1.48,Math.min(1.48,x));
+      x=Math.max(-1.34,Math.min(1.34,x));
       const doorPassable=this.doorOpen>=.98&&(this.phase==='open'||this.phase==='opening');
-      z=Math.max(-1.78,Math.min(doorPassable?3.8:1.92,z));
+      z=Math.max(-1.78,Math.min(doorPassable?3.8:1.72,z));
       position.x=this.group.position.x+x*c+z*s;
       position.z=this.group.position.z-x*s+z*c;
       position.y=this.group.position.y+1.7;
