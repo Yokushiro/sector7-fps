@@ -28,6 +28,15 @@ test('combat completion opens the route instead of ending the mission immediatel
 });
 
 
+test('incoming lift corridors terminate at solid rear bulkheads', () => {
+  const lab = read('src/levels/LabLevel.js');
+  const reactor = read('src/levels/ReactorLevel.js');
+  const surface = read('src/levels/SurfaceLevel.js');
+  assert.match(lab, /box\(0, H \/ 2, -28\.25, 5\.6, H, \.5, wall\)/);
+  assert.match(reactor, /box\(0, H \/ 2, 32\.25, 5\.6, H, \.5, concrete\)/);
+  assert.match(surface, /box\(0, 3, -48\.25, 5\.6, 6, \.5, steel\)/);
+});
+
 test('connector floors meet edge-to-edge without coplanar overlap', () => {
   const reactor = read('src/levels/ReactorLevel.js');
   const surface = read('src/levels/SurfaceLevel.js');
