@@ -62,7 +62,7 @@ function mat(k,rx,ry,m=0,tint=0xffffff,style='default'){const key=style+':'+k+rx
 /* ---------- уровень ---------- */
 const solids=[],boxes=[];
 function box(x,y,z,w,h,d,m,col=true,target=scene){const me=new T.Mesh(new T.BoxGeometry(w,h,d),m);me.position.set(x,y,z);me.castShadow=me.receiveShadow=true;target.add(me);const local=target!==scene?target.userData:null;(local?.s7Solids||solids).push(me);
- if(col){const collisionBox={x0:x-w/2,x1:x+w/2,z0:z-d/2,z1:z+d/2};(local?.s7Boxes||boxes).push(collisionBox);me.userData.collisionBox=collisionBox}return me}
+ if(col){const collisionBox={x0:x-w/2,x1:x+w/2,z0:z-d/2,z1:z+d/2,y0:y-h/2,y1:y+h/2,topY:y+h/2};(local?.s7Boxes||boxes).push(collisionBox);me.userData.collisionBox=collisionBox}return me}
 const saveSystem=new S7SaveSystem();
 const missionSystem=new S7MissionSystem();
 let savedCampaign=saveSystem.load();
@@ -146,7 +146,7 @@ $('saveInfo').textContent=`СОХРАНЕНИЕ · Побед: ${savedStats.wins
 $('missionTitle').textContent=`${currentMission.title} · ${currentMission.location}`;
 $('missionDescription').textContent=currentMission.description;
 $('kl').textContent=`Дроны: 0 / ${GOAL}`;
-function collide(p,r){for(const b of boxes){const cx=cl(p.x,b.x0,b.x1),cz=cl(p.z,b.z0,b.z1),dx=p.x-cx,dz=p.z-cz,d2=dx*dx+dz*dz;
+function collide(p,r){for(const b of boxes){const playerBottom=p.y-GROUND_Y;if(Number.isFinite(b.y1)&&playerBottom>=b.y1-.08)continue;const cx=cl(p.x,b.x0,b.x1),cz=cl(p.z,b.z0,b.z1),dx=p.x-cx,dz=p.z-cz,d2=dx*dx+dz*dz;
  if(d2<r*r){if(d2>1e-6){const d=Math.sqrt(d2),k=(r-d)/d;p.x+=dx*k;p.z+=dz*k}else p.x+=r}}}
 
 /* ---------- звук ---------- */
@@ -447,7 +447,7 @@ function loop(now){requestAnimationFrame(loop);const dt=Math.min(.05,(now-last)/
   if(mv){const l=Math.hypot(f,r),sy=Math.sin(P.yaw),cy=Math.cos(P.yaw);P.pos.x+=(-sy*f+cy*r)/l*sp*dt;P.pos.z+=(-cy*f-sy*r)/l*sp*dt;collide(P.pos,.4)}
   const boss=enemies.find(enemy=>enemy.type==='warden');$('bossHud').hidden=!boss;if(boss){$('bossHealth').style.width=`${Math.max(0,boss.hp/boss.maxHp*100)}%`;$('bossName').textContent=`СТОРОЖ · ${Math.max(0,Math.ceil(boss.hp))} HP`}
   const nearby=interactionSystem.findNearby(P.pos);$('interactHint').hidden=!nearby;if(nearby)$('interactHint').textContent=`E — ${nearby.label}`;
-  if(jumpController.update(P,dt))snd(75,.09,'sine',.08);
+  if(jumpController.update(P,dt,boxes))snd(75,.09,'sine',.08);
   if(P.grounded)P.pos.y=GROUND_Y+(mv?Math.sin(tm*(keys.ShiftLeft?13:9))*.035:0);
   cam.position.copy(P.pos);cam.rotation.set(P.pitch+weapon.pitchKick,P.yaw,0);
   if(mouse&&!combatCleared)weapon.fire(solids,enemies,spark,hitEnemy,hitWorld,R);
