@@ -49,3 +49,15 @@ test('breaking a destructible light fixture switches off its attached light', ()
   assert.equal(system.hit(fixture, null).destroyed, true);
   assert.equal(light.intensity, 0);
 });
+
+
+test('decorative child meshes damage their owning destructible object', () => {
+  const collisionBox = { id: 'barrel' };
+  const boxes = [collisionBox];
+  const parent = { visible: true, userData: { collisionBox, destructible: { health: 1, destroyed: false } } };
+  const child = { parent, userData: {} };
+  const system = new DestructibleSystem({ collisionCollections: [boxes] });
+  assert.equal(system.hit(child, null).destroyed, true);
+  assert.equal(parent.visible, false);
+  assert.deepEqual(boxes, []);
+});
