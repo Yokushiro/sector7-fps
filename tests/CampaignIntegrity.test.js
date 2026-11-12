@@ -72,10 +72,13 @@ test('campaign completion routes through the cinematic elevator and preserves pl
     'loadMission(elevatorNextMission,{elevator:true,preserveVitals:elevatorVitals})',
     'elevatorTransition.setDestination(P.pos,P.yaw',
     'dialogueSystem.startRadio(currentMission.introDialogue,()=>elevatorTransition.setRadioComplete())',
-    'onComplete:exitPosition=>',
-    'if(exitPosition)P.pos.copy(exitPosition)'
+    'onComplete:()=>',
+    'state=\'play\';mouse=false',
+    'elevatorTransition.constrainPlayer(P.pos)'
   ]) assert.ok(game.includes(fragment), 'game transition must include: ' + fragment);
 
-  assert.ok(elevator.includes("phase === 'travel'"));
+  assert.ok(elevator.includes("this.phase==='travel'"));
   assert.ok(elevator.includes('this.radioComplete'));
+  assert.ok(elevator.includes('this.player.pos.y+=dy'));
+  assert.ok(elevator.includes('doorPassable'), 'the cabin must allow the player to leave after the doors open');
 });
