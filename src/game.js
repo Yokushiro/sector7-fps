@@ -403,6 +403,7 @@ function loadMission(nextMission,transition={}){
   for(const piece of debris){scene.remove(piece.mesh);piece.mesh.geometry.dispose();piece.mesh.material.dispose()}debris.length=0;
   currentMission=nextMission;
   saveSystem.setCurrentMission(currentMission.id);
+  savedCampaign=saveSystem.getData();
   missionObjective=currentMission.objectives.find(objective=>objective.type==='eliminate');
   if(!missionObjective)throw new Error('The next mission has no supported elimination objective');
   GOAL=missionObjective.target;
