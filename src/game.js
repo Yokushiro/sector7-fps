@@ -561,18 +561,22 @@ function loop(now){requestAnimationFrame(loop);const dt=Math.min(.05,(now-last)/
   if(!inElevator&&jumpController.update(P,dt,boxes))snd(75,.09,'sine',.08);
   if(P.grounded&&!inElevator)P.pos.y=(Number.isFinite(P.groundedHeight)?P.groundedHeight:GROUND_Y)+(mv?Math.sin(tm*(keys.ShiftLeft?13:9))*.035:0);
   cam.position.copy(P.pos);cam.rotation.set(P.pitch+weapon.pitchKick,P.yaw,0);
-  if(mouse&&!combatCleared)weapon.fire(solids,enemies,spark,hitEnemy,hitWorld,R);
+  if(!inElevator&&mouse&&!combatCleared)weapon.fire(solids,enemies,spark,hitEnemy,hitWorld,R);
   weapon.update(dt,tm,mv);
-  if(evacuationRemaining>0){
+  if(!inElevator&&evacuationRemaining>0){
    evacuationRemaining=Math.max(0,evacuationRemaining-dt);
    const seconds=Math.ceil(evacuationRemaining);
    $('evacTimer').textContent=`ЭВАКУАЦИЯ · ${String(Math.floor(seconds/60)).padStart(2,'0')}:${String(seconds%60).padStart(2,'0')}`;
    if(evacuationRemaining<=0)end(false);
   }
-  spawnT-=dt;if(!combatCleared&&spawned<GOAL&&enemies.length<currentMission.spawn.maxActive&&spawnT<=0){spawn();spawnT=currentMission.spawn.interval}
-  droneAI.update(enemies,P,dt,collide,scene,proj,snd,R,boxes);
-  const exit=activeLevel.exitZone;if(missionCleared&&exit&&P.pos.x>=exit.x0&&P.pos.x<=exit.x1&&P.pos.z>=exit.z0&&P.pos.z<=exit.z1)end(true);
-  projectileSystem.update(proj,dt,P.pos,boxes,LEVEL_BOUNDS,dmg);
+  if(!inElevator){
+   spawnT-=dt;
+   if(!combatCleared&&spawned<GOAL&&enemies.length<currentMission.spawn.maxActive&&spawnT<=0){spawn();spawnT=currentMission.spawn.interval}
+   droneAI.update(enemies,P,dt,collide,scene,proj,snd,R,boxes);
+   const exit=activeLevel.exitZone;
+   if(missionCleared&&exit&&P.pos.x>=exit.x0&&P.pos.x<=exit.x1&&P.pos.z>=exit.z0&&P.pos.z<=exit.z1)end(true);
+   projectileSystem.update(proj,dt,P.pos,boxes,LEVEL_BOUNDS,dmg);
+  }
  }
  for(let i=explosions.length-1;i>=0;i--){
   const blast=explosions[i];blast.life-=dt;
