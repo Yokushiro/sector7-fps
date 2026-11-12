@@ -19,9 +19,38 @@ const cv={
  floor:canvas(512,(x,s)=>{x.fillStyle='#34373a';x.fillRect(0,0,s,s);speck(x,s,14000);stain(x,s,12,'rgba(0,0,0,.45)',30,110);stain(x,s,3,'rgba(90,100,110,.25)',40,100);
   x.strokeStyle='rgba(5,5,6,.9)';x.lineWidth=5;x.strokeRect(0,0,s,s);x.beginPath();x.moveTo(s/2,0);x.lineTo(s/2,s);x.moveTo(0,s/2);x.lineTo(s,s/2);x.stroke()}),
 };
-const cache={};
-function mat(k,rx,ry,m=0,tint=0xffffff){const key=k+rx+'_'+ry+m+tint;if(cache[key])return cache[key];
- const t=new T.CanvasTexture(cv[k]);t.wrapS=t.wrapT=T.RepeatWrapping;t.repeat.set(rx,ry);t.anisotropy=8;t.encoding=T.sRGBEncoding;
+const cache={},styledCanvases={};
+const levelPalettes={
+ 'bunker-01':{tint:'#756d58',line:'rgba(213,151,72,.28)',accent:'rgba(45,31,22,.24)',spacing:64,pattern:'rivets'},
+ 'lab-02':{tint:'#a9d7df',line:'rgba(80,205,224,.28)',accent:'rgba(225,250,255,.32)',spacing:96,pattern:'grid'},
+ 'reactor-03':{tint:'#393d43',line:'rgba(255,104,47,.34)',accent:'rgba(12,16,20,.5)',spacing:48,pattern:'thermal'},
+ 'surface-04':{tint:'#777568',line:'rgba(151,143,112,.32)',accent:'rgba(45,49,43,.22)',spacing:128,pattern:'fracture'}
+};
+function styledTexture(kind,style){
+ const key=style+':'+kind;if(styledCanvases[key])return styledCanvases[key];
+ const palette=levelPalettes[style];if(!palette)return cv[kind];
+ const source=canvas(512,(x,s)=>{
+  x.drawImage(cv[kind],0,0);
+  x.globalCompositeOperation='multiply';x.fillStyle=palette.tint;x.globalAlpha=.34;x.fillRect(0,0,s,s);
+  x.globalCompositeOperation='source-over';x.globalAlpha=1;
+  x.strokeStyle=palette.line;x.lineWidth=kind==='metal'?3:5;
+  if(palette.pattern==='grid'){
+   for(let i=0;i<=s;i+=palette.spacing){x.beginPath();x.moveTo(i,0);x.lineTo(i,s);x.moveTo(0,i);x.lineTo(s,i);x.stroke()}
+   x.fillStyle=palette.accent;for(let y=32;y<s;y+=128)for(let xx=32;xx<s;xx+=128)x.fillRect(xx-3,y-3,6,6);
+  }else if(palette.pattern==='rivets'){
+   for(let y=24;y<s;y+=palette.spacing){x.beginPath();x.moveTo(0,y);x.lineTo(s,y);x.stroke();for(let xx=24;xx<s;xx+=palette.spacing){x.fillStyle=palette.accent;x.fillRect(xx-4,y-4,8,8)}}
+  }else if(palette.pattern==='thermal'){
+   x.lineWidth=kind==='floor'?10:6;for(let i=-s;i<s*2;i+=palette.spacing){x.beginPath();x.moveTo(i,0);x.lineTo(i-s,s);x.stroke()}
+   x.fillStyle=palette.accent;for(let y=0;y<s;y+=128)x.fillRect(0,y,s,8);
+  }else{
+   x.lineWidth=4;for(let i=0;i<9;i++){const px=(i*73+31)%s,py=(i*137+47)%s;x.beginPath();x.moveTo(px,py);x.lineTo((px+65+i*9)%s,(py+37+i*13)%s);x.lineTo((px+91+i*7)%s,(py+112+i*5)%s);x.stroke()}
+   x.fillStyle=palette.accent;for(let i=0;i<32;i++){const px=(i*97)%s,py=(i*151)%s;x.fillRect(px,py,3,3)}
+  }
+ });
+ return styledCanvases[key]=source;
+}
+function mat(k,rx,ry,m=0,tint=0xffffff,style='default'){const key=style+':'+k+rx+'_'+ry+m+tint;if(cache[key])return cache[key];
+ const t=new T.CanvasTexture(styledTexture(k,style));t.wrapS=t.wrapT=T.RepeatWrapping;t.repeat.set(rx,ry);t.anisotropy=8;t.encoding=T.sRGBEncoding;
  const material=new T.MeshStandardMaterial({map:t,bumpMap:t,bumpScale:2.2,roughnessMap:t,roughness:1,metalness:m,color:tint,envMapIntensity:.6});material.userData.sector7Shared=true;return cache[key]=material}
 
 /* ---------- окружение (IBL) ---------- */
