@@ -3,7 +3,9 @@
 
   class S7DestructibleSystem {
     constructor(options = {}) {
-      this.collisionBoxes = Array.isArray(options.collisionBoxes) ? options.collisionBoxes : [];
+      this.collisionCollections = Array.isArray(options.collisionCollections)
+        ? options.collisionCollections.filter(Array.isArray)
+        : [Array.isArray(options.collisionBoxes) ? options.collisionBoxes : []];
       this.onBreak = typeof options.onBreak === 'function' ? options.onBreak : function(){};
     }
 
@@ -17,8 +19,12 @@
       object.visible = false;
       const collisionBox = object.userData.collisionBox;
       if (collisionBox) {
-        const index = this.collisionBoxes.indexOf(collisionBox);
-        if (index !== -1) this.collisionBoxes.splice(index, 1);
+        // A level's local list and the active world's collision list contain the same box reference.
+        // Remove it from every registered collection so destroyed props stop blocking movement and shots.
+        for (const collection of this.collisionCollections) {
+          let index;
+          while ((index = collection.indexOf(collisionBox)) !== -1) collection.splice(index, 1);
+        }
       }
       this.onBreak(object, point || null);
       return { damaged: true, destroyed: true, remaining: 0 };
