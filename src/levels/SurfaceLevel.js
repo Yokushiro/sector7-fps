@@ -71,9 +71,12 @@
       scene.add(hull);
       const brokenWing = box(-16.5, 2.4, 7.5, 5.5, .35, 2.4, dark);
       brokenWing.rotation.z = -.18;
-      box(-18, .8, 17, 3.8, 1.6, 3.2, steel);
-      box(14, 1.2, 16, 4.2, 2.4, 3.8, dark);
-      box(17, .7, 22, 3.2, 1.4, 2.6, steel);
+      const supplyCrate = box(-18, .8, 17, 3.8, 1.6, 3.2, steel);
+      supplyCrate.userData.destructible = { health: 3, destroyed: false };
+      const cargoCrate = box(14, 1.2, 16, 4.2, 2.4, 3.8, dark);
+      cargoCrate.userData.destructible = { health: 4, destroyed: false };
+      const fieldCase = box(17, .7, 22, 3.2, 1.4, 2.6, steel);
+      fieldCase.userData.destructible = { health: 2, destroyed: false };
       box(-7, .65, 24, 2.8, 1.3, 2.8, dark);
 
       // Optional field recorder provides a clue about the voice that escaped the facility.
