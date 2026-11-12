@@ -136,7 +136,7 @@
     }
 
     lineDuration(line) {
-      return Math.max(3.2, Math.min(12, 2 + String(line?.text || '').length / 13));
+      return Math.max(3.2, Math.min(26, 2 + String(line?.text || '').length / 13));
     }
 
     update(deltaTime) {
