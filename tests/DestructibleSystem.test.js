@@ -40,3 +40,12 @@ test('destroyed props are removed from every active collision collection', () =>
   assert.equal(worldBoxes.includes(collisionBox), false);
   assert.equal(levelBoxes.includes(collisionBox), false);
 });
+
+
+test('breaking a destructible light fixture switches off its attached light', () => {
+  const light = { intensity: 0.9 };
+  const fixture = { visible: true, userData: { breakLight: light, destructible: { health: 1, destroyed: false } } };
+  const system = new DestructibleSystem();
+  assert.equal(system.hit(fixture, null).destroyed, true);
+  assert.equal(light.intensity, 0);
+});
