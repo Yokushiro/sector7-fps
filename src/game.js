@@ -285,6 +285,7 @@ const weapon=new S7WeaponSystem({
 const damageSystem=new S7DamageSystem();
 const hitFeedback=new S7HitFeedback();
 const projectileSystem=new S7ProjectileSystem({scene});
+const destructibleSystem=new S7DestructibleSystem({collisionBoxes:boxes,onBreak:(object,point)=>{if(point)for(let i=0;i<10;i++)spark(point,new T.Color(2.4,1.1,.35),R(2,5));snd(95,.24,'square',.18,true);}});
 function hitEnemy(enemy,hit){
  const result=damageSystem.applyEnemyDamage(enemy,Boolean(hit.object.userData.head));
  if(enemy.visual?.hitFlash){
@@ -317,8 +318,10 @@ function hitEnemy(enemy,hit){
  if(result.killed)killE(enemy);
 }
 function hitWorld(hit){
- for(let i=0;i<5;i++)spark(hit.point,new T.Color(3,2,1),3);
-}
+  const result=destructibleSystem.hit(hit.object,hit.point,1);
+  for(let i=0;i<(result.destroyed?12:result.damaged?7:5);i++)spark(hit.point,new T.Color(3,2,1),result.destroyed?5:3);
+  if(result.destroyed)snd(115,.2,'square',.16,true);
+ }
 function dmg(n){const result=damageSystem.applyPlayerDamage(P,n);hurt=1;snd(70,.25,'sine',.6);$('hpf').style.width=result.remaining+'%';if(result.killed)end(false)}
 function end(w){
  if(state==='over'||state==='transition')return;
