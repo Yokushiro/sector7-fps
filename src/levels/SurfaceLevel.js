@@ -5,10 +5,10 @@
     id: 'surface-04',
     build(context) {
       const { THREE: T, scene, mat, box } = context;
-      const wall = mat('concrete', 8, 2, 0, 0x59636a);
-      const steel = mat('metal', 3, 2, .85, 0x71818b);
+      const wall = mat('concrete', 8, 2, 0, 0x66665d);
+      const steel = mat('metal', 3, 2, .85, 0x777d78);
       const dark = mat('metal', 2, 2, .9, 0x29343b);
-      const floorMat = mat('floor', 12, 18, .18, 0x9aa0a0);
+      const floorMat = mat('floor', 12, 18, .18, 0x777b70);
       const floor = new T.Mesh(new T.PlaneGeometry(46, 86), floorMat);
       floor.rotation.x = -Math.PI / 2;
       floor.position.set(0, 0, 0);
