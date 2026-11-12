@@ -175,6 +175,25 @@
       terminalLight.position.set(-6, 1.9, 10.8);
       scene.add(terminalLight);
 
+      // Sterile containment bays: repeated glass columns and cyan service lighting distinguish the lab.
+      const podGlass = new T.MeshStandardMaterial({ color: 0x91e8f0, metalness: .18, roughness: .12, transparent: true, opacity: .22, depthWrite: false });
+      const podRim = new T.MeshStandardMaterial({ color: 0xb9dce2, metalness: .82, roughness: .24 });
+      for (const [x, z] of [[-10, -8], [10, -8], [-10, 8], [10, 8]]) {
+        const pod = new T.Mesh(new T.CylinderGeometry(.72, .72, 3.8, 20, 1, true), podGlass);
+        pod.position.set(x, 2.15, z); scene.add(pod);
+        for (const y of [.32, 4.0]) {
+          const rim = new T.Mesh(new T.TorusGeometry(.73, .09, 8, 24), podRim);
+          rim.rotation.x = Math.PI / 2; rim.position.set(x, y, z); scene.add(rim);
+        }
+        const glow = new T.PointLight(0x4bdde8, .55, 4, 2);
+        glow.position.set(x, 1.4, z); scene.add(glow);
+      }
+      const sterileStripMat = new T.MeshBasicMaterial({ color: 0x9cf5ff });
+      for (const x of [-6, 0, 6]) {
+        const strip = new T.Mesh(new T.BoxGeometry(.12, .035, 18), sterileStripMat);
+        strip.position.set(x, 7.55, 0); scene.add(strip);
+      }
+
       return {
         name: 'Исследовательский комплекс',
         requiredInteractionId: 'lab-security-console',
