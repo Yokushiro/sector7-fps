@@ -209,6 +209,19 @@
           }
         }
 
+        if (enemy.visual?.hitFlash) {
+          const flash = enemy.visual.hitFlash;
+          enemy.hitFlashRemaining = Math.max(0, (enemy.hitFlashRemaining || 0) - dt);
+          const progress = enemy.hitFlashRemaining / 0.24;
+          flash.visible = enemy.hitFlashRemaining > 0;
+          if (flash.visible) {
+            flash.scale.setScalar(0.3 + (1 - progress) * 0.85);
+            if (flash.material) flash.material.opacity = Math.min(1, progress * 1.35);
+          } else if (flash.material) {
+            flash.material.opacity = 0;
+          }
+        }
+
         if (enemy.flash > 0) {
           enemy.flash -= dt;
           if (enemy.flash <= 0) enemy.m.emissive.setRGB(0, 0, 0);
