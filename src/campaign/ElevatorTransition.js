@@ -194,6 +194,7 @@
 
     dispose(){
       if(this.disposed)return;
+      this.phase='complete';
       this.disposed=true;
       if(this.group){
         const geometries=new Set(),materials=new Set();
