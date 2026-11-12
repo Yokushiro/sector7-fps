@@ -123,7 +123,10 @@ const elevatorTransition=new S7ElevatorTransition({
  },
  onTravel:()=>{
   try{
-   loadMission(elevatorNextMission,{elevator:true,preserveVitals:elevatorVitals});
+   if(!loadMission(elevatorNextMission,{elevator:true,preserveVitals:elevatorVitals})){
+    elevatorTransition.dispose();
+    return;
+   }
    elevatorTransition.setDestination(P.pos,P.yaw,String(currentMission.order).padStart(2,'0'));
    dialogueSystem.startRadio(currentMission.introDialogue,()=>elevatorTransition.setRadioComplete());
   }catch(error){
@@ -459,11 +462,13 @@ function loadMission(nextMission,transition={}){
    dialogueSystem.startRadio(currentMission.introDialogue);
    try{dom.requestPointerLock()}catch(e){fallback=true}
   }
+  return true;
  }catch(error){
   console.error('Campaign transition failed',error);
   state='over';$('ov').style.display='flex';
   $('ov').innerHTML='<div><h1>ОШИБКА ЗАГРУЗКИ СЕКТОРА</h1><p>Не удалось загрузить следующую локацию.</p><p>Перезапусти миссию, чтобы восстановить кампанию.</p></div>';
   $('ov').onclick=()=>location.reload();
+  return false;
  }
 }
 function transitionToMission(nextMission){
