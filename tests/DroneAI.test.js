@@ -503,3 +503,35 @@ test('Warden phase transition visibly recolors and surges its reactor and ring',
   assert.ok(haloOpacity > 0);
   assert.ok(haloScale > 0.35);
 });
+
+
+test('Warden marks the targeted ground lane during its charged volley and clears on launch', () => {
+  const ai = new DroneAI();
+  const enemy = makeEnemy('warden', 0, 7.2);
+  Object.assign(enemy, {
+    cd: 0, phase: 1, damage: 18, projectileSpeed: 15,
+    attackMin: 1.25, attackMax: 1.8
+  });
+  const marker = {
+    visible: false,
+    position: { x: 0, y: 0, z: 0, set(x, y, z) { this.x = x; this.y = y; this.z = z; } },
+    scale: { value: 1, setScalar(value) { this.value = value; } },
+    rotation: { z: 0 },
+    material: { opacity: 0, color: { value: 0, setHex(value) { this.value = value; } } }
+  };
+  enemy.visual = { attackMarker: marker };
+  const previousThree = context.THREE;
+  context.THREE = makeAttackThree();
+  const projectiles = [];
+  const player = { pos: { x: 0, y: 1.7, z: 0 } };
+  ai.update([enemy], player, 0.1, () => {}, { add() {} }, projectiles, () => {}, min => min);
+  assert.equal(marker.visible, true);
+  assert.ok(marker.position.z < 0, 'warning ring should appear along the line toward the player');
+  assert.ok(marker.material.opacity > 0);
+  assert.equal(marker.material.color.value, 0x55dfff);
+  ai.update([enemy], player, 0.6, () => {}, { add() {} }, projectiles, () => {}, min => min);
+  context.THREE = previousThree;
+  assert.equal(projectiles.length, 2);
+  assert.equal(marker.visible, false, 'warning ring should disappear as the volley launches');
+  assert.equal(marker.material.opacity, 0);
+});
