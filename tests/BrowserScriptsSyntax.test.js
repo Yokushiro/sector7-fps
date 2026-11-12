@@ -105,3 +105,11 @@ test('desktop exit uses the isolated preload bridge and packaged preload file', 
   assert.ok(game.includes('window.sector7Desktop.quit()'));
   assert.ok(packageJson.build.files.includes('preload.js'));
 });
+
+
+test('Electron shortcuts are handled once and the packaged page uses an absolute path', () => {
+  const main = fs.readFileSync(path.join(__dirname, '..', 'main.js'), 'utf8');
+  assert.match(main, /e\.preventDefault\(\);\s*w\.setFullScreen/);
+  assert.match(main, /e\.preventDefault\(\);\s*w\.webContents\.openDevTools/);
+  assert.match(main, /w\.loadFile\(path\.join\(__dirname, 'index\.html'\)\)/);
+});
