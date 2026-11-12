@@ -41,15 +41,15 @@
       box(S + .5, H / 2, 0, 1, H, S * 2, concrete);
 
       // Heavy service corridor links the laboratory wing to the reactor hall.
-      const corridorFloor = new T.Mesh(new T.PlaneGeometry(5.2, 14), mat('floor', 2, 5, .35));
+      const corridorFloor = new T.Mesh(new T.PlaneGeometry(5.2, 14.5), mat('floor', 2, 5, .35));
       corridorFloor.rotation.x = -Math.PI / 2;
-      corridorFloor.position.set(0, .015, -25);
+      corridorFloor.position.set(0, .015, -25.25);
       corridorFloor.receiveShadow = true;
       scene.add(corridorFloor);
       solids.push(corridorFloor);
-      box(-2.8, H / 2, -25, .45, H, 14, concrete);
-      box(2.8, H / 2, -25, .45, H, 14, concrete);
-      box(0, H - .35, -25, 6.2, .5, 14, dark, false);
+      box(-2.8, H / 2, -25.25, .45, H, 14.5, concrete);
+      box(2.8, H / 2, -25.25, .45, H, 14.5, concrete);
+      box(0, H - .35, -25.25, 6.2, .5, 14.5, dark, false);
       // Pressure-rated elevator doors at the end of the evacuation vestibule.
       const elevatorFrame = mat('metal', 1, 1, .92, 0x6a6260);
       const elevatorDoors = [
@@ -80,15 +80,15 @@
       scene.add(elevatorHeader);
       let exitOpen = false;
       // Short, illuminated evacuation vestibule beyond the final bulkhead gives the player a real place to emerge.
-      const evacuationFloor = new T.Mesh(new T.PlaneGeometry(5.2, 8), mat('floor', 2, 3, .2));
+      const evacuationFloor = new T.Mesh(new T.PlaneGeometry(5.2, 8.5), mat('floor', 2, 3, .2));
       evacuationFloor.rotation.x = -Math.PI / 2;
-      evacuationFloor.position.set(0, .015, -36.5);
+      evacuationFloor.position.set(0, .015, -36.75);
       evacuationFloor.receiveShadow = true;
       scene.add(evacuationFloor);
       solids.push(evacuationFloor);
-      box(-2.8, H / 2, -36.5, .45, H, 8, concrete);
-      box(2.8, H / 2, -36.5, .45, H, 8, concrete);
-      box(0, H - .35, -36.5, 6.2, .5, 8, dark, false);
+      box(-2.8, H / 2, -36.75, .45, H, 8.5, concrete);
+      box(2.8, H / 2, -36.75, .45, H, 8.5, concrete);
+      box(0, H - .35, -36.75, 6.2, .5, 8.5, dark, false);
       const evacuationLight = new T.PointLight(0x8cecff, 2.1, 20, 2);
       evacuationLight.position.set(0, 5.2, -37.5);
       scene.add(evacuationLight);
