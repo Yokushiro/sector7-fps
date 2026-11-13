@@ -44,6 +44,7 @@ test('elevator remains walkable during travel and opens into the next sector',()
     });
     elevator.begin({position:{x:0,y:1.7,z:0},yaw:0,destinationLabel:'02',player});
     assert.equal(elevator.phase,'closing');
+    assert.equal(elevator.doorOpen,1,'boarding doors begin open and close around the player');
     assert.equal(player.yaw,0,'the player faces the cabin display on entry');
     assert.equal(player.pitch,.12,'entry alignment preserves the player pitch');
     assert.equal(elevator.group.rotation.y,0);
@@ -78,7 +79,11 @@ test('elevator remains walkable during travel and opens into the next sector',()
     assert.equal(sounds.filter(type=>type==='floor-beep').length,3,'floor beeps occur only when the displayed floor or direction changes');
     elevator.setRadioComplete();
     elevator.update(.1);
-    assert.equal(elevator.phase,'opening');
+    assert.equal(elevator.phase,'waiting','arrival doors stay closed until the player approaches');
+    assert.equal(elevator.doorOpen,0);
+    player.pos.copy(elevator.group.localToWorld(new Vector3(0,1.7,-1.05)));
+    elevator.update(.1);
+    assert.equal(elevator.phase,'opening','approaching the threshold requests the doors to open');
     for(let i=0;i<10;i++)elevator.update(.1);
     assert.equal(elevator.phase,'open');
     assert.equal(elevator.doorOpen,1);
@@ -86,6 +91,9 @@ test('elevator remains walkable during travel and opens into the next sector',()
     const outside=elevator.group.localToWorld(new Vector3(0,1.7,-3.4));
     player.pos.copy(outside);
     elevator.constrainPlayer(player.pos);
+    assert.equal(elevator.phase,'exit-closing','the doors close after the player has crossed the threshold');
+    assert.ok(elevator.doorOpen>0,'the doors animate shut behind the player');
+    for(let i=0;i<8;i++)elevator.update(.1);
     assert.equal(elevator.phase,'complete');
     assert.equal(completeCalls,1);
     assert.equal(exitPosition,player.pos);
