@@ -341,7 +341,7 @@ test('flashlight toggling keeps the spotlight in the render list to avoid shader
   assert.match(game, /torchEnabled=!torchEnabled;torch\.intensity=torchEnabled\?1\.6:0/);
   assert.doesNotMatch(game, /torch\.visible=!torch\.visible/);
   assert.match(game, /renderer\.compileAsync\(scene,cam\)/);
-  assert.match(game, /renderer\.compile\(scene,cam\)/);
+  assert.doesNotMatch(game, /renderer\.compile\(scene,cam\)/,'synchronous shader compilation is forbidden in the transition path');
   assert.match(game, /prepared\.playerSpawn\?\.yaw/);
 });
 
