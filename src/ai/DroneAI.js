@@ -29,6 +29,30 @@
       for (const enemy of enemies) {
         const group = enemy.g;
         enemy.t += dt;
+        // Damage is persistent: once a critical subsystem fails, the silhouette
+        // and combat behavior retain that failure for the rest of the encounter.
+        const healthRatio = Number.isFinite(enemy.hp) && Number.isFinite(enemy.maxHp) && enemy.maxHp > 0
+          ? Math.max(0, enemy.hp / enemy.maxHp) : 1;
+        if (!enemy.moduleFailureTriggered && healthRatio <= 0.55) {
+          enemy.moduleFailureTriggered = true;
+          enemy.disabledModule = enemy.type === 'assault' ? 1 : 0;
+          const visual = enemy.visual;
+          if (visual) {
+            const failedPart = enemy.type === 'scout' ? visual.rotors?.[1]?.ring
+              : enemy.type === 'assault' ? visual.weaponPods?.[1]?.pivot
+              : enemy.type === 'heavy' ? visual.exhausts?.[1]?.glow
+              : enemy.type === 'sniper' ? visual.scopeCore
+              : visual.claws?.[1];
+            if (failedPart) {
+              failedPart.visible = false;
+              enemy.failedPart = failedPart;
+            }
+            if (visual.body?.material?.emissive) visual.body.material.emissive.setHex(0x4b2118);
+          }
+          enemy.hitStunRemaining = Math.max(enemy.hitStunRemaining || 0, 0.28);
+          sound(72, 0.22, 'sawtooth', 0.16);
+        }
+        enemy.criticalDamage = healthRatio <= 0.25;
         enemy.hitStunRemaining = Math.max(0, (enemy.hitStunRemaining || 0) - dt);
         const hitStunned = enemy.hitStunRemaining > 0;
         // The Warden escalates once, at half health, rather than relying on raw stats alone.
@@ -118,7 +142,11 @@
           }
         }
 
-        const reactionScale = hitStunned ? 0.18 : 1;
+        const reactionScale = hitStunned ? 0.18 : enemy.criticalDamage ? 0.78 : 1;
+        if (enemy.criticalDamage) {
+          const instability = Math.sin(enemy.t * 19) * (enemy.type === 'heavy' ? 0.025 : 0.065);
+          group.position.y += instability;
+        }
         group.position.x += moveX * dt * reactionScale;
         group.position.z += moveZ * dt * reactionScale;
         // A surviving unit tries to break the player's firing lane after impact.
@@ -348,9 +376,9 @@
 
             if (enemy.type === 'assault') {
               // Three-round fan: aggressive pressure, but the spread gives the player a lane to dodge.
-              shot(-0.42, 0, speed * 0.96, damage * 0.62, -0.12);
+              if (enemy.disabledModule !== 0) shot(-0.42, 0, speed * 0.96, damage * 0.62, -0.12);
               shot(0, 0, speed, damage * 0.62, 0);
-              shot(0.42, 0, speed * 0.96, damage * 0.62, 0.12);
+              if (enemy.disabledModule !== 1) shot(0.42, 0, speed * 0.96, damage * 0.62, 0.12);
               sound(420, 0.2, 'sawtooth', 0.12);
             } else if (enemy.type === 'heavy') {
               // Slow, broad shock volley, clearly telegraphed by its long charge.
