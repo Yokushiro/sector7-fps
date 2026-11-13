@@ -13,7 +13,7 @@
       this.phase='idle'; this.phaseTime=0; this.travelTime=0;
       this.destinationReady=false; this.radioComplete=false; this.destinationLabel='02';
       this.destinationY=0; this.travelStartY=0; this.doorOpen=0; this.disposed=false; this.lastDisplayKey=null;
-      this.vibrationTime=0; this.vibrationOffset=0; this.exitRequested=false;
+      this.vibrationTime=0; this.vibrationOffset=0; this.vibrationLateralOffset=0; this.exitRequested=false;
       this.durations={closing:.9,travel:4.2,opening:.9,exitClosing:.72};
       this.cabinHalfWidth=1.9; this.cabinHalfDepth=2.4;
     }
@@ -232,8 +232,12 @@
         this.vibrationTime+=dt;
         const nextOffset=Math.sin(this.vibrationTime*38)*.012+Math.sin(this.vibrationTime*71)*.004;
         const delta=nextOffset-this.vibrationOffset;this.vibrationOffset=nextOffset;
+        const lateral=Math.sin(this.vibrationTime*53)*.006+Math.sin(this.vibrationTime*89)*.0025;
+        const lateralDelta=lateral-this.vibrationLateralOffset;this.vibrationLateralOffset=lateral;
         this.group.position.y+=delta;
-        if(this.player?.pos)this.player.pos.y+=delta;
+        const c=Math.cos(this.group.rotation.y),s=Math.sin(this.group.rotation.y);
+        this.group.position.x+=c*lateralDelta;this.group.position.z-=s*lateralDelta;
+        if(this.player?.pos){this.player.pos.y+=delta;this.player.pos.x+=c*lateralDelta;this.player.pos.z-=s*lateralDelta;}
         if(this.ceilingLight)this.ceilingLight.intensity=.95+Math.sin(this.travelTime*13)*.13+Math.sin(this.vibrationTime*38)*.08;
       }
       if(this.player?.pos&&this.isActive()&&this.phase!=='exit-closing')this.constrainPlayer(this.player.pos);
@@ -242,6 +246,7 @@
 
     dispose(){
       if(this.disposed)return;
+      this.onSound('motor-stop');
       this.phase='complete';
       this.disposed=true;
       if(this.group){
