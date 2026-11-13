@@ -56,8 +56,8 @@
       const elevatorFrame = new T.MeshStandardMaterial({color:0xa6b2b8,metalness:.92,roughness:.22,emissive:0x2b241f,emissiveIntensity:.3});
       const elevatorDoorSteel = new T.MeshStandardMaterial({color:0xc1c9cc,metalness:.94,roughness:.2,emissive:0x33271e,emissiveIntensity:.28});
       const elevatorDoors = [
-        box(-1.45, 3.5, -32.5, 2.9, 6.7, .34, mat('metal', 1, 1, .9, 0x493d3b)),
-        box(1.45, 3.5, -32.5, 2.9, 6.7, .34, mat('metal', 1, 1, .9, 0x493d3b))
+        box(-1.45, 3.5, -32.5, 2.9, 6.7, .34, elevatorDoorSteel),
+        box(1.45, 3.5, -32.5, 2.9, 6.7, .34, elevatorDoorSteel)
       ];
       elevatorDoors[0].userData.openX = -4.25;
       elevatorDoors[1].userData.openX = 4.25;
