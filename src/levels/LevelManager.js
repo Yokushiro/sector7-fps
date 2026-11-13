@@ -128,6 +128,15 @@
       return true;
     }
 
+    discardPreparedExcept(keepId) {
+      let discarded = 0;
+      for (const id of [...this.prepared.keys()]) {
+        if (id === keepId) continue;
+        if (this.discardPrepared(id)) discarded++;
+      }
+      return discarded;
+    }
+
     unload() {
       if (!this.current) return;
       for (const item of this.current.solids) {
