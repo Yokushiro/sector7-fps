@@ -196,7 +196,7 @@ function spawn(){
  g.add(body,head,sensor,ring);
  const hitFlash=new T.Mesh(new T.OctahedronGeometry(.18,0),new T.MeshBasicMaterial({color:0xffd18a,transparent:true,opacity:0,depthWrite:false}));
  hitFlash.visible=false;g.add(hitFlash);
- e.visual={body,head,sensor,ring,core:null,phaseHalo:null,hitFlash,rotors:[],articulators:[],weaponPods:[],exhausts:[]};
+ e.visual={body,head,sensor,ring,core:null,phaseHalo:null,hitFlash,rotors:[],articulators:[],weaponPods:[],exhausts:[],armorPanels:[]};
  const accent=new T.MeshStandardMaterial({color:profile.ringColor,metalness:.72,roughness:.24,emissive:profile.ringColor,emissiveIntensity:.22});
  const darkMetal=new T.MeshStandardMaterial({color:0x111820,metalness:.88,roughness:.34});
  const glowMat=new T.MeshBasicMaterial({color:profile.ringColor,transparent:true,opacity:.88,depthWrite:false});
@@ -213,7 +213,9 @@ function spawn(){
   shape.lineTo(w/2-cut,h/2);shape.lineTo(-w/2+cut,h/2);
   shape.lineTo(-w/2,h/2-cut);shape.lineTo(-w/2,-h/2+cut);shape.closePath();
   const geometry=new T.ExtrudeGeometry(shape,{depth,bevelEnabled:true,bevelSegments:2,steps:1,bevelSize:.018,bevelThickness:.018});
-  return addPart(geometry,material,position);
+  const panel=addPart(geometry,material,position);
+  e.visual.armorPanels.push({part:panel,phase:position[0]*3+position[1]*2,axis:'z'});
+  return panel;
  };
  const addFastener=(x,y,z,r=.035)=>{
   const bolt=addPart(new T.CylinderGeometry(r,r,.025,8),accent,[x,y,z],[Math.PI/2,0,0]);
