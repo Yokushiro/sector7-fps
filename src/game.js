@@ -353,13 +353,22 @@ function spawn(){
  if(type==='warden'){
   // Hinged shoulder shrouds expose the boss' internal reactor frame in phase two.
   for(const side of[-1,1]){
-   const hinge=new T.Group();hinge.position.set(side*.72,.68,-.12);g.add(hinge);
-   addPart(new T.BoxGeometry(.16,.18,.18),darkMetal,[0,0,0],[0,0,0],hinge);
-   addPart(new T.BoxGeometry(.48,.72,.095),accent,[side*.24,0,0],[0,0,side*-.08],hinge);
-   addPart(new T.BoxGeometry(.31,.48,.025),darkMetal,[side*.24,0,.061],[0,0,0],hinge);
-   addPart(new T.BoxGeometry(.2,.035,.018),glowMat,[side*.24,0,.08],[0,0,0],hinge);
-   for(const y of[-.27,.27])addPart(new T.CylinderGeometry(.035,.035,.025,8),darkMetal,[side*.24,y,.08],[Math.PI/2,0,0],hinge);
-   e.visual.phasePanels.push({hinge,side,closed:side*-.08});
+   // Side-hinged blast shutters sit on the forward shoulder line and swing away
+   // from the reactor, revealing the layered core cage during phase two.
+   const hinge=new T.Group();hinge.position.set(side*.82,.62,.34);g.add(hinge);
+   addPart(new T.CylinderGeometry(.095,.095,.16,12),darkMetal,[0,0,0],[Math.PI/2,0,0],hinge);
+   addPart(new T.CylinderGeometry(.045,.045,.19,10),accent,[0,0,.025],[Math.PI/2,0,0],hinge);
+   addPart(new T.BoxGeometry(.13,.68,.58),accent,[0,0,-.27],[0,0,0],hinge);
+   addPart(new T.BoxGeometry(.035,.48,.38),darkMetal,[.075,0,-.27],[0,0,0],hinge);
+   addPart(new T.BoxGeometry(.025,.34,.045),glowMat,[.097,0,-.27],[0,0,0],hinge);
+   for(const y of[-.25,.25]){
+    addPart(new T.CylinderGeometry(.032,.032,.025,8),darkMetal,[.1,y,-.27],[Math.PI/2,0,0],hinge);
+    addPart(new T.BoxGeometry(.09,.035,.16),darkMetal,[.02,y,-.27],[0,0,0],hinge);
+   }
+   const piston=new T.Group();piston.position.set(-side*.12,-.28,.02);hinge.add(piston);
+   addPart(new T.CylinderGeometry(.035,.035,.3,8),darkMetal,[0,-.12,0],[0,0,0],piston);
+   addPart(new T.CylinderGeometry(.018,.018,.22,8),glowMat,[0,-.12,0],[0,0,0],piston);
+   e.visual.phasePanels.push({hinge,side,closed:0,piston});
   }
   const phaseHalo=new T.Mesh(
    new T.TorusGeometry(1.28,.028,8,56),
