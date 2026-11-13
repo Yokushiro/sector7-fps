@@ -304,6 +304,12 @@ function spawn(){
    addCable([[side*.28,-.12,-.12],[side*.48,-.2,-.28],[side*.72,-.12,-.32]],.018);
   }
   addVentBank(0,-.12,.31,3);
+  const sensorGimbal=new T.Group();sensorGimbal.position.set(-.28,.58,-.08);g.add(sensorGimbal);
+  addPart(new T.CylinderGeometry(.075,.09,.12,10),darkMetal,[0,0,0],[0,0,0],sensorGimbal);
+  addPart(new T.SphereGeometry(.105,14,10),glowMat,[0,.1,.02],[0,0,0],sensorGimbal);
+  addPart(new T.TorusGeometry(.14,.018,6,18),accent,[0,.1,.02],[Math.PI/2,0,0],sensorGimbal);
+  e.visual.articulators.push({part:sensorGimbal,axis:'y',phase:.4,amplitude:.34});
+  addCable([[-.25,-.1,-.12],[-.34,.1,-.2],[-.28,.48,-.1]],.016);
  }else if(type==='assault'){
   addArmorPlate(.72,.52,.085,[0,.16,.38],accent,.14);
   addArmorPlate(.46,.28,.05,[0,.17,.48],darkMetal,.1);
@@ -313,7 +319,12 @@ function spawn(){
    for(const y of[-.08,.2])addFastener(side*.57,y,.19);
    addCable([[side*.3,-.2,-.1],[side*.48,-.34,-.22],[side*.72,-.18,-.2]],.026);
    addVentBank(side*.35,-.27,.24,3);
+   const ammoDrum=addPart(new T.CylinderGeometry(.14,.14,.22,12),darkMetal,[side*.76,-.22,-.08],[Math.PI/2,0,0]);
+   addPart(new T.TorusGeometry(.145,.018,6,16),accent,[side*.76,-.22,.04],[Math.PI/2,0,0]);
+   addPart(new T.BoxGeometry(.12,.24,.18),m,[side*.76,-.42,-.08]);
+   e.visual.articulators.push({part:ammoDrum,axis:'z',phase:side,amplitude:.025});
   }
+  for(let i=0;i<4;i++)addPart(new T.BoxGeometry(.1,.18,.08),darkMetal,[(i-1.5)*.18,-.38,-.48],[0,0,(i-1.5)*.025]);
  }else if(type==='heavy'){
   addArmorPlate(.88,.72,.1,[0,.22,.4],accent,.18);
   addArmorPlate(.62,.48,.07,[0,.23,.51],darkMetal,.14);
@@ -325,6 +336,12 @@ function spawn(){
    addVentBank(side*.43,.48,.31,4);
   }
   for(let i=0;i<5;i++)addPart(new T.BoxGeometry(.11,.025,.04),glowMat,[(i-2)*.14,-.3,.38]);
+  for(const side of[-1,1]){
+   const fin=addPart(new T.BoxGeometry(.12,.56,.34),darkMetal,[side*.48,-.02,-.52],[0,0,side*.12]);
+   const finEdge=addPart(new T.BoxGeometry(.035,.48,.025),accent,[side*.48,-.02,-.34],[0,0,side*.12]);
+   e.visual.articulators.push({part:fin,axis:'x',phase:side*.8,amplitude:.035},{part:finEdge,axis:'x',phase:side*.8,amplitude:.035});
+  }
+  addPart(new T.TorusGeometry(.22,.025,8,24),accent,[0,.42,-.58],[Math.PI/2,0,0]);
  }else if(type==='sniper'){
   addArmorPlate(.48,.56,.07,[0,.2,.35],accent,.12);
   addArmorPlate(.28,.36,.045,[0,.21,.43],darkMetal,.08);
@@ -335,6 +352,16 @@ function spawn(){
    addCable([[side*.18,-.12,-.12],[side*.32,-.34,-.26],[side*.48,-.18,-.38]],.018);
   }
   addVentBank(-.27,.1,.28,3);
+  const bipod=[];
+  for(const side of[-1,1]){
+   const leg=new T.Group();leg.position.set(.3+side*.12,-.05,.72);g.add(leg);
+   addPart(new T.CylinderGeometry(.035,.045,.48,8),accent,[0,-.22,0],[0,0,side*.2],leg);
+   addPart(new T.BoxGeometry(.14,.045,.2),darkMetal,[0,-.46,.02],[0,0,0],leg);
+   bipod.push(leg);
+   e.visual.articulators.push({part:leg,axis:'z',phase:side*.2,amplitude:.045});
+  }
+  e.visual.bipod=bipod;
+  addPart(new T.BoxGeometry(.38,.09,.12),darkMetal,[.3,-.06,.62]);
  }else if(type==='warden'){
   addArmorPlate(.92,.78,.11,[0,.18,.43],accent,.2);
   addArmorPlate(.66,.56,.075,[0,.2,.55],darkMetal,.16);
@@ -349,6 +376,15 @@ function spawn(){
    addPart(new T.BoxGeometry(.46,.035,.055),darkMetal,[0,y,-.51]);
    addPart(new T.BoxGeometry(.3,.012,.025),glowMat,[0,y+.018,-.475]);
   }
+  const cage=new T.Group();cage.position.set(0,.42,.62);g.add(cage);
+  addPart(new T.TorusGeometry(.42,.035,8,32),darkMetal,[0,0,0],[0,0,0],cage);
+  addPart(new T.TorusGeometry(.34,.018,6,28),accent,[0,0,.045],[0,0,0],cage);
+  for(let i=0;i<8;i++){
+   const angle=i*Math.PI/4;
+   addPart(new T.BoxGeometry(.045,.52,.055),accent,[Math.cos(angle)*.34,Math.sin(angle)*.34,0],[0,0,angle],cage);
+   if(i%2===0)addPart(new T.SphereGeometry(.055,8,6),glowMat,[Math.cos(angle)*.34,Math.sin(angle)*.34,.05],[0,0,0],cage);
+  }
+  e.visual.reactorCage=cage;
  }
  if(type==='warden'){
   // Hinged shoulder shrouds expose the boss' internal reactor frame in phase two.
