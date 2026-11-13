@@ -97,8 +97,8 @@
       hull.position.set(-12, 2.8, 10);
       hull.castShadow = true;
       scene.add(hull);
-      const brokenWing = box(-16.5, .22, 7.5, 5.5, .35, 2.4, dark);
-      brokenWing.rotation.z = -.18;
+      const brokenWing = box(-16.5, .35, 7.5, 5.5, .35, 2.4, dark);
+      brokenWing.rotation.z = -.04;
       const supplyCrate = box(-18, .8, 17, 3.8, 1.6, 3.2, steel);
       supplyCrate.userData.destructible = { health: 3, destroyed: false };
       const cargoCrate = box(14, 1.2, 16, 4.2, 2.4, 3.8, dark);
@@ -157,7 +157,7 @@
         rock.rotation.set(i * .17, i * .63, i * .11); rock.castShadow = true; rock.receiveShadow = true; scene.add(rock);
       });
       const brokenSlab = new T.Mesh(new T.BoxGeometry(5.5, .42, 2.1), slabMat);
-      brokenSlab.position.set(-16, .21, -2); brokenSlab.rotation.y = -.38; brokenSlab.rotation.z = .12;
+      brokenSlab.position.set(-16, .25, -2); brokenSlab.rotation.y = -.38; brokenSlab.rotation.z = .05;
       brokenSlab.castShadow = true; scene.add(brokenSlab);
       const wreckBeam = new T.Mesh(new T.BoxGeometry(7.5, .22, .28), steel);
       wreckBeam.position.set(17, 1.15, 8); wreckBeam.rotation.set(.18, -.55, .48); wreckBeam.castShadow = true; scene.add(wreckBeam);
