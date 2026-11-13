@@ -87,6 +87,13 @@
         // Repel from nearby cover. If a drone is already inside an AABB,
         // choose its nearest face so it can recover instead of remaining stuck.
         for (const box of obstacles) {
+          // Drones hover above the floor: cover that is entirely below their
+          // collision body must not bend their flight path or trap them at edges.
+          const droneBottom = group.position.y - 0.45;
+          const droneTop = group.position.y + 0.45;
+          const obstacleBottom = Number.isFinite(box.y0) ? box.y0 : 0;
+          const obstacleTop = Number.isFinite(box.y1) ? box.y1 : 2.4;
+          if (obstacleTop < droneBottom || obstacleBottom > droneTop) continue;
           const inside = group.position.x >= box.x0 && group.position.x <= box.x1
             && group.position.z >= box.z0 && group.position.z <= box.z1;
           let awayX = group.position.x - Math.max(box.x0, Math.min(box.x1, group.position.x));
