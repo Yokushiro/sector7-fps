@@ -42,7 +42,7 @@
     createCabin(position,yaw){
       const T=this.THREE,group=new T.Group(); this.group=group;
       const forwardX=-Math.sin(yaw),forwardZ=-Math.cos(yaw);
-      group.position.set(position.x+forwardX*2.4,position.y-1.7,position.z+forwardZ*2.4);
+      group.position.set(position.x-forwardX*1.22,position.y-1.7,position.z-forwardZ*1.22);
       group.rotation.y=yaw;
       const metal=new T.MeshStandardMaterial({color:0x35434c,metalness:.72,roughness:.42});
       const dark=new T.MeshStandardMaterial({color:0x101a21,metalness:.42,roughness:.56});
@@ -109,7 +109,7 @@
         ?this.player.yaw-this.group.rotation.y:0;
     }
 
-    setDestination(position,yaw,floorLabel,playerYawOffset){
+    setDestination(position,yaw,floorLabel,playerYawOffset,entryOffset=0){
       if(!this.group||!position)throw new Error('Elevator cabin has not started');
       const destinationYaw=Number(yaw)||0;
       const forwardX=-Math.sin(destinationYaw),forwardZ=-Math.cos(destinationYaw);
@@ -118,7 +118,8 @@
         ?playerYawOffset:this.capturePlayerYawOffset();
       this.group.rotation.y=destinationYaw;
       this.destinationY=position.y-1.7;
-      this.group.position.set(position.x+forwardX*2.4,this.destinationY+7.5,position.z+forwardZ*2.4);
+      const safeEntryOffset=Math.max(0,Number(entryOffset)||0);
+      this.group.position.set(position.x-forwardX*(safeEntryOffset+2.22),this.destinationY+7.5,position.z-forwardZ*(safeEntryOffset+2.22));
       this.destinationLabel=String(floorLabel||this.destinationLabel);
       this.destinationReady=true;this.travelStartY=this.group.position.y;
       if(this.player?.pos){
