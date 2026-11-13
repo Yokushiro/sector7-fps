@@ -47,8 +47,12 @@
         const status = new T.Mesh(new T.BoxGeometry(.05, 6.2, .035), new T.MeshBasicMaterial({color:0xffa36e}));
         status.position.set(x, 3.55, 31.84); scene.add(status);
       }
+      const entryFixture = new T.Mesh(new T.BoxGeometry(1.35, .18, 1.1), new T.MeshStandardMaterial({color:0x48545b,metalness:.86,roughness:.28}));
+      entryFixture.position.set(0, 10.28, 25); scene.add(entryFixture);
+      const entryGlow = new T.Mesh(new T.BoxGeometry(.96, .035, .72), new T.MeshBasicMaterial({color:0x79dfff}));
+      entryGlow.position.set(0, 10.16, 25); scene.add(entryGlow);
       const entryLamp = new T.PointLight(0x38cfff, .9, 18, 2);
-      entryLamp.position.set(0, 5, 25);
+      entryLamp.position.set(0, 9.55, 25);
       scene.add(entryLamp);
       box(-S - .5, H / 2, 0, 1, H, S * 2, concrete);
       box(S + .5, H / 2, 0, 1, H, S * 2, concrete);
@@ -103,8 +107,12 @@
       box(-2.8, H / 2, -36.75, .45, H, 8.5, concrete);
       box(2.8, H / 2, -36.75, .45, H, 8.5, concrete);
       box(0, H - .35, -36.75, 6.2, .5, 8.5, dark, false);
+      const evacuationFixture = new T.Mesh(new T.BoxGeometry(1.25, .18, .72), new T.MeshStandardMaterial({color:0x3d4b54,metalness:.86,roughness:.28}));
+      evacuationFixture.position.set(0, 10.28, -37.5); scene.add(evacuationFixture);
+      const evacuationGlow = new T.Mesh(new T.BoxGeometry(.92, .035, .42), new T.MeshBasicMaterial({color:0x8cecff}));
+      evacuationGlow.position.set(0, 10.16, -37.5); scene.add(evacuationGlow);
       const evacuationLight = new T.PointLight(0x8cecff, 2.1, 20, 2);
-      evacuationLight.position.set(0, 5.2, -37.5);
+      evacuationLight.position.set(0, 9.55, -37.5);
       scene.add(evacuationLight);
 
       // Reactor containment base and the luminous energy column.
@@ -192,8 +200,12 @@
       scene.add(sign);
 
       scene.add(new T.HemisphereLight(0x7696b2, 0x100d14, .38));
+      const corridorFixture = new T.Mesh(new T.BoxGeometry(1.2, .18, .72), new T.MeshStandardMaterial({color:0x4a4140,metalness:.82,roughness:.3}));
+      corridorFixture.position.set(0, 10.28, -25); scene.add(corridorFixture);
+      const corridorGlow = new T.Mesh(new T.BoxGeometry(.88, .035, .42), new T.MeshBasicMaterial({color:0xffa05f}));
+      corridorGlow.position.set(0, 10.16, -25); scene.add(corridorGlow);
       const corridorLight = new T.PointLight(0xff8b42, 1.2, 17, 2);
-      corridorLight.position.set(0, 5, -25);
+      corridorLight.position.set(0, 9.55, -25);
       scene.add(corridorLight);
       // Red emergency beacon pulses after the reactor shutdown sequence begins.
       const alarm = new T.PointLight(0xff3028, .25, 16, 2);
