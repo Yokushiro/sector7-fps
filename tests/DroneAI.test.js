@@ -143,12 +143,11 @@ test('drones do not fire through solid level geometry', () => {
 
 test('hovering drones ignore cover that is fully below their flight body', () => {
   const ai = new DroneAI();
+  const baseline = makeEnemy('scout', 2, 5.5);
   const enemy = makeEnemy('scout', 2, 5.5);
-  enemy.g.position.x = 2.8;
-  enemy.strafeFrequency = 0;
-  const startZ = enemy.g.position.z;
-  ai.update(
-    [enemy],
+  baseline.g.position.x = enemy.g.position.x = 2.8;
+  const update = (unit, obstacles = []) => ai.update(
+    [unit],
     { pos: { x: 0, y: 1.7, z: 0 } },
     0.1,
     () => {},
@@ -156,10 +155,12 @@ test('hovering drones ignore cover that is fully below their flight body', () =>
     [],
     () => {},
     (min, max) => (min + max) / 2,
-    [{ x0: 3, x1: 4, y0: 0, y1: 0.6, z0: -1, z1: 1 }]
+    obstacles
   );
-  assert.equal(enemy.g.position.z, startZ,
-    'low cover below the drone body should not create artificial lateral repulsion');
+  update(baseline);
+  update(enemy, [{ x0: 3, x1: 4, y0: 0, y1: 0.6, z0: -1, z1: 1 }]);
+  assert.ok(Math.abs(enemy.g.position.z - baseline.g.position.z) < 1e-9,
+    'low cover below the drone body should not add lateral repulsion beyond normal strafing');
 });
 
 test('drones steer away from nearby obstacles', () => {
