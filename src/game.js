@@ -90,11 +90,10 @@ let dust=activeLevel.dust || {rotation:{y:0},position:{y:0}};
 let preloadScheduled=false;
 function preloadNextMission(){
  if(preloadScheduled)return false;
- const nextDefinition=S7MissionSystem.MISSIONS.find(mission=>mission.order>currentMission.order);
- if(!nextDefinition||levelManager.getPrepared(nextDefinition.levelId))return false;
  const prepare=()=>{
   preloadScheduled=false;
-  if(levelManager.getPrepared(nextDefinition.levelId)||levelManager.getCurrent()?.id===nextDefinition.levelId)return;
+  const nextDefinition=S7MissionSystem.MISSIONS.find(mission=>mission.order>currentMission.order);
+  if(!nextDefinition||levelManager.getPrepared(nextDefinition.levelId)||levelManager.getCurrent()?.id===nextDefinition.levelId)return;
   try{
    const prepared=levelManager.prepare(nextDefinition.levelId,{mat,canvas,randomRange:R,box});
    // Compile the hidden sector's shader variants before it becomes visible, avoiding a first-frame hitch on arrival.
