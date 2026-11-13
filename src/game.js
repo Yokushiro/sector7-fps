@@ -146,7 +146,8 @@ const elevatorTransition=new S7ElevatorTransition({
  onSound:type=>{
   if(type==='door-open')snd(185,.24,'triangle',.07);
   else if(type==='door-close')snd(125,.32,'square',.055);
-  else if(type==='motor-start')snd(48,.8,'sawtooth',.045);
+  else if(type==='motor-start'){snd(48,.8,'sawtooth',.045);startElevatorMotor()}
+  else if(type==='motor-stop')stopElevatorMotor();
   else if(type==='floor-beep')snd(880,.055,'sine',.035);
   else if(type==='arrival')snd(220,.35,'triangle',.06);
  },
@@ -193,7 +194,23 @@ let ac;function snd(f,d,type,v,noise){if(!ac)return;const t=ac.currentTime,o=ac.
  o.connect(ac.destination);
  // One-shot SFX must end and release their graph; otherwise every shot leaves a quiet oscillator running forever.
  s.onended=()=>{try{s.disconnect()}catch(e){};try{if(filter)filter.disconnect()}catch(e){};try{o.disconnect()}catch(e){}};
- s.start(t);s.stop(t+d+.04)};
+ s.start(t);s.stop(t+d+.04)}
+let elevatorMotor=null;
+function startElevatorMotor(){
+ if(!ac||elevatorMotor)return;
+ const now=ac.currentTime,gain=ac.createGain(),low=ac.createOscillator(),rattle=ac.createOscillator(),filter=ac.createBiquadFilter();
+ gain.gain.setValueAtTime(.0001,now);gain.gain.exponentialRampToValueAtTime(.028,now+.65);
+ filter.type='lowpass';filter.frequency.setValueAtTime(145,now);
+ low.type='sawtooth';low.frequency.setValueAtTime(39,now);low.frequency.linearRampToValueAtTime(47,now+2.1);
+ rattle.type='triangle';rattle.frequency.setValueAtTime(63,now);rattle.frequency.linearRampToValueAtTime(71,now+2.1);
+ low.connect(filter);rattle.connect(filter);filter.connect(gain);gain.connect(ac.destination);
+ low.start(now);rattle.start(now);elevatorMotor={gain,low,rattle,filter};
+}
+function stopElevatorMotor(){
+ if(!elevatorMotor)return;
+ const motor=elevatorMotor;elevatorMotor=null;const now=ac?.currentTime||0;
+ try{motor.gain.gain.cancelScheduledValues(now);motor.gain.gain.setValueAtTime(Math.max(.0001,motor.gain.gain.value),now);motor.gain.gain.exponentialRampToValueAtTime(.0001,now+.45);motor.low.stop(now+.48);motor.rattle.stop(now+.48);motor.low.onended=()=>{motor.low.disconnect();motor.rattle.disconnect();motor.filter.disconnect();motor.gain.disconnect()}}catch(error){}
+};
 
 /* ---------- враги ---------- */
 const bodyM=new T.MeshStandardMaterial({color:0x2b3037,roughness:.28,metalness:.95,envMapIntensity:1.3});
@@ -623,7 +640,8 @@ function end(w){
  $('evacTimer').hidden=true;
  if(w&&!outroShown&&currentMission.outroDialogue?.length){
   if(outroPlaying)return;
-  outroPlaying=true;state='transition';document.exitPointerLock&&document.exitPointerLock();
+  // Keep the FPS session live: the radio outro is an overlay, not a pause or a pointer-lock handoff.
+  outroPlaying=true;state='play';
   // Prepare the next sector while the player is reading the chapter outro, not during active combat or the lift ride.
   preloadNextMission();
   dialogueSystem.startRadio(currentMission.outroDialogue,()=>{outroShown=true;outroPlaying=false;state='play';end(true)});
@@ -730,7 +748,7 @@ function showPauseMenu(){
  state='menu';pauseMenu=true;$('s7-resume').hidden=false;$('msg').textContent='Пауза';
  $('s7-load-panel').hidden=true;$('ov').style.display='flex';
 }
-document.addEventListener('pointerlockchange',()=>{locked=document.pointerLockElement===dom;if(locked){pauseMenu=false;$('s7-resume').hidden=true}if(!locked&&state==='play'&&!fallback)showPauseMenu();});
+document.addEventListener('pointerlockchange',()=>{locked=document.pointerLockElement===dom;if(locked){pauseMenu=false;$('s7-resume').hidden=true}if(!locked&&state==='play'&&!fallback&&!(dialogueSystem.isActive()&&dialogueSystem.mode==='radio'))showPauseMenu();});
 document.addEventListener('pointerlockerror',()=>{fallback=true});
 addEventListener('mousemove',e=>{if(state!=='play'||!(locked||fallback))return;P.yaw-=e.movementX*.0022;P.pitch=cl(P.pitch-e.movementY*.0022,-1.45,1.45)});
 addEventListener('mousedown',e=>{if(e.button===0)mouse=true});addEventListener('mouseup',()=>mouse=false);
