@@ -33,7 +33,8 @@
         // and combat behavior retain that failure for the rest of the encounter.
         const healthRatio = Number.isFinite(enemy.hp) && Number.isFinite(enemy.maxHp) && enemy.maxHp > 0
           ? Math.max(0, enemy.hp / enemy.maxHp) : 1;
-        if (!enemy.moduleFailureTriggered && healthRatio <= 0.55) {
+        const moduleFailureThreshold = enemy.type === 'warden' ? 0.42 : 0.55;
+        if (!enemy.moduleFailureTriggered && healthRatio <= moduleFailureThreshold) {
           enemy.moduleFailureTriggered = true;
           enemy.disabledModule = enemy.type === 'assault' ? 1 : 0;
           const visual = enemy.visual;
