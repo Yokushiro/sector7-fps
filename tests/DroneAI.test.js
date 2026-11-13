@@ -244,6 +244,33 @@ test('drone eye lights retain their archetype colors', () => {
   assert.ok(color[2] > 0.9);
 });
 
+test('drone archetype mechanical parts animate independently during combat', () => {
+  const ai = new DroneAI();
+  const enemy = makeEnemy('scout', 0, 5.5);
+  const rotor = { rotation: { y: 0 } };
+  const hub = { rotation: { y: 0 } };
+  const blade = { rotation: { y: 0 } };
+  const fin = { rotation: { z: 0 } };
+  enemy.visual = {
+    rotors: [{ ring: rotor, hub, blade }],
+    articulators: [{ part: fin, axis: 'z', phase: 0, amplitude: 0.2 }]
+  };
+  ai.update(
+    [enemy],
+    { pos: { x: 0, y: 1.7, z: 0 } },
+    0.1,
+    () => {},
+    { add() {} },
+    [],
+    () => {},
+    (min, max) => (min + max) / 2
+  );
+  assert.ok(rotor.rotation.y > 0, 'scout rotor should spin');
+  assert.ok(hub.rotation.y < 0, 'counter-rotating hub should add mechanical motion');
+  assert.ok(blade.rotation.y > rotor.rotation.y, 'rotor blade should have its own spin rate');
+  assert.notEqual(fin.rotation.z, 0, 'articulated fins should move independently');
+});
+
 test('Warden boss maintains a distinct heavy-pressure combat profile', () => {
   const profile = DroneAI.PROFILES.warden;
   assert.equal(profile.hp, 280);
