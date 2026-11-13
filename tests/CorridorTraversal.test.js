@@ -321,6 +321,14 @@ test('elevator cabin keeps the floor display centered on the front wall and pres
 
 
 
+
+test('flashlight toggling keeps the spotlight in the render list to avoid shader recompilation', () => {
+  const game = read('src/game.js');
+  assert.match(game, /torchEnabled=!torchEnabled;torch\.intensity=torchEnabled\?1\.6:0/);
+  assert.doesNotMatch(game, /torch\.visible=!torch\.visible/);
+  assert.match(game, /renderer\.compileAsync\(scene,cam\)/);
+});
+
 test('incoming sector bulkheads contain aligned elevator apertures', () => {
   const lab = read('src/levels/LabLevel.js');
   const reactor = read('src/levels/ReactorLevel.js');
