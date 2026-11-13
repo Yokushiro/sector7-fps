@@ -218,6 +218,14 @@
               joint.part.rotation[joint.axis || 'z'] = value;
             }
           }
+          if (visual.armorPanels) {
+            const damageShake = enemy.criticalDamage ? 2.8 : 1;
+            for (const panel of visual.armorPanels) {
+              if (!panel.part?.rotation) continue;
+              const flex = Math.sin(enemy.t * 2.2 + (panel.phase || 0)) * 0.009 * damageShake;
+              panel.part.rotation[panel.axis || 'z'] = flex;
+            }
+          }
           if (visual.weaponPods) {
             for (const pod of visual.weaponPods) {
               if (pod.pivot) {
