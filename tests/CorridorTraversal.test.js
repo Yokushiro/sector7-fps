@@ -223,7 +223,8 @@ test('sector handoff uses a diegetic elevator and preserves player resources', (
   assert.match(game, /elevatorTransition\.begin\(/);
   assert.match(game, /loadMission\(elevatorNextMission,\{elevator:true,preserveVitals:elevatorVitals\}\)/);
   assert.match(game, /dialogueSystem\.startRadio\(currentMission\.introDialogue,\(\)=>elevatorTransition\.setRadioComplete\(\)\)/);
-  assert.match(game, /outroPlaying=true;state='transition'/);
+  assert.match(game, /outroPlaying=true;state='play'/,'chapter outro dialogue must leave gameplay and pointer lock active');
+  assert.doesNotMatch(game, /outroPlaying=true;state='play';document\.exitPointerLock/);
   assert.match(game, /dialogueSystem\.startRadio\(currentMission\.outroDialogue/);
   assert.match(game, /outroShown=true;outroPlaying=false;state='play';end\(true\)/);
   assert.match(game, /dialogueSystem\.update\(dt\)/);
@@ -238,6 +239,10 @@ test('sector handoff uses a diegetic elevator and preserves player resources', (
   assert.match(elevator, /displayKey!==this\.lastDisplayKey/);
   assert.match(elevator, /this\.player\.pos\.y\+=dy/);
   assert.match(elevator, /doorPassable/);
+  assert.match(elevator, /this\.enterPhase\('waiting'\)/,'arrival doors wait closed until the player approaches');
+  assert.match(elevator, /this\.enterPhase\('exit-closing'\)/,'doors close after the player crosses the threshold');
+  assert.match(game, /startElevatorMotor\(\)/);
+  assert.match(game, /stopElevatorMotor\(\)/);
   assert.match(elevator, /this\.setDoorOpen\(1-t\)/);
   assert.match(elevator, /this\.setDoorOpen\(t\)/);
   const html = read('index.html');
