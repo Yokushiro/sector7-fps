@@ -279,8 +279,10 @@ test('Warden armor shutters unfold into the phase-two combat silhouette', () => 
   const enemy = makeEnemy('warden', 0, 7.2);
   enemy.phase = 2;
   enemy.phaseTransitionRemaining = 0;
-  const left = { rotation: { z: 0 } };
-  const right = { rotation: { z: 0 } };
+  const left = { rotation: { y: 0 } };
+  const right = { rotation: { y: 0 } };
+  const leftPiston = { rotation: { z: 0 } };
+  const rightPiston = { rotation: { z: 0 } };
   enemy.visual = {
     ring: {
       material: { color: { setHex() {} } },
@@ -288,16 +290,18 @@ test('Warden armor shutters unfold into the phase-two combat silhouette', () => 
       rotation: { z: 0 }
     },
     phasePanels: [
-      { hinge: left, side: -1, closed: 0.08 },
-      { hinge: right, side: 1, closed: -0.08 }
+      { hinge: left, side: -1, closed: 0, piston: leftPiston },
+      { hinge: right, side: 1, closed: 0, piston: rightPiston }
     ]
   };
   ai.update(
     [enemy], { pos: { x: 0, y: 1.7, z: 0 } }, 0.1, () => {},
     { add() {} }, [], () => {}, (min, max) => (min + max) / 2
   );
-  assert.ok(left.rotation.z < 0, 'left armor shutter should unfold outward');
-  assert.ok(right.rotation.z > 0, 'right armor shutter should unfold outward');
+  assert.ok(left.rotation.y > 0, 'left armor shutter should unfold outward');
+  assert.ok(right.rotation.y < 0, 'right armor shutter should unfold outward');
+  assert.ok(leftPiston.rotation.z > 0, 'left hydraulic actuator should articulate with the shutter');
+  assert.ok(rightPiston.rotation.z < 0, 'right hydraulic actuator should articulate with the shutter');
 });
 
 test('Warden boss maintains a distinct heavy-pressure combat profile', () => {
