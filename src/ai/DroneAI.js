@@ -226,6 +226,19 @@
               panel.part.rotation[panel.axis || 'z'] = flex;
             }
           }
+          if (visual.phasePanels) {
+            const transition = enemy.phase === 2
+              ? enemy.phaseTransitionRemaining > 0
+                ? Math.min(1, Math.max(0, 1 - enemy.phaseTransitionRemaining / 1.8))
+                : 1
+              : 0;
+            const deploy = transition * transition * (3 - 2 * transition);
+            for (const panel of visual.phasePanels) {
+              if (!panel.hinge?.rotation) continue;
+              const target = (panel.closed || 0) + panel.side * 0.82 * deploy;
+              panel.hinge.rotation.z += (target - panel.hinge.rotation.z) * Math.min(1, dt * 5.5);
+            }
+          }
           if (visual.weaponPods) {
             for (const pod of visual.weaponPods) {
               if (pod.pivot) {
