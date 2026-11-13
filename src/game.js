@@ -199,7 +199,7 @@ function spawn(){
  e.visual={body,head,sensor,ring,core:null,phaseHalo:null,hitFlash,rotors:[],articulators:[],weaponPods:[],exhausts:[]};
  const accent=new T.MeshStandardMaterial({color:profile.ringColor,metalness:.72,roughness:.24,emissive:profile.ringColor,emissiveIntensity:.22});
  const darkMetal=new T.MeshStandardMaterial({color:0x111820,metalness:.88,roughness:.34});
- const glowMat=new T.MeshBasicMaterial({color:profile.ringColor});
+ const glowMat=new T.MeshBasicMaterial({color:profile.ringColor,transparent:true,opacity:.88,depthWrite:false});
  const addPart=(geometry,material,position,rotation,parent=g)=>{
   const part=new T.Mesh(geometry,material);
   part.position.set(position[0],position[1],position[2]);
