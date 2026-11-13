@@ -53,7 +53,8 @@
       box(2.8, H / 2, -25.25, .45, H, 14.5, concrete);
       box(0, H - .35, -25.25, 6.2, .5, 14.5, dark, false);
       // Pressure-rated elevator doors at the end of the evacuation vestibule.
-      const elevatorFrame = mat('metal', 1, 1, .92, 0x6a6260);
+      const elevatorFrame = new T.MeshStandardMaterial({color:0xa6b2b8,metalness:.92,roughness:.22,emissive:0x2b241f,emissiveIntensity:.3});
+      const elevatorDoorSteel = new T.MeshStandardMaterial({color:0xc1c9cc,metalness:.94,roughness:.2,emissive:0x33271e,emissiveIntensity:.28});
       const elevatorDoors = [
         box(-1.45, 3.5, -32.5, 2.9, 6.7, .34, mat('metal', 1, 1, .9, 0x493d3b)),
         box(1.45, 3.5, -32.5, 2.9, 6.7, .34, mat('metal', 1, 1, .9, 0x493d3b))
