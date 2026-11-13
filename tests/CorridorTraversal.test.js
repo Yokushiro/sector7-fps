@@ -28,13 +28,16 @@ test('combat completion opens the route instead of ending the mission immediatel
 });
 
 
-test('incoming lift corridors terminate at solid rear bulkheads', () => {
+test('incoming lift corridors have framed elevator apertures in their rear bulkheads', () => {
   const lab = read('src/levels/LabLevel.js');
   const reactor = read('src/levels/ReactorLevel.js');
   const surface = read('src/levels/SurfaceLevel.js');
-  assert.match(lab, /box\(0, H \/ 2, -28\.25, 5\.6, H, \.5, wall\)/);
-  assert.match(reactor, /box\(0, H \/ 2, 32\.25, 5\.6, H, \.5, concrete\)/);
-  assert.match(surface, /box\(0, 3, -48\.25, 5\.6, 6, \.5, steel\)/);
+  assert.match(lab, /incomingLiftFrame/);
+  assert.match(reactor, /incomingLiftFrame/);
+  assert.match(surface, /incomingLiftFrame/);
+  assert.match(lab, /box\(-2\.55, H \/ 2, -28\.25, \.5, H, \.5, wall\)/);
+  assert.match(reactor, /box\(2\.55, H \/ 2, 32\.25, \.5, H, \.5, concrete\)/);
+  assert.match(surface, /box\(-2\.55, 3, -48\.25, \.5, 6, \.5, steel\)/);
 });
 
 test('connector floors meet edge-to-edge without coplanar overlap', () => {
@@ -207,7 +210,8 @@ test('the next sector is prebuilt invisibly and its collision is isolated until 
   assert.match(game, /local\?\.s7Solids\|\|solids/);
   assert.match(game, /function preloadNextMission\(\)/);
   assert.match(game, /levelManager\.prepare\(nextDefinition\.levelId/);
-  assert.match(game, /setTimeout\(preloadNextMission,750\)/);
+  assert.match(game, /preloadNextMission\(\);\s*dialogueSystem\.startRadio\(currentMission\.outroDialogue/);
+  assert.doesNotMatch(game, /setTimeout\(preloadNextMission,750\)/);
 });
 
 test('sector handoff uses a diegetic elevator and preserves player resources', () => {
