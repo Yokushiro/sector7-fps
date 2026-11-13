@@ -33,7 +33,7 @@ test('elevator remains walkable during travel and opens into the next sector',()
   try{
     const scene=new Group();
     const camera={position:new Vector3(),rotation:{set(x,y,z){this.x=x;this.y=y;this.z=z;}}};
-    const player={pos:new Vector3(0,1.7,0),yaw:0,pitch:.12};
+    const player={pos:new Vector3(0,1.7,0),yaw:1.1,pitch:.12};
     let travelCalls=0,completeCalls=0,exitPosition=null,elevator;
     const sounds=[];
     elevator=new ElevatorTransition({
@@ -44,6 +44,8 @@ test('elevator remains walkable during travel and opens into the next sector',()
     });
     elevator.begin({position:{x:0,y:1.7,z:0},yaw:0,destinationLabel:'02',player});
     assert.equal(elevator.phase,'closing');
+    assert.equal(player.yaw,0,'the player faces the cabin display on entry');
+    assert.equal(player.pitch,.12,'entry alignment preserves the player pitch');
     assert.equal(elevator.group.rotation.y,0);
     assert.equal(elevator.panel.position.x,0);
     assert.equal(elevator.panel.position.z,-2.22);
