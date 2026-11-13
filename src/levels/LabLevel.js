@@ -42,11 +42,13 @@
         const status = new T.Mesh(new T.BoxGeometry(.045, 5.35, .035), new T.MeshBasicMaterial({color:0x79eaff}));
         status.position.set(x, 3.1, -27.86); scene.add(status);
       }
-      const corridorStrip = new T.Mesh(new T.BoxGeometry(.25, .12, 8), new T.MeshBasicMaterial({ color: 0xff3545 }));
-      corridorStrip.position.set(0, 7.1, -20);
+      const corridorHousing = new T.Mesh(new T.BoxGeometry(.52, .14, 8.3), new T.MeshStandardMaterial({color:0x414950,metalness:.84,roughness:.3}));
+      corridorHousing.position.set(0, 7.46, -20); scene.add(corridorHousing);
+      const corridorStrip = new T.Mesh(new T.BoxGeometry(.25, .035, 7.7), new T.MeshBasicMaterial({ color: 0xff3545 }));
+      corridorStrip.position.set(0, 7.37, -20);
       scene.add(corridorStrip);
       const corridorLamp = new T.PointLight(0xff2638, 1.25, 18, 2);
-      corridorLamp.position.set(0, 4.8, -20);
+      corridorLamp.position.set(0, 6.9, -20);
       scene.add(corridorLamp);
       // Incoming connector from the bunker stays open; its corridor geometry lines up at the same world coordinates.
       // The laboratory's outgoing connector is on the opposite side, so the campaign keeps moving through the facility.
@@ -62,11 +64,13 @@
       box(-2.8, H / 2, 21, .45, H, 14, wall);
       box(2.8, H / 2, 21, .45, H, 14, wall);
       box(0, H - .35, 21, 6.2, .5, 14, darkSteel, false);
-      const exitStrip = new T.Mesh(new T.BoxGeometry(.25, .12, 8), new T.MeshBasicMaterial({ color: 0x42d8ff }));
-      exitStrip.position.set(0, 7.1, 21);
+      const exitHousing = new T.Mesh(new T.BoxGeometry(.52, .14, 8.3), new T.MeshStandardMaterial({color:0x414950,metalness:.84,roughness:.3}));
+      exitHousing.position.set(0, 7.46, 21); scene.add(exitHousing);
+      const exitStrip = new T.Mesh(new T.BoxGeometry(.25, .035, 7.7), new T.MeshBasicMaterial({ color: 0x42d8ff }));
+      exitStrip.position.set(0, 7.37, 21);
       scene.add(exitStrip);
       const exitLamp = new T.PointLight(0x26cfff, 1.1, 18, 2);
-      exitLamp.position.set(0, 4.8, 21);
+      exitLamp.position.set(0, 6.9, 21);
       scene.add(exitLamp);
       // Outgoing elevator vestibule: paired armored panels remain visible from the corridor.
       const elevatorFrame = new T.MeshStandardMaterial({color:0x9eafb6,metalness:.9,roughness:.24,emissive:0x18323c,emissiveIntensity:.42});
@@ -201,8 +205,12 @@
       scene.add(sign);
 
       scene.add(new T.HemisphereLight(0x8096b5, 0x17131a, .42));
+      const alarmHousing = new T.Mesh(new T.CylinderGeometry(.3, .38, .18, 16), darkSteel);
+      alarmHousing.position.set(0, 7.58, 0); scene.add(alarmHousing);
+      const alarmBeacon = new T.Mesh(new T.SphereGeometry(.18, 16, 10), new T.MeshBasicMaterial({color:0xff3542}));
+      alarmBeacon.position.set(0, 7.36, 0); scene.add(alarmBeacon);
       const alarm = new T.PointLight(0xff1f35, 1.15, 24, 2);
-      alarm.position.set(0, 4.8, 0);
+      alarm.position.set(0, 6.85, 0);
       scene.add(alarm);
 
       // Research terminal preserves the last incident report for exploration.
