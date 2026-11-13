@@ -111,8 +111,8 @@ function preloadNextMission(){
      cam.position.set(prepared.playerSpawn?.x||0,prepared.playerSpawn?.y||1.7,prepared.playerSpawn?.z||0);
      cam.rotation.set(0,prepared.playerSpawn?.yaw||0,0);
      cam.updateMatrixWorld(true);
+     // Never fall back to renderer.compile(): its synchronous shader build can freeze the game during a sector transition.
      if(typeof renderer.compileAsync==='function')compilation=renderer.compileAsync(scene,cam);
-     else if(typeof renderer.compile==='function')renderer.compile(scene,cam);
     }catch(error){console.warn('Sector shader precompile failed',error)}
     finally{
      cam.position.copy(cameraPosition);cam.rotation.copy(cameraRotation);cam.updateMatrixWorld(true);
