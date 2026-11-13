@@ -12,8 +12,9 @@
       this.doors=[]; this.ceilingLight=null; this.player=null;
       this.phase='idle'; this.phaseTime=0; this.travelTime=0;
       this.destinationReady=false; this.radioComplete=false; this.destinationLabel='02';
-      this.destinationY=0; this.travelStartY=0; this.doorOpen=1; this.disposed=false; this.lastDisplayKey=null;
-      this.durations={closing:.9,travel:4.2,opening:.9};
+      this.destinationY=0; this.travelStartY=0; this.doorOpen=0; this.disposed=false; this.lastDisplayKey=null;
+      this.vibrationTime=0; this.vibrationOffset=0; this.exitRequested=false;
+      this.durations={closing:.9,travel:4.2,opening:.9,exitClosing:.72};
       this.cabinHalfWidth=1.9; this.cabinHalfDepth=2.4;
     }
 
@@ -25,7 +26,7 @@
       this.disposed=false; this.player=player; this.destinationLabel=String(destinationLabel);
       this.createCabin(position,cabinYaw);
       this.phase='closing'; this.phaseTime=0; this.travelTime=0;
-      this.radioComplete=false; this.destinationReady=false; this.doorOpen=1;
+      this.radioComplete=false; this.destinationReady=false; this.doorOpen=0; this.exitRequested=false;
       // Align the player with the cabin so the floor display is directly ahead, not off to the side.
       // Mouse-look remains available during the ride; any later view offset is preserved at the destination.
       if(this.player?.pos){
@@ -33,8 +34,8 @@
         this.player.pos.copy(inside);
         this.player.yaw=cabinYaw;
       }
-      this.drawDisplay('01','ДВЕРИ ОТКРЫТЫ');
-      this.setDoorOpen(1);
+      this.drawDisplay('01','ДВЕРИ ЗАКРЫТЫ');
+      this.setDoorOpen(0);
       this.onSound('door-close');
       return this;
     }
@@ -140,11 +141,17 @@
       }
     }
 
-    constrainPlayer(position){
-      if(!this.isActive()||!this.group||!position)return false;
+    playerLocalPosition(position){
       const c=Math.cos(this.group.rotation.y),s=Math.sin(this.group.rotation.y);
       const dx=position.x-this.group.position.x,dz=position.z-this.group.position.z;
-      let x=dx*c-dz*s,z=dx*s+dz*c;
+      return {x:dx*c-dz*s,z:dx*s+dz*c};
+    }
+
+    constrainPlayer(position){
+      if(!this.isActive()||!this.group||!position||this.phase==='exit-closing')return false;
+      const c=Math.cos(this.group.rotation.y),s=Math.sin(this.group.rotation.y);
+      const local=this.playerLocalPosition(position);
+      let x=local.x,z=local.z;
       x=Math.max(-1.34,Math.min(1.34,x));
       const doorPassable=this.doorOpen>=.98&&(this.phase==='open'||this.phase==='opening');
       z=Math.max(doorPassable?-3.8:-1.72,Math.min(1.78,z));
@@ -152,9 +159,8 @@
       position.z=this.group.position.z-x*s+z*c;
       position.y=this.group.position.y+1.7;
       if(doorPassable&&z<-3.15){
-        this.phase='complete';
-        this.dispose();
-        this.onComplete(position);
+        this.exitRequested=true;
+        this.enterPhase('exit-closing');
       }
       return true;
     }
@@ -164,8 +170,12 @@
       if(phase==='travel'){
         this.travelTime=0;this.lastDisplayKey='B1|ПОДЪЁМ';this.drawDisplay('B1','ПОДЪЁМ');
         this.onSound('motor-start');this.onTravel();
+      }else if(phase==='waiting'){
+        this.drawDisplay(this.destinationLabel,'ОЖИДАНИЕ ВЫХОДА');
       }else if(phase==='opening'){
         this.drawDisplay(this.destinationLabel,'ПРИБЫТИЕ');this.onSound('arrival');
+      }else if(phase==='exit-closing'){
+        this.onSound('door-close');
       }else if(phase==='open'){
         this.drawDisplay(this.destinationLabel,'ДВЕРИ ОТКРЫТЫ');this.onSound('door-open');
       }
@@ -196,15 +206,36 @@
             this.drawDisplay(floor,status);
             this.onSound('floor-beep');
           }
-          if(t>=1&&this.radioComplete)this.enterPhase('opening');
+          if(t>=1&&this.radioComplete)this.enterPhase('waiting');
         }
         if(this.ceilingLight)this.ceilingLight.intensity=.95+Math.sin(this.travelTime*13)*.13;
+      }else if(this.phase==='waiting'){
+        if(this.player?.pos){
+          const local=this.playerLocalPosition(this.player.pos);
+          if(local.z<=-.72)this.enterPhase('opening');
+        }
       }else if(this.phase==='opening'){
         const t=Math.min(1,this.phaseTime/this.durations.opening);
         this.setDoorOpen(t);
         if(t>=1)this.enterPhase('open');
+      }else if(this.phase==='exit-closing'){
+        const t=Math.min(1,this.phaseTime/this.durations.exitClosing);
+        this.setDoorOpen(1-t);
+        if(t>=1){
+          const position=this.player?.pos;
+          this.phase='complete';this.dispose();
+          if(position)this.onComplete(position);
+        }
       }
-      if(this.player?.pos&&this.isActive())this.constrainPlayer(this.player.pos);
+      if(this.phase==='travel'&&this.group){
+        this.vibrationTime+=dt;
+        const nextOffset=Math.sin(this.vibrationTime*38)*.012+Math.sin(this.vibrationTime*71)*.004;
+        const delta=nextOffset-this.vibrationOffset;this.vibrationOffset=nextOffset;
+        this.group.position.y+=delta;
+        if(this.player?.pos)this.player.pos.y+=delta;
+        if(this.ceilingLight)this.ceilingLight.intensity=.95+Math.sin(this.travelTime*13)*.13+Math.sin(this.vibrationTime*38)*.08;
+      }
+      if(this.player?.pos&&this.isActive()&&this.phase!=='exit-closing')this.constrainPlayer(this.player.pos);
       return true;
     }
 
