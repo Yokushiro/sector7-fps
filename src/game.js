@@ -660,6 +660,7 @@ function loadMission(nextMission,transition={}){
   missionObjective=currentMission.objectives.find(objective=>objective.type==='eliminate');
   if(!missionObjective)throw new Error('The next mission has no supported elimination objective');
   GOAL=missionObjective.target;
+  levelManager.discardPreparedExcept(currentMission.levelId);
   activeLevel=levelManager.load(currentMission.levelId,{mat,canvas,randomRange:R,box});
   destructibleSystem.collisionCollections=[boxes,activeLevel.boxes];
   LEVEL_BOUNDS=activeLevel.bounds;
