@@ -158,6 +158,8 @@ const elevatorTransition=new S7ElevatorTransition({
     elevatorTransition.dispose();
     return;
    }
+   // loadMission may unlock audio after the lift motor-start event on the first run.
+   startElevatorMotor();
    elevatorTransition.setDestination(P.pos,P.yaw,String(currentMission.order).padStart(2,'0'),playerYawOffset,activeLevel.elevatorEntryOffset||0);
    dialogueSystem.startRadio(currentMission.introDialogue,()=>elevatorTransition.setRadioComplete());
   }catch(error){
