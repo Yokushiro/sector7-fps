@@ -39,7 +39,7 @@ test('elevator remains walkable during travel and opens into the next sector',()
     elevator=new ElevatorTransition({
       THREE:fakeThree(),scene,camera,
       onSound(type){sounds.push(type);},
-      onTravel(){travelCalls++;const offset=elevator.capturePlayerYawOffset();player.yaw=0;elevator.setDestination({x:12,y:1.7,z:-8},Math.PI,'02',offset);},
+      onTravel(){travelCalls++;const offset=elevator.capturePlayerYawOffset();player.yaw=0;elevator.setDestination({x:12,y:1.7,z:-8},Math.PI,'02',offset,2.25);},
       onComplete(position){completeCalls++;exitPosition=position;}
     });
     elevator.begin({position:{x:0,y:1.7,z:0},yaw:0,destinationLabel:'02',player});
@@ -47,6 +47,9 @@ test('elevator remains walkable during travel and opens into the next sector',()
     assert.equal(player.yaw,0,'the player faces the cabin display on entry');
     assert.equal(player.pitch,.12,'entry alignment preserves the player pitch');
     assert.equal(elevator.group.rotation.y,0);
+    const startThreshold=elevator.group.localToWorld(new Vector3(0,1.7,-2.22));
+    assert.ok(Math.abs(startThreshold.z+1)<1e-9,'the cabin threshold aligns with the corridor door ahead of the player');
+    assert.ok(player.pos.z>startThreshold.z,'the player starts inside the cabin behind the threshold');
     assert.equal(elevator.panel.position.x,0);
     assert.equal(elevator.panel.position.z,-2.22);
     assert.equal(elevator.doors[0].position.z,-2.22,'exit doors are directly ahead of the player');
@@ -60,7 +63,10 @@ test('elevator remains walkable during travel and opens into the next sector',()
     assert.equal(elevator.phase,'travel');
     assert.equal(travelCalls,1);
     assert.ok(Math.abs(player.yaw-(Math.PI+.35))<1e-9,'the cabin rotates without snapping the camera to a new view');
+    const destinationThreshold=elevator.group.localToWorld(new Vector3(0,1.7,-2.22));
+    assert.ok(Math.abs(destinationThreshold.z+10.25)<1e-9,'the arrival doors align with the next sector entry bulkhead');
     assert.ok(player.pos.y>8,'player rides with the cabin instead of being detached from it');
+    assert.ok(Math.abs((player.pos.y-1.7)-elevator.group.position.y)<1e-9,'the elevator floor remains directly under the player during travel');
     const beforeWalk=player.pos.x;
     player.pos.x+=.5;
     elevator.constrainPlayer(player.pos);
