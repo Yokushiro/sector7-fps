@@ -50,8 +50,12 @@
         const status = new T.Mesh(new T.BoxGeometry(.05, 5.1, .035), new T.MeshBasicMaterial({color:0x7de7ff}));
         status.position.set(x, 2.9, -47.86); scene.add(status);
       }
+      const tunnelFixture = new T.Mesh(new T.BoxGeometry(1.25, .18, .72), new T.MeshStandardMaterial({color:0x4b5054,metalness:.82,roughness:.3}));
+      tunnelFixture.position.set(0, 5.88, -39); scene.add(tunnelFixture);
+      const tunnelGlow = new T.Mesh(new T.BoxGeometry(.9, .035, .42), new T.MeshBasicMaterial({color:0xffa06d}));
+      tunnelGlow.position.set(0, 5.76, -39); scene.add(tunnelGlow);
       const tunnelLamp = new T.PointLight(0xff6738, 1.2, 18, 2);
-      tunnelLamp.position.set(0, 4.7, -39);
+      tunnelLamp.position.set(0, 5.3, -39);
       scene.add(tunnelLamp);
 
       // Outer retaining walls and a gated extraction aperture.
@@ -93,7 +97,7 @@
       hull.position.set(-12, 2.8, 10);
       hull.castShadow = true;
       scene.add(hull);
-      const brokenWing = box(-16.5, 2.4, 7.5, 5.5, .35, 2.4, dark);
+      const brokenWing = box(-16.5, .22, 7.5, 5.5, .35, 2.4, dark);
       brokenWing.rotation.z = -.18;
       const supplyCrate = box(-18, .8, 17, 3.8, 1.6, 3.2, steel);
       supplyCrate.userData.destructible = { health: 3, destroyed: false };
@@ -149,11 +153,11 @@
       ];
       debris.forEach(([x, y, z, sx, sy, sz], i) => {
         const rock = new T.Mesh(new T.DodecahedronGeometry(1, 1), rockMat);
-        rock.position.set(x, y, z); rock.scale.set(sx, sy, sz);
+        rock.position.set(x, Math.max(.1, sy * .82), z); rock.scale.set(sx, sy, sz);
         rock.rotation.set(i * .17, i * .63, i * .11); rock.castShadow = true; rock.receiveShadow = true; scene.add(rock);
       });
       const brokenSlab = new T.Mesh(new T.BoxGeometry(5.5, .42, 2.1), slabMat);
-      brokenSlab.position.set(-16, .35, -2); brokenSlab.rotation.y = -.38; brokenSlab.rotation.z = .12;
+      brokenSlab.position.set(-16, .21, -2); brokenSlab.rotation.y = -.38; brokenSlab.rotation.z = .12;
       brokenSlab.castShadow = true; scene.add(brokenSlab);
       const wreckBeam = new T.Mesh(new T.BoxGeometry(7.5, .22, .28), steel);
       wreckBeam.position.set(17, 1.15, 8); wreckBeam.rotation.set(.18, -.55, .48); wreckBeam.castShadow = true; scene.add(wreckBeam);
