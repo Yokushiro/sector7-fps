@@ -320,6 +320,22 @@ test('elevator cabin keeps the floor display centered on the front wall and pres
 });
 
 
+
+test('incoming sector bulkheads contain aligned elevator apertures', () => {
+  const lab = read('src/levels/LabLevel.js');
+  const reactor = read('src/levels/ReactorLevel.js');
+  const surface = read('src/levels/SurfaceLevel.js');
+  assert.match(lab, /elevatorEntryOffset: 2\.25/);
+  assert.match(reactor, /elevatorEntryOffset: 4\.25/);
+  assert.match(surface, /elevatorEntryOffset: 14\.25/);
+  assert.doesNotMatch(lab, /box\(0, H \/ 2, -28\.25, 5\.6, H, \.5, wall\)/);
+  assert.doesNotMatch(reactor, /box\(0, H \/ 2, 32\.25, 5\.6, H, \.5, concrete\)/);
+  assert.doesNotMatch(surface, /box\(0, 3, -48\.25, 5\.6, 6, \.5, steel\)/);
+  const elevator = read('src/campaign/ElevatorTransition.js');
+  assert.match(elevator, /position\.x-forwardX\*\(safeEntryOffset\+2\.22\)/);
+  assert.match(elevator, /position\.z-forwardZ\*\(safeEntryOffset\+2\.22\)/);
+});
+
 test('elevator trigger volumes are on the approach side of the visible doors', () => {
   const bunker = read('src/levels/BunkerLevel.js');
   const lab = read('src/levels/LabLevel.js');
