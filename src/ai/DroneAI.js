@@ -235,8 +235,12 @@
             const deploy = transition * transition * (3 - 2 * transition);
             for (const panel of visual.phasePanels) {
               if (!panel.hinge?.rotation) continue;
-              const target = (panel.closed || 0) + panel.side * 0.82 * deploy;
-              panel.hinge.rotation.z += (target - panel.hinge.rotation.z) * Math.min(1, dt * 5.5);
+              const target = (panel.closed || 0) - panel.side * 0.92 * deploy;
+              panel.hinge.rotation.y += (target - panel.hinge.rotation.y) * Math.min(1, dt * 5.5);
+              if (panel.piston?.rotation) {
+                const actuator = Math.sin(deploy * Math.PI * 0.5) * 0.22;
+                panel.piston.rotation.z = -panel.side * actuator;
+              }
             }
           }
           if (visual.weaponPods) {
