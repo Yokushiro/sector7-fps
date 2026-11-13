@@ -90,10 +90,11 @@ let dust=activeLevel.dust || {rotation:{y:0},position:{y:0}};
 let preloadScheduled=false;
 function preloadNextMission(){
  if(preloadScheduled)return false;
+ const nextDefinition=S7MissionSystem.MISSIONS.find(mission=>mission.order>currentMission.order);
+ if(!nextDefinition||levelManager.getPrepared(nextDefinition.levelId)||levelManager.getCurrent()?.id===nextDefinition.levelId)return false;
  const prepare=()=>{
   preloadScheduled=false;
-  const nextDefinition=S7MissionSystem.MISSIONS.find(mission=>mission.order>currentMission.order);
-  if(!nextDefinition||levelManager.getPrepared(nextDefinition.levelId)||levelManager.getCurrent()?.id===nextDefinition.levelId)return;
+  if(levelManager.getPrepared(nextDefinition.levelId)||levelManager.getCurrent()?.id===nextDefinition.levelId)return;
   try{
    const prepared=levelManager.prepare(nextDefinition.levelId,{mat,canvas,randomRange:R,box});
    // Compile the hidden sector's shader variants before it becomes visible, avoiding a first-frame hitch on arrival.
@@ -123,7 +124,7 @@ function preloadNextMission(){
   }catch(error){console.warn('Next sector preload failed; it will be built during transition',error)}
  };
  preloadScheduled=true;
- if(typeof requestIdleCallback==='function')requestIdleCallback(prepare,{timeout:3500});
+ if(typeof requestIdleCallback==='function')requestIdleCallback(prepare,{timeout:1000});
  else setTimeout(prepare,1800);
  return true;
 }
