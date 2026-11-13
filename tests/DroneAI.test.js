@@ -274,6 +274,27 @@ test('drone archetype mechanical parts animate independently during combat', () 
   assert.notEqual(armorPanel.rotation.z, 0, 'layered armor panels should flex subtly during flight');
 });
 
+test('Warden armor shutters unfold into the phase-two combat silhouette', () => {
+  const ai = new DroneAI();
+  const enemy = makeEnemy('warden', 0, 7.2);
+  enemy.phase = 2;
+  enemy.phaseTransitionRemaining = 0;
+  const left = { rotation: { z: 0 } };
+  const right = { rotation: { z: 0 } };
+  enemy.visual = {
+    phasePanels: [
+      { hinge: left, side: -1, closed: 0.08 },
+      { hinge: right, side: 1, closed: -0.08 }
+    ]
+  };
+  ai.update(
+    [enemy], { pos: { x: 0, y: 1.7, z: 0 } }, 0.1, () => {},
+    { add() {} }, [], () => {}, (min, max) => (min + max) / 2
+  );
+  assert.ok(left.rotation.z < 0, 'left armor shutter should unfold outward');
+  assert.ok(right.rotation.z > 0, 'right armor shutter should unfold outward');
+});
+
 test('Warden boss maintains a distinct heavy-pressure combat profile', () => {
   const profile = DroneAI.PROFILES.warden;
   assert.equal(profile.hp, 280);
