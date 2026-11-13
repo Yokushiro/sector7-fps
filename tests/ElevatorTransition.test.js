@@ -56,7 +56,7 @@ test('elevator remains walkable during travel and opens into the next sector',()
     assert.equal(elevator.doors[0].material.color,0xa9bbc2,'exit doors use bright steel rather than dark wall-like panels');
     assert.equal(player.yaw,0);
     player.yaw=.35; // The player looks around while the doors close.
-    assert.ok(player.pos.z<0,'player is placed just inside the cabin threshold');
+    assert.ok(Math.abs((player.pos.y-1.7)-elevator.group.position.y)<1e-9,'the cabin floor is already beneath the player at boarding');
     assert.equal(camera.rotation.y,undefined,'the elevator must not force the camera yaw');
 
     for(let i=0;i<10;i++)elevator.update(.1);
