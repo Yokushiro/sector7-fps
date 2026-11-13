@@ -226,6 +226,10 @@
               panel.part.rotation[panel.axis || 'z'] = flex;
             }
           }
+          if (visual.reactorCage?.rotation) {
+            visual.reactorCage.rotation.z += dt * (enemy.phase === 2 ? 1.9 : 0.55);
+            visual.reactorCage.rotation.x = Math.sin(enemy.t * 1.7) * 0.035;
+          }
           if (visual.phasePanels) {
             const transition = enemy.phase === 2
               ? enemy.phaseTransitionRemaining > 0
