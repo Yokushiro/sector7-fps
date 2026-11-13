@@ -1,13 +1,14 @@
 {
   "name": "sector7-fps",
-  "version": "1.0.3",
-  "description": "SECTOR 7 — мини-FPS на Three.js (Electron)",
+  "version": "1.1.0",
+  "description": "SECTOR 7 — сюжетный FPS на Three.js и Electron",
   "author": "Лев Афанасьев",
   "license": "MIT",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "dist": "electron-builder --win --x64 --publish never"
+    "dist": "electron-builder --win --x64 --publish never",
+    "test": "node --test"
   },
   "devDependencies": {
     "electron": "^33.2.0",
@@ -18,7 +19,9 @@
     "productName": "SECTOR 7",
     "files": [
       "main.js",
+      "preload.js",
       "index.html",
+      "src/**/*",
       "vendor/**/*"
     ],
     "directories": {
