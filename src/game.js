@@ -206,6 +206,30 @@ function spawn(){
   if(rotation)part.rotation.set(rotation[0],rotation[1],rotation[2]);
   parent.add(part);return part;
  };
+ const addArmorPlate=(w,h,depth,position,material=accent,cut=.16)=>{
+  const shape=new T.Shape();
+  shape.moveTo(-w/2+cut,-h/2);shape.lineTo(w/2-cut,-h/2);
+  shape.lineTo(w/2,-h/2+cut);shape.lineTo(w/2,h/2-cut);
+  shape.lineTo(w/2-cut,h/2);shape.lineTo(-w/2+cut,h/2);
+  shape.lineTo(-w/2,h/2-cut);shape.lineTo(-w/2,-h/2+cut);shape.closePath();
+  const geometry=new T.ExtrudeGeometry(shape,{depth,bevelEnabled:true,bevelSegments:2,steps:1,bevelSize:.018,bevelThickness:.018});
+  return addPart(geometry,material,position);
+ };
+ const addFastener=(x,y,z,r=.035)=>{
+  const bolt=addPart(new T.CylinderGeometry(r,r,.025,8),accent,[x,y,z],[Math.PI/2,0,0]);
+  bolt.rotation.z=Math.PI/4;return bolt;
+ };
+ const addCable=(points,r=.025,material=darkMetal)=>{
+  const curve=new T.CatmullRomCurve3(points.map(p=>new T.Vector3(p[0],p[1],p[2])));
+  return addPart(new T.TubeGeometry(curve,18,r,6,false),material,[0,0,0]);
+ };
+ const addVentBank=(x,y,z,count=4)=>{
+  for(let i=0;i<count;i++){
+   const yy=y+(i-(count-1)/2)*.075;
+   addPart(new T.BoxGeometry(.28,.027,.025),darkMetal,[x,yy,z]);
+   addPart(new T.BoxGeometry(.19,.009,.012),glowMat,[x,yy+.012,z+.016]);
+  }
+ };
  // Each class gets a different mechanical silhouette, not just a recolored shell.
  if(type==='scout'){
   for(const side of[-1,1]){
@@ -265,6 +289,63 @@ function spawn(){
   for(let i=0;i<4;i++){
    const vent=addPart(new T.BoxGeometry(.12,.46,.06),accent,[(i-1.5)*.22,-.08,-.48],[0,0,0]);
    e.visual.articulators.push({part:vent,axis:'x',phase:i*.8,amplitude:.04});
+  }
+ }
+ // Layered hard-surface pass: chamfered armor, recessed vents, fasteners and
+ // exposed service conduits give every silhouette a manufactured, engineered finish.
+ if(type==='scout'){
+  addArmorPlate(.62,.42,.065,[0,.27,.39],accent,.12);
+  addArmorPlate(.34,.2,.045,[0,.28,.47],glowMat,.06);
+  for(const side of[-1,1]){
+   addArmorPlate(.34,.25,.055,[side*.58,.08,.18],darkMetal,.08);
+   addFastener(side*.72,.08,.23);addFastener(side*.45,.08,.23);
+   addCable([[side*.28,-.12,-.12],[side*.48,-.2,-.28],[side*.72,-.12,-.32]],.018);
+  }
+  addVentBank(0,-.12,.31,3);
+ }else if(type==='assault'){
+  addArmorPlate(.72,.52,.085,[0,.16,.38],accent,.14);
+  addArmorPlate(.46,.28,.05,[0,.17,.48],darkMetal,.1);
+  addArmorPlate(.24,.15,.035,[0,.18,.54],glowMat,.05);
+  for(const side of[-1,1]){
+   addArmorPlate(.3,.34,.07,[side*.57,.08,.13],accent,.09);
+   for(const y of[-.08,.2])addFastener(side*.57,y,.19);
+   addCable([[side*.3,-.2,-.1],[side*.48,-.34,-.22],[side*.72,-.18,-.2]],.026);
+   addVentBank(side*.35,-.27,.24,3);
+  }
+ }else if(type==='heavy'){
+  addArmorPlate(.88,.72,.1,[0,.22,.4],accent,.18);
+  addArmorPlate(.62,.48,.07,[0,.23,.51],darkMetal,.14);
+  addArmorPlate(.36,.28,.05,[0,.24,.59],glowMat,.08);
+  for(const side of[-1,1]){
+   addArmorPlate(.48,.56,.09,[side*.75,.12,.12],accent,.13);
+   addFastener(side*.86,-.06,.19);addFastener(side*.65,.32,.19);
+   addCable([[side*.45,-.28,-.15],[side*.62,-.5,-.26],[side*.84,-.42,-.2]],.035);
+   addVentBank(side*.43,.48,.31,4);
+  }
+  for(let i=0;i<5;i++)addPart(new T.BoxGeometry(.11,.025,.04),glowMat,[(i-2)*.14,-.3,.38]);
+ }else if(type==='sniper'){
+  addArmorPlate(.48,.56,.07,[0,.2,.35],accent,.12);
+  addArmorPlate(.28,.36,.045,[0,.21,.43],darkMetal,.08);
+  addArmorPlate(.16,.23,.035,[0,.22,.48],glowMat,.05);
+  addArmorPlate(.28,.18,.06,[.3,.22,.57],accent,.05);
+  for(const side of[-1,1]){
+   addFastener(side*.22,.38,.4);addFastener(side*.22,.02,.4);
+   addCable([[side*.18,-.12,-.12],[side*.32,-.34,-.26],[side*.48,-.18,-.38]],.018);
+  }
+  addVentBank(-.27,.1,.28,3);
+ }else if(type==='warden'){
+  addArmorPlate(.92,.78,.11,[0,.18,.43],accent,.2);
+  addArmorPlate(.66,.56,.075,[0,.2,.55],darkMetal,.16);
+  addArmorPlate(.4,.34,.055,[0,.22,.62],glowMat,.1);
+  for(const side of[-1,1]){
+   addArmorPlate(.4,.58,.09,[side*.78,.3,.1],accent,.14);
+   addFastener(side*.9,.52,.18);addFastener(side*.66,.05,.18);
+   addCable([[side*.45,-.2,-.18],[side*.58,-.48,-.34],[side*.84,-.3,-.22]],.04);
+  }
+  for(let i=0;i<6;i++){
+   const y=-.28+i*.1;
+   addPart(new T.BoxGeometry(.46,.035,.055),darkMetal,[0,y,-.51]);
+   addPart(new T.BoxGeometry(.3,.012,.025),glowMat,[0,y+.018,-.475]);
   }
  }
  if(type==='warden'){
