@@ -251,9 +251,11 @@ test('drone archetype mechanical parts animate independently during combat', () 
   const hub = { rotation: { y: 0 } };
   const blade = { rotation: { y: 0 } };
   const fin = { rotation: { z: 0 } };
+  const armorPanel = { rotation: { z: 0 } };
   enemy.visual = {
     rotors: [{ ring: rotor, hub, blade }],
-    articulators: [{ part: fin, axis: 'z', phase: 0, amplitude: 0.2 }]
+    articulators: [{ part: fin, axis: 'z', phase: 0, amplitude: 0.2 }],
+    armorPanels: [{ part: armorPanel, phase: 0, axis: 'z' }]
   };
   ai.update(
     [enemy],
@@ -269,6 +271,7 @@ test('drone archetype mechanical parts animate independently during combat', () 
   assert.ok(hub.rotation.y < 0, 'counter-rotating hub should add mechanical motion');
   assert.ok(blade.rotation.y > rotor.rotation.y, 'rotor blade should have its own spin rate');
   assert.notEqual(fin.rotation.z, 0, 'articulated fins should move independently');
+  assert.notEqual(armorPanel.rotation.z, 0, 'layered armor panels should flex subtly during flight');
 });
 
 test('Warden boss maintains a distinct heavy-pressure combat profile', () => {
