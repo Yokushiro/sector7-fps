@@ -284,10 +284,10 @@
       }
 
       // A wall-mounted emergency luminaire can be shot out, briefly changing the corridor's lighting.
-      const emergencyFixture = box(-7.2, 7.65, 19.2, .95, .24, .42, darkSteel);
+      const emergencyFixture = box(-7.2, 7.27, 19.2, .95, .24, .42, darkSteel);
       emergencyFixture.userData.destructible = { health: 1, destroyed: false };
       const emergencyGlow = new T.PointLight(0x58dff5, .9, 7, 2);
-      emergencyGlow.position.set(-7.2, 7.35, 19.1);
+      emergencyGlow.position.set(-7.2, 6.92, 19.1);
       scene.add(emergencyGlow);
       emergencyFixture.userData.breakLight = emergencyGlow;
 
