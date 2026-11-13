@@ -21,14 +21,17 @@
 
     begin({position,yaw=0,destinationLabel='02',player=null}={}){
       if(this.isActive()||!position)throw new Error('Elevator transition is already active or has no start position');
+      const cabinYaw=Number.isFinite(yaw)?yaw:0;
       this.disposed=false; this.player=player; this.destinationLabel=String(destinationLabel);
-      this.createCabin(position,yaw);
+      this.createCabin(position,cabinYaw);
       this.phase='closing'; this.phaseTime=0; this.travelTime=0;
       this.radioComplete=false; this.destinationReady=false; this.doorOpen=1;
-      // The trigger sits at the threshold. Place the player just inside without changing their view direction.
+      // Align the player with the cabin so the floor display is directly ahead, not off to the side.
+      // Mouse-look remains available during the ride; any later view offset is preserved at the destination.
       if(this.player?.pos){
         const inside=this.group.localToWorld(new this.THREE.Vector3(0,1.7,.55));
         this.player.pos.copy(inside);
+        this.player.yaw=cabinYaw;
       }
       this.drawDisplay('01','ДВЕРИ ОТКРЫТЫ');
       this.setDoorOpen(1);
