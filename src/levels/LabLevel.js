@@ -176,7 +176,7 @@
           new T.BoxGeometry(3.6, .12, 1.1),
           new T.MeshBasicMaterial({ color: 0xb9efff })
         );
-        panel.position.set(x, H - .45, 2.5);
+        panel.position.set(x, H - .75, 2.5);
         scene.add(panel);
         const light = new T.PointLight(0x9cddff, .85, 14, 2);
         light.position.set(x, H - 1.1, 2.5);
@@ -206,11 +206,11 @@
 
       scene.add(new T.HemisphereLight(0x8096b5, 0x17131a, .42));
       const alarmHousing = new T.Mesh(new T.CylinderGeometry(.3, .38, .18, 16), darkSteel);
-      alarmHousing.position.set(0, 7.58, 0); scene.add(alarmHousing);
+      alarmHousing.position.set(0, 7.28, 0); scene.add(alarmHousing);
       const alarmBeacon = new T.Mesh(new T.SphereGeometry(.18, 16, 10), new T.MeshBasicMaterial({color:0xff3542}));
-      alarmBeacon.position.set(0, 7.36, 0); scene.add(alarmBeacon);
+      alarmBeacon.position.set(0, 7.06, 0); scene.add(alarmBeacon);
       const alarm = new T.PointLight(0xff1f35, 1.15, 24, 2);
-      alarm.position.set(0, 6.85, 0);
+      alarm.position.set(0, 6.65, 0);
       scene.add(alarm);
 
       // Research terminal preserves the last incident report for exploration.
@@ -280,7 +280,7 @@
       const sterileStripMat = new T.MeshBasicMaterial({ color: 0x9cf5ff });
       for (const x of [-6, 0, 6]) {
         const strip = new T.Mesh(new T.BoxGeometry(.12, .035, 18), sterileStripMat);
-        strip.position.set(x, 7.55, 0); scene.add(strip);
+        strip.position.set(x, 7.25, 0); scene.add(strip);
       }
 
       // A wall-mounted emergency luminaire can be shot out, briefly changing the corridor's lighting.
