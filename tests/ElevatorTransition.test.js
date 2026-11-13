@@ -49,6 +49,8 @@ test('elevator remains walkable during travel and opens into the next sector',()
     assert.equal(elevator.group.rotation.y,0);
     assert.equal(elevator.panel.position.x,0);
     assert.equal(elevator.panel.position.z,-2.22);
+    assert.equal(elevator.doors[0].position.z,-2.22,'exit doors are directly ahead of the player');
+    assert.equal(elevator.doors[0].material.color,0xa9bbc2,'exit doors use bright steel rather than dark wall-like panels');
     assert.equal(player.yaw,0);
     player.yaw=.35; // The player looks around while the doors close.
     assert.ok(player.pos.z<0,'player is placed just inside the cabin threshold');
@@ -75,7 +77,7 @@ test('elevator remains walkable during travel and opens into the next sector',()
     assert.equal(elevator.phase,'open');
     assert.equal(elevator.doorOpen,1);
 
-    const outside=elevator.group.localToWorld(new Vector3(0,1.7,3.4));
+    const outside=elevator.group.localToWorld(new Vector3(0,1.7,-3.4));
     player.pos.copy(outside);
     elevator.constrainPlayer(player.pos);
     assert.equal(elevator.phase,'complete');
