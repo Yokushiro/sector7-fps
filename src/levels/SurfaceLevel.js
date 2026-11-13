@@ -38,7 +38,18 @@
       box(2.8, 3, -39, .45, 6, 18, wall);
       box(0, 6.25, -39, 6.2, .5, 18, dark, false);
       // Close the rear of the evacuation tunnel; the surface yard is reached through its open front.
-      box(0, 3, -48.25, 5.6, 6, .5, steel);
+      const incomingLiftFrame = new T.MeshStandardMaterial({color:0xb3c1c5,metalness:.88,roughness:.28,emissive:0x1b3540,emissiveIntensity:.42});
+      box(-2.55, 3, -48.25, .5, 6, .5, steel);
+      box(2.55, 3, -48.25, .5, 6, .5, steel);
+      box(0, 5.0, -48.25, 4.6, 2, .5, steel, false);
+      box(-2.28, 2.9, -48.25, .16, 5.8, .72, incomingLiftFrame, false);
+      box(2.28, 2.9, -48.25, .16, 5.8, .72, incomingLiftFrame, false);
+      box(0, 5.8, -48.25, 4.6, .16, .72, incomingLiftFrame, false);
+      box(0, .08, -48.25, 4.6, .16, .82, incomingLiftFrame, false);
+      for (const x of [-2.05, 2.05]) {
+        const status = new T.Mesh(new T.BoxGeometry(.05, 5.1, .035), new T.MeshBasicMaterial({color:0x7de7ff}));
+        status.position.set(x, 2.9, -47.86); scene.add(status);
+      }
       const tunnelLamp = new T.PointLight(0xff6738, 1.2, 18, 2);
       tunnelLamp.position.set(0, 4.7, -39);
       scene.add(tunnelLamp);
@@ -154,6 +165,7 @@
         requiredInteractionId: 'surface-uplink',
         evacuationSeconds: 120,
         evacuationMessage: 'МАЯК АКТИВЕН · ДОБЕРИСЬ ДО ПОСАДОЧНОЙ ПЛОЩАДКИ',
+        elevatorEntryOffset: 14.25,
         playerSpawn: { x: 0, y: 1.7, z: -34, yaw: Math.PI },
         enemySpawnPoints: [[-17, -8], [17, -8], [-18, 8], [18, 8], [-7, 19], [8, 20], [0, -2], [13, 28], [-14, 28]],
         openExit() {
