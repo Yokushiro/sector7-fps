@@ -81,6 +81,38 @@ test('scout drones advance faster than heavy drones', () => {
 });
 
 
+test('drones can fire over low cover that does not cross the shot height', () => {
+  const ai = new DroneAI();
+  const enemy = makeEnemy('scout', 0, 5.5);
+  enemy.cd = 0;
+  const previousThree = context.THREE;
+  context.THREE = makeAttackThree();
+  const projectiles = [];
+  ai.update(
+    [enemy], { pos: { x: 0, y: 1.7, z: 0 } }, 0.1, () => {}, { add() {} },
+    projectiles, () => {}, min => min,
+    [{ x0: 4, x1: 6, y0: 0, y1: 0.8, z0: -1, z1: 1 }]
+  );
+  context.THREE = previousThree;
+  assert.equal(projectiles.length, 1, 'a waist-high obstacle below the firing line should not block a shot');
+});
+
+test('drones still respect full-height cover', () => {
+  const ai = new DroneAI();
+  const enemy = makeEnemy('scout', 0, 5.5);
+  enemy.cd = 0;
+  const previousThree = context.THREE;
+  context.THREE = makeAttackThree();
+  const projectiles = [];
+  ai.update(
+    [enemy], { pos: { x: 0, y: 1.7, z: 0 } }, 0.1, () => {}, { add() {} },
+    projectiles, () => {}, min => min,
+    [{ x0: 4, x1: 6, y0: 0, y1: 2.5, z0: -1, z1: 1 }]
+  );
+  context.THREE = previousThree;
+  assert.equal(projectiles.length, 0, 'a full-height wall should still block enemy fire');
+});
+
 test('drones do not fire through solid level geometry', () => {
   const ai = new DroneAI();
   const enemy = makeEnemy('scout', 0, 5.5);
