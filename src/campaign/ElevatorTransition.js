@@ -79,7 +79,7 @@
       const emergency=new T.PointLight(0xff4c36,.12,5,2);emergency.position.set(0,2.7,-1.8);group.add(emergency);
       // The floor indicator is mounted directly above the forward doors, remaining readable during the ride.
       const panel=new T.Mesh(new T.BoxGeometry(1.12,.42,.12),dark);
-      panel.position.set(0,3.0,-2.22);group.add(panel);
+      panel.position.set(0,3.0,-2.22);group.add(panel);this.panel=panel;
       const panelFrame=new T.Mesh(new T.BoxGeometry(1.2,.5,.035),trim);
       panelFrame.position.set(0,3.0,-2.29);group.add(panelFrame);
       const canvas=document.createElement('canvas');canvas.width=256;canvas.height=128;
