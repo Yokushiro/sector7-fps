@@ -52,41 +52,42 @@
         const mesh=new T.Mesh(new T.BoxGeometry(w,h,d),material);
         mesh.position.set(x,y,z);mesh.castShadow=true;mesh.receiveShadow=true;group.add(mesh);return mesh;
       };
-      // A closed, continuous cabin shell: floor, ceiling, side walls and a solid front wall.
+      // The threshold is on the forward (-Z) side, exactly where the player is looking.
+      // Keep the rear wall solid; the front is a real opening with two bright steel leaves.
       addBox(3.8,.16,4.8,0,-.08,0,floorMat);
       addBox(3.8,.14,4.8,0,3.37,0,dark);
       addBox(.14,3.35,4.8,-1.83,1.62,0,metal);
       addBox(.14,3.35,4.8,1.83,1.62,0,metal);
-      addBox(3.8,3.35,.14,0,1.62,-2.33,metal);
-      // Door frame at the rear threshold. The two leaves meet without a central gap.
-      addBox(.14,3.35,.18,-1.83,1.62,2.32,trim);
-      addBox(.14,3.35,.18,1.83,1.62,2.32,trim);
-      addBox(3.8,.16,.18,0,3.22,2.32,trim);
-      addBox(3.8,.12,.18,0,.08,2.32,trim);
-      const doorMaterial=new T.MeshStandardMaterial({color:0x465a65,metalness:.88,roughness:.3});
+      addBox(3.8,3.35,.14,0,1.62,2.33,metal);
+      addBox(.14,3.35,.18,-1.83,1.62,-2.32,trim);
+      addBox(.14,3.35,.18,1.83,1.62,-2.32,trim);
+      addBox(3.8,.16,.18,0,3.22,-2.32,trim);
+      addBox(3.8,.12,.18,0,.08,-2.32,trim);
+      const doorMaterial=new T.MeshStandardMaterial({color:0xa9bbc2,metalness:.9,roughness:.26,emissive:0x172a32,emissiveIntensity:.42});
       this.doors=[
-        addBox(1.9,2.86,.12,-.95,1.62,2.22,doorMaterial),
-        addBox(1.9,2.86,.12,.95,1.62,2.22,doorMaterial)
+        addBox(1.9,2.86,.12,-.95,1.62,-2.22,doorMaterial),
+        addBox(1.9,2.86,.12,.95,1.62,-2.22,doorMaterial)
       ];
       this.doors[0].userData.closedX=-.95;this.doors[1].userData.closedX=.95;
       this.doors[0].userData.openX=-1.86;this.doors[1].userData.openX=1.86;
       for(const x of[-1.55,1.55]){
-        const strip=new T.Mesh(new T.BoxGeometry(.035,2.45,.025),new T.MeshBasicMaterial({color:0x4cc9ff}));
-        strip.position.set(x,1.65,2.13);group.add(strip);
+        const strip=new T.Mesh(new T.BoxGeometry(.035,2.45,.025),new T.MeshBasicMaterial({color:0x72e4ff}));
+        strip.position.set(x,1.65,-2.13);group.add(strip);
       }
       const ceilingLight=new T.PointLight(0x9edcff,1.15,8,2);
       ceilingLight.position.set(0,3.05,0);group.add(ceilingLight);this.ceilingLight=ceilingLight;
-      const emergency=new T.PointLight(0xff4c36,.12,5,2);emergency.position.set(0,2.7,1.8);group.add(emergency);
-      const panel=new T.Mesh(new T.BoxGeometry(1.12,1.28,.12),dark);
-      panel.position.set(0,1.98,-2.22);group.add(panel);this.panel=panel;
-      const panelFrame=new T.Mesh(new T.BoxGeometry(1.2,1.36,.035),trim);
-      panelFrame.position.set(0,1.98,-2.29);group.add(panelFrame);
+      const emergency=new T.PointLight(0xff4c36,.12,5,2);emergency.position.set(0,2.7,-1.8);group.add(emergency);
+      // The floor indicator is mounted directly above the forward doors, remaining readable during the ride.
+      const panel=new T.Mesh(new T.BoxGeometry(1.12,.42,.12),dark);
+      panel.position.set(0,3.0,-2.22);group.add(panel);
+      const panelFrame=new T.Mesh(new T.BoxGeometry(1.2,.5,.035),trim);
+      panelFrame.position.set(0,3.0,-2.29);group.add(panelFrame);
       const canvas=document.createElement('canvas');canvas.width=256;canvas.height=128;
       const texture=new T.CanvasTexture(canvas);
       if(T.SRGBColorSpace&&'colorSpace'in texture)texture.colorSpace=T.SRGBColorSpace;
       else if(T.sRGBEncoding)texture.encoding=T.sRGBEncoding;
-      const screen=new T.Mesh(new T.PlaneGeometry(.82,.46),new T.MeshBasicMaterial({map:texture,toneMapped:false}));
-      screen.position.set(0,2.18,-2.145);group.add(screen);
+      const screen=new T.Mesh(new T.PlaneGeometry(.82,.32),new T.MeshBasicMaterial({map:texture,toneMapped:false}));
+      screen.position.set(0,3.0,-2.145);group.add(screen);
       this.displayCanvas=canvas;this.displayTexture=texture;
       this.scene.add(group);
     }
@@ -145,11 +146,11 @@
       let x=dx*c-dz*s,z=dx*s+dz*c;
       x=Math.max(-1.34,Math.min(1.34,x));
       const doorPassable=this.doorOpen>=.98&&(this.phase==='open'||this.phase==='opening');
-      z=Math.max(-1.78,Math.min(doorPassable?3.8:1.72,z));
+      z=Math.max(doorPassable?-3.8:-1.72,Math.min(1.78,z));
       position.x=this.group.position.x+x*c+z*s;
       position.z=this.group.position.z-x*s+z*c;
       position.y=this.group.position.y+1.7;
-      if(doorPassable&&z>3.15){
+      if(doorPassable&&z<-3.15){
         this.phase='complete';
         this.dispose();
         this.onComplete(position);
