@@ -196,7 +196,77 @@ function spawn(){
  g.add(body,head,sensor,ring);
  const hitFlash=new T.Mesh(new T.OctahedronGeometry(.18,0),new T.MeshBasicMaterial({color:0xffd18a,transparent:true,opacity:0,depthWrite:false}));
  hitFlash.visible=false;g.add(hitFlash);
- e.visual={body,head,sensor,ring,core:null,phaseHalo:null,hitFlash};
+ e.visual={body,head,sensor,ring,core:null,phaseHalo:null,hitFlash,rotors:[],articulators:[],weaponPods:[],exhausts:[]};
+ const accent=new T.MeshStandardMaterial({color:profile.ringColor,metalness:.72,roughness:.24,emissive:profile.ringColor,emissiveIntensity:.22});
+ const darkMetal=new T.MeshStandardMaterial({color:0x111820,metalness:.88,roughness:.34});
+ const glowMat=new T.MeshBasicMaterial({color:profile.ringColor});
+ const addPart=(geometry,material,position,rotation,parent=g)=>{
+  const part=new T.Mesh(geometry,material);
+  part.position.set(position[0],position[1],position[2]);
+  if(rotation)part.rotation.set(rotation[0],rotation[1],rotation[2]);
+  parent.add(part);return part;
+ };
+ // Each class gets a different mechanical silhouette, not just a recolored shell.
+ if(type==='scout'){
+  for(const side of[-1,1]){
+   const wing=addPart(new T.BoxGeometry(.82,.09,.42),m,[side*.66,.02,-.02],[0,0,side*-.16]);
+   const rotor=addPart(new T.TorusGeometry(.27,.045,8,24),accent,[side*.96,.08,0],[Math.PI/2,0,0]);
+   const hub=addPart(new T.CylinderGeometry(.12,.12,.16,12),darkMetal,[side*.96,.08,0],[0,0,0]);
+   const blade=addPart(new T.BoxGeometry(.5,.025,.055),glowMat,[side*.96,.17,0],[0,0,0]);
+   e.visual.rotors.push({ring:rotor,hub,blade,side});
+   const fin=addPart(new T.BoxGeometry(.12,.42,.32),m,[side*.3,-.22,-.42],[side*.18,0,side*-.2]);
+   e.visual.articulators.push({part:fin,axis:'z',phase:side*.8,amplitude:.12});
+   wing.userData.decorative=true;
+  }
+  addPart(new T.ConeGeometry(.16,.42,8),accent,[0,-.06,-.55],[Math.PI,0,0]);
+ }else if(type==='assault'){
+  for(const side of[-1,1]){
+   const podPivot=new T.Group();podPivot.position.set(side*.62,.04,.02);g.add(podPivot);
+   addPart(new T.CylinderGeometry(.18,.22,.68,12),darkMetal,[0,0,0],[Math.PI/2,0,0],podPivot);
+   addPart(new T.CylinderGeometry(.115,.115,.08,12),accent,[0,0,.37],[Math.PI/2,0,0],podPivot);
+   addPart(new T.CylinderGeometry(.065,.065,.12,12),glowMat,[0,0,.43],[Math.PI/2,0,0],podPivot);
+   const muzzle=addPart(new T.TorusGeometry(.13,.025,6,16),accent,[0,0,.49],[0,0,0],podPivot);
+   e.visual.weaponPods.push({pivot:podPivot,muzzle,side});
+  }
+  addPart(new T.BoxGeometry(.72,.12,.22),darkMetal,[0,-.3,-.25],[0,0,0]);
+ }else if(type==='heavy'){
+  for(const side of[-1,1]){
+   const shoulder=addPart(new T.BoxGeometry(.42,.72,.72),darkMetal,[side*.76,.02,-.04],[0,0,side*-.12]);
+   const piston=addPart(new T.CylinderGeometry(.09,.12,.58,10),accent,[side*.84,-.34,-.12],[0,0,side*-.18]);
+   const exhaust=addPart(new T.CylinderGeometry(.16,.2,.38,12),darkMetal,[side*.54,.16,-.55],[Math.PI/2,0,0]);
+   const exhaustGlow=addPart(new T.CircleGeometry(.12,16),glowMat,[side*.54,.16,-.75],[0,0,0]);
+   e.visual.exhausts.push({body:exhaust,glow:exhaustGlow,side});
+   e.visual.articulators.push({part:shoulder,axis:'z',phase:side*Math.PI,amplitude:.035},{part:piston,axis:'z',phase:side*Math.PI,amplitude:.055});
+  }
+  for(let i=0;i<3;i++){
+   const plate=addPart(new T.BoxGeometry(.34,.18,.12),m,[(i-1)*.34,.55,.28],[0,0,(i-1)*-.08]);
+   e.visual.articulators.push({part:plate,axis:'x',phase:i*.7,amplitude:.025});
+  }
+ }else if(type==='sniper'){
+  const dish=addPart(new T.TorusGeometry(.34,.045,8,32),accent,[0,1.08,-.08],[Math.PI/2,0,0]);
+  const dishCore=addPart(new T.SphereGeometry(.13,16,12),glowMat,[0,1.08,.0],[0,0,0]);
+  const barrel=addPart(new T.CylinderGeometry(.09,.13,.82,12),darkMetal,[.3,.22,.72],[Math.PI/2,0,0]);
+  const muzzle=addPart(new T.TorusGeometry(.12,.025,6,16),accent,[.3,.22,1.14],[0,0,0]);
+  const antennaPivot=new T.Group();antennaPivot.position.set(-.3,.8,-.12);g.add(antennaPivot);
+  addPart(new T.CylinderGeometry(.025,.04,.55,8),accent,[0,.28,0],[0,0,0],antennaPivot);
+  addPart(new T.SphereGeometry(.08,12,8),glowMat,[0,.58,0],[0,0,0],antennaPivot);
+  e.visual.scope=dish;e.visual.scopeCore=dishCore;e.visual.barrel=barrel;e.visual.muzzle=muzzle;
+  e.visual.articulators.push({part:antennaPivot,axis:'z',phase:0,amplitude:.16});
+ }else if(type==='warden'){
+  for(const side of[-1,1]){
+   const arm=new T.Group();arm.position.set(side*.72,.42,.02);g.add(arm);
+   addPart(new T.CylinderGeometry(.13,.18,.58,10),darkMetal,[side*.14,-.25,0],[0,0,side*-.5],arm);
+   const elbow=new T.Group();elbow.position.set(side*.28,-.48,.02);arm.add(elbow);
+   addPart(new T.CylinderGeometry(.09,.13,.46,10),accent,[side*.1,-.2,.02],[0,0,side*-.55],elbow);
+   const claw=addPart(new T.ConeGeometry(.13,.48,7),darkMetal,[side*.18,-.52,.08],[Math.PI,0,side*-.35],elbow);
+   e.visual.articulators.push({part:arm,axis:'z',phase:side*1.3,amplitude:.18},{part:elbow,axis:'z',phase:side*2.1,amplitude:.28});
+   e.visual.claws=e.visual.claws||[];e.visual.claws.push(claw);
+  }
+  for(let i=0;i<4;i++){
+   const vent=addPart(new T.BoxGeometry(.12,.46,.06),accent,[(i-1.5)*.22,-.08,-.48],[0,0,0]);
+   e.visual.articulators.push({part:vent,axis:'x',phase:i*.8,amplitude:.04});
+  }
+ }
  if(type==='warden'){
   const phaseHalo=new T.Mesh(
    new T.TorusGeometry(1.28,.028,8,56),
