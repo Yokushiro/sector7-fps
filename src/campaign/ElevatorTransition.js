@@ -78,16 +78,16 @@
       ceilingLight.position.set(0,3.05,0);group.add(ceilingLight);this.ceilingLight=ceilingLight;
       const emergency=new T.PointLight(0xff4c36,.12,5,2);emergency.position.set(0,2.7,-1.8);group.add(emergency);
       // The floor indicator is mounted directly above the forward doors, remaining readable during the ride.
-      const panel=new T.Mesh(new T.BoxGeometry(1.12,.42,.12),dark);
-      panel.position.set(0,3.0,-2.22);group.add(panel);this.panel=panel;
-      const panelFrame=new T.Mesh(new T.BoxGeometry(1.2,.5,.035),trim);
-      panelFrame.position.set(0,3.0,-2.29);group.add(panelFrame);
+      const panel=new T.Mesh(new T.BoxGeometry(1.12,.28,.12),dark);
+      panel.position.set(0,3.15,-2.22);group.add(panel);this.panel=panel;
+      const panelFrame=new T.Mesh(new T.BoxGeometry(1.2,.34,.035),trim);
+      panelFrame.position.set(0,3.15,-2.29);group.add(panelFrame);
       const canvas=document.createElement('canvas');canvas.width=256;canvas.height=128;
       const texture=new T.CanvasTexture(canvas);
       if(T.SRGBColorSpace&&'colorSpace'in texture)texture.colorSpace=T.SRGBColorSpace;
       else if(T.sRGBEncoding)texture.encoding=T.sRGBEncoding;
-      const screen=new T.Mesh(new T.PlaneGeometry(.82,.32),new T.MeshBasicMaterial({map:texture,toneMapped:false}));
-      screen.position.set(0,3.0,-2.145);group.add(screen);
+      const screen=new T.Mesh(new T.PlaneGeometry(.82,.22),new T.MeshBasicMaterial({map:texture,toneMapped:false}));
+      screen.position.set(0,3.15,-2.145);group.add(screen);
       this.displayCanvas=canvas;this.displayTexture=texture;
       this.scene.add(group);
     }
