@@ -30,7 +30,18 @@
       box(2.8, H / 2, -21, .45, H, 14, wall);
       box(0, H - .35, -21, 6.2, .5, 14, darkSteel, false);
       // Seal the back of the incoming lift corridor so the player cannot leave the playable sector bounds.
-      box(0, H / 2, -28.25, 5.6, H, .5, wall);
+      const incomingLiftFrame = new T.MeshStandardMaterial({color:0xa7bdc5,metalness:.9,roughness:.24,emissive:0x1d4551,emissiveIntensity:.48});
+      box(-2.55, H / 2, -28.25, .5, H, .5, wall);
+      box(2.55, H / 2, -28.25, .5, H, .5, wall);
+      box(0, (H + 6.2) / 2, -28.25, 4.6, H - 6.2, .5, wall, false);
+      box(-2.28, 3.1, -28.25, .16, 6.2, .72, incomingLiftFrame, false);
+      box(2.28, 3.1, -28.25, .16, 6.2, .72, incomingLiftFrame, false);
+      box(0, 6.2, -28.25, 4.6, .16, .72, incomingLiftFrame, false);
+      box(0, .08, -28.25, 4.6, .16, .82, incomingLiftFrame, false);
+      for (const x of [-2.05, 2.05]) {
+        const status = new T.Mesh(new T.BoxGeometry(.045, 5.35, .035), new T.MeshBasicMaterial({color:0x79eaff}));
+        status.position.set(x, 3.1, -27.86); scene.add(status);
+      }
       const corridorStrip = new T.Mesh(new T.BoxGeometry(.25, .12, 8), new T.MeshBasicMaterial({ color: 0xff3545 }));
       corridorStrip.position.set(0, 7.1, -20);
       scene.add(corridorStrip);
@@ -278,6 +289,7 @@
         bounds: { halfSize: 29, height: H },
         exitZone: { x0: -2.1, x1: 2.1, z0: 26.3, z1: 27.7 },
         exitYaw: Math.PI,
+        elevatorEntryOffset: 2.25,
         playerSpawn: { x: 0, y: 1.7, z: -26, yaw: Math.PI },
         enemySpawnPoints: [[-11, -11], [11, -11], [-11, 11], [11, 11], [0, -12.5], [-12.5, 0], [12.5, 0]],
         openExit() { exitOpen = true; elevatorDoors.forEach(door => context.removeCollisionBox(door.userData.collisionBox)); },
