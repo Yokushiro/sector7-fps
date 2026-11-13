@@ -652,7 +652,7 @@ test('each drone archetype permanently loses a visible subsystem when critically
   ];
   for (const [type, visual, failedPart] of cases) {
     const enemy = makeEnemy(type, 2, 6);
-    enemy.hp = 50;
+    enemy.hp = type === 'warden' ? 40 : 50;
     enemy.maxHp = 100;
     enemy.visual = visual;
     ai.update([enemy], { pos: { x: 0, y: 1.7, z: 0 } }, 0.05,
