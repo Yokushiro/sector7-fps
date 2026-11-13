@@ -255,7 +255,8 @@ test('drone archetype mechanical parts animate independently during combat', () 
   enemy.visual = {
     rotors: [{ ring: rotor, hub, blade }],
     articulators: [{ part: fin, axis: 'z', phase: 0, amplitude: 0.2 }],
-    armorPanels: [{ part: armorPanel, phase: 0, axis: 'z' }]
+    armorPanels: [{ part: armorPanel, phase: 0, axis: 'z' }],
+    reactorCage: { rotation: { x: 0, z: 0 } }
   };
   ai.update(
     [enemy],
@@ -272,6 +273,7 @@ test('drone archetype mechanical parts animate independently during combat', () 
   assert.ok(blade.rotation.y > rotor.rotation.y, 'rotor blade should have its own spin rate');
   assert.notEqual(fin.rotation.z, 0, 'articulated fins should move independently');
   assert.notEqual(armorPanel.rotation.z, 0, 'layered armor panels should flex subtly during flight');
+  assert.ok(enemy.visual.reactorCage.rotation.z > 0, 'Warden reactor cage should rotate as a separate mechanism');
 });
 
 test('Warden armor shutters unfold into the phase-two combat silhouette', () => {
