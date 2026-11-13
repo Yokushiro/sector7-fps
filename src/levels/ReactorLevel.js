@@ -35,7 +35,18 @@
       box(2.8, H / 2, 25, .45, H, 14, concrete);
       box(0, H - .35, 25, 6.2, .5, 14, dark, false);
       // The incoming lift corridor ends at a solid containment bulkhead beyond the cabin threshold.
-      box(0, H / 2, 32.25, 5.6, H, .5, concrete);
+      const incomingLiftFrame = new T.MeshStandardMaterial({color:0xb2b9bc,metalness:.92,roughness:.22,emissive:0x382820,emissiveIntensity:.34});
+      box(-2.55, H / 2, 32.25, .5, H, .5, concrete);
+      box(2.55, H / 2, 32.25, .5, H, .5, concrete);
+      box(0, (H + 7.1) / 2, 32.25, 4.6, H - 7.1, .5, concrete, false);
+      box(-2.28, 3.55, 32.25, .16, 7.1, .78, incomingLiftFrame, false);
+      box(2.28, 3.55, 32.25, .16, 7.1, .78, incomingLiftFrame, false);
+      box(0, 7.1, 32.25, 4.6, .16, .78, incomingLiftFrame, false);
+      box(0, .08, 32.25, 4.6, .16, .88, incomingLiftFrame, false);
+      for (const x of [-2.05, 2.05]) {
+        const status = new T.Mesh(new T.BoxGeometry(.05, 6.2, .035), new T.MeshBasicMaterial({color:0xffa36e}));
+        status.position.set(x, 3.55, 31.84); scene.add(status);
+      }
       const entryLamp = new T.PointLight(0x38cfff, .9, 18, 2);
       entryLamp.position.set(0, 5, 25);
       scene.add(entryLamp);
@@ -280,6 +291,7 @@
         exitYaw: 0,
         requiredInteractionId: 'reactor-shutdown',
         evacuationSeconds: 90,
+        elevatorEntryOffset: 4.25,
         playerSpawn: { x: 0, y: 1.7, z: 28, yaw: 0 },
         enemySpawnPoints: [[-14, -14], [14, -14], [-14, 12], [14, 12], [0, -15], [-16, 0], [16, 0], [16, 16]],
         openExit() { exitOpen = true; reactorShutdown = true; elevatorDoors.forEach(door => context.removeCollisionBox(door.userData.collisionBox)); },
