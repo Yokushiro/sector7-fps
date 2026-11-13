@@ -227,3 +227,26 @@ test('level material factory receives the active mission style', () => {
     ['metal', 1, 1, .9, 0xffffff, 'reactor-03']
   ]);
 });
+
+
+test('discardPreparedExcept releases stale hidden sectors but keeps the requested destination', () => {
+  const scene = new Group();
+  const manager = new LevelManager({ THREE: fakeThree, scene, solids: [], boxes: [] });
+  const disposed = { keep: false, stale: false };
+  for (const id of ['keep', 'stale']) {
+    manager.register({
+      id,
+      build(context) {
+        context.scene.add({ geometry: { dispose() { disposed[id] = true; } } });
+      }
+    });
+    manager.prepare(id, { box() {} });
+  }
+  assert.equal(scene.children.length, 2);
+  assert.equal(manager.discardPreparedExcept('keep'), 1);
+  assert.equal(manager.getPrepared('keep') !== null, true);
+  assert.equal(manager.getPrepared('stale'), null);
+  assert.equal(disposed.keep, false);
+  assert.equal(disposed.stale, true);
+  assert.equal(scene.children.length, 1);
+});
