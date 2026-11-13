@@ -87,20 +87,33 @@ let activeLevel=levelManager.load(currentMission.levelId,{mat,canvas,randomRange
 let LEVEL_BOUNDS=activeLevel.bounds;
 let dust=activeLevel.dust || {rotation:{y:0},position:{y:0}};
 
+let preloadScheduled=false;
 function preloadNextMission(){
+ if(preloadScheduled)return false;
  const nextDefinition=S7MissionSystem.MISSIONS.find(mission=>mission.order>currentMission.order);
  if(!nextDefinition||levelManager.getPrepared(nextDefinition.levelId))return false;
- try{
-  levelManager.prepare(nextDefinition.levelId,{mat,canvas,randomRange:R,box});
-  return true;
- }catch(error){
-  console.warn('Next sector preload failed; it will be built during transition',error);
-  return false;
- }
+ const prepare=()=>{
+  preloadScheduled=false;
+  if(levelManager.getPrepared(nextDefinition.levelId)||levelManager.getCurrent()?.id===nextDefinition.levelId)return;
+  try{
+   const prepared=levelManager.prepare(nextDefinition.levelId,{mat,canvas,randomRange:R,box});
+   // Compile the hidden sector's shader variants before it becomes visible, avoiding a first-frame hitch on arrival.
+   if(prepared?.root&&typeof renderer.compileAsync==='function'){
+    const wasVisible=prepared.root.visible;prepared.root.visible=true;
+    let compilation;
+    try{compilation=renderer.compileAsync(scene,cam)}finally{prepared.root.visible=wasVisible}
+    Promise.resolve(compilation).catch(error=>console.warn('Sector shader precompile failed',error));
+   }
+  }catch(error){console.warn('Next sector preload failed; it will be built during transition',error)}
+ };
+ preloadScheduled=true;
+ if(typeof requestIdleCallback==='function')requestIdleCallback(prepare,{timeout:3500});
+ else setTimeout(prepare,1800);
+ return true;
 }
 preloadNextMission();
 
-const torch=new T.SpotLight(0xe8f4ff,1.6,28,.5,.6,1.2);torch.position.set(.2,-.1,0);torch.target.position.set(0,0,-5);cam.add(torch,torch.target);
+const torch=new T.SpotLight(0xe8f4ff,1.6,28,.5,.6,1.2);let torchEnabled=true;torch.position.set(.2,-.1,0);torch.target.position.set(0,0,-5);cam.add(torch,torch.target);
 
 /* ---------- состояние ---------- */
 let GROUND_Y=activeLevel.playerSpawn.y;
@@ -703,7 +716,7 @@ document.addEventListener('pointerlockchange',()=>{locked=document.pointerLockEl
 document.addEventListener('pointerlockerror',()=>{fallback=true});
 addEventListener('mousemove',e=>{if(state!=='play'||!(locked||fallback))return;P.yaw-=e.movementX*.0022;P.pitch=cl(P.pitch-e.movementY*.0022,-1.45,1.45)});
 addEventListener('mousedown',e=>{if(e.button===0)mouse=true});addEventListener('mouseup',()=>mouse=false);
-addEventListener('keydown',e=>{if(e.code==='Escape'&&state==='play'&&fallback){e.preventDefault();showPauseMenu();return}if(dialogueSystem.isActive()&&(e.code==='Enter'||e.code==='KeyE')){e.preventDefault();if(!e.repeat)dialogueSystem.advance();return}if(e.code==='KeyE'&&state==='play'){e.preventDefault();if(!e.repeat)useNearbyInteraction();return}keys[e.code]=1;if(e.code==='Space'){e.preventDefault();if(!e.repeat&&state==='play'&&!elevatorTransition.isActive()&&jumpController.jump(P))snd(125,.14,'sawtooth',.12)}if(e.code==='KeyR')weapon.reload();if(e.code==='KeyF')torch.visible=!torch.visible;if(e.code==='F3')perfMonitor.toggle()});addEventListener('keyup',e=>keys[e.code]=0);
+addEventListener('keydown',e=>{if(e.code==='Escape'&&state==='play'&&fallback){e.preventDefault();showPauseMenu();return}if(dialogueSystem.isActive()&&(e.code==='Enter'||e.code==='KeyE')){e.preventDefault();if(!e.repeat)dialogueSystem.advance();return}if(e.code==='KeyE'&&state==='play'){e.preventDefault();if(!e.repeat)useNearbyInteraction();return}keys[e.code]=1;if(e.code==='Space'){e.preventDefault();if(!e.repeat&&state==='play'&&!elevatorTransition.isActive()&&jumpController.jump(P))snd(125,.14,'sawtooth',.12)}if(e.code==='KeyR')weapon.reload();if(e.code==='KeyF'){torchEnabled=!torchEnabled;torch.intensity=torchEnabled?1.6:0;}if(e.code==='F3')perfMonitor.toggle()});addEventListener('keyup',e=>keys[e.code]=0);
 addEventListener('blur',()=>{for(const key of Object.keys(keys))delete keys[key];mouse=false;if(state==='play'&&fallback)showPauseMenu();});
 setTimeout(()=>{if(state==='menu'&&!$('ov').matches(':hover'))0},0);
 
