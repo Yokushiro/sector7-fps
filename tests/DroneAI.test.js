@@ -282,6 +282,11 @@ test('Warden armor shutters unfold into the phase-two combat silhouette', () => 
   const left = { rotation: { z: 0 } };
   const right = { rotation: { z: 0 } };
   enemy.visual = {
+    ring: {
+      material: { color: { setHex() {} } },
+      scale: { setScalar() {} },
+      rotation: { z: 0 }
+    },
     phasePanels: [
       { hinge: left, side: -1, closed: 0.08 },
       { hinge: right, side: 1, closed: -0.08 }
