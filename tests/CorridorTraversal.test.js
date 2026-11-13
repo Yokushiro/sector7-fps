@@ -212,6 +212,8 @@ test('the next sector is prebuilt invisibly and its collision is isolated until 
   assert.match(game, /levelManager\.prepare\(nextDefinition\.levelId/);
   assert.match(game, /preloadNextMission\(\);\s*dialogueSystem\.startRadio\(currentMission\.outroDialogue/);
   assert.doesNotMatch(game, /setTimeout\(preloadNextMission,750\)/);
+  assert.equal((game.match(/preloadNextMission\(\);/g)||[]).length,1,'sector generation is requested only from the chapter outro, never at startup');
+  assert.doesNotMatch(game, /}\s*preloadNextMission\(\);\s*const torch=/);
 });
 
 test('sector handoff uses a diegetic elevator and preserves player resources', () => {
