@@ -322,6 +322,14 @@ test('elevator cabin keeps the floor display centered on the front wall and pres
 
 
 
+
+test('next-sector generation is scheduled during chapter outro rather than active gameplay', () => {
+  const game = read('src/game.js');
+  assert.match(game, /Prepare the next sector while the player is reading the chapter outro/);
+  assert.match(game, /preloadNextMission\(\);\s*dialogueSystem\.startRadio\(currentMission\.outroDialogue/);
+  assert.doesNotMatch(game, /setTimeout\(preloadNextMission,750\)/);
+});
+
 test('flashlight toggling keeps the spotlight in the render list to avoid shader recompilation', () => {
   const game = read('src/game.js');
   assert.match(game, /torchEnabled=!torchEnabled;torch\.intensity=torchEnabled\?1\.6:0/);
