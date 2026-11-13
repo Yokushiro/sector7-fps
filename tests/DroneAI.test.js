@@ -638,3 +638,31 @@ test('localized impact flash expands and fades after a hit', () => {
   assert.equal(flash.visible, false);
   assert.equal(flash.material.opacity, 0);
 });
+
+
+test('each drone archetype permanently loses a visible subsystem when critically damaged', () => {
+  const ai = new DroneAI();
+  const makePart = () => ({ visible: true, rotation: { y: 0, z: 0 }, scale: { setScalar() {} } });
+  const cases = [
+    ['scout', { rotors: [{}, { ring: makePart() }] }, visual => visual.rotors[1].ring],
+    ['assault', { weaponPods: [{}, { pivot: makePart() }] }, visual => visual.weaponPods[1].pivot],
+    ['heavy', { exhausts: [{}, { glow: makePart() }] }, visual => visual.exhausts[1].glow],
+    ['sniper', { scopeCore: makePart() }, visual => visual.scopeCore],
+    ['warden', { claws: [makePart(), makePart()] }, visual => visual.claws[1]]
+  ];
+  for (const [type, visual, failedPart] of cases) {
+    const enemy = makeEnemy(type, 2, 6);
+    enemy.hp = 50;
+    enemy.maxHp = 100;
+    enemy.visual = visual;
+    ai.update([enemy], { pos: { x: 0, y: 1.7, z: 0 } }, 0.05,
+      () => {}, { add() {} }, [], () => {}, min => min);
+    assert.equal(failedPart(visual).visible, false, type + ' subsystem should visibly fail');
+    assert.equal(enemy.moduleFailureTriggered, true);
+    assert.equal(enemy.criticalDamage, false);
+    enemy.hp = 20;
+    ai.update([enemy], { pos: { x: 0, y: 1.7, z: 0 } }, 0.05,
+      () => {}, { add() {} }, [], () => {}, min => min);
+    assert.equal(enemy.criticalDamage, true, type + ' should enter critical instability');
+  }
+});
