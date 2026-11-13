@@ -13,16 +13,17 @@ box(-7.15,H/2,S+.5,10.9,H,1,mat('concrete',6,2));box(7.15,H/2,S+.5,10.9,H,1,mat(
 // Entry passage: the player begins here and walks into the bunker through the southern bulkhead.
 const entryFloor=new T.Mesh(new T.PlaneGeometry(5.2,14),mat('floor',2,5,.3));entryFloor.rotation.x=-Math.PI/2;entryFloor.position.set(0,.015,19);entryFloor.receiveShadow=true;scene.add(entryFloor);solids.push(entryFloor);
 box(-2.8,H/2,19,.45,H,14,mat('concrete',2,4,0,0xffffff));box(2.8,H/2,19,.45,H,14,mat('concrete',2,4));box(0,H-.35,19,6.2,.5,14,mat('metal',2,5,.8),false);box(0,H/2,26.5,5.6,H,.45,mat('metal',2,2,.9));
-const entryLamp=new T.PointLight(0x4c9dff,.85,16,2);entryLamp.position.set(0,4.8,19);scene.add(entryLamp);
+const entryFixture=new T.Mesh(new T.BoxGeometry(1.25,.16,.42),new T.MeshStandardMaterial({color:0x52616a,metalness:.82,roughness:.3}));entryFixture.position.set(0,6.72,19);scene.add(entryFixture);const entryGlow=new T.Mesh(new T.BoxGeometry(.92,.025,.22),new T.MeshBasicMaterial({color:0x79caff}));entryGlow.position.set(0,6.62,19);scene.add(entryGlow);const entryLamp=new T.PointLight(0x4c9dff,.85,16,2);entryLamp.position.set(0,6.15,19);scene.add(entryLamp);
 // Passageway to the lower laboratory wing: the doorway is part of the playable space, not a teleport.
 const corridorFloor=new T.Mesh(new T.PlaneGeometry(5.2,14),mat('floor',2,5,.3));corridorFloor.rotation.x=-Math.PI/2;corridorFloor.position.set(0,.015,-19);corridorFloor.receiveShadow=true;scene.add(corridorFloor);solids.push(corridorFloor);
 box(-2.8,H/2,-19,.45,H,14,mat('concrete',2,4));box(2.8,H/2,-19,.45,H,14,mat('concrete',2,4));box(0,H-.35,-19,6.2,.5,14,mat('metal',2,5,.8),false);
-const corridorLight=new T.Mesh(new T.BoxGeometry(.25,.12,8),new T.MeshBasicMaterial({color:0xffa34d}));corridorLight.position.set(0,6.1,-18);scene.add(corridorLight);const corridorLamp=new T.PointLight(0xff7b32,1.1,18,2);corridorLamp.position.set(0,4.8,-18);scene.add(corridorLamp);
+const corridorHousing=new T.Mesh(new T.BoxGeometry(1.35,.18,5.8),new T.MeshStandardMaterial({color:0x51545a,metalness:.8,roughness:.32}));corridorHousing.position.set(0,6.72,-18);scene.add(corridorHousing);const corridorLight=new T.Mesh(new T.BoxGeometry(.28,.035,5.1),new T.MeshBasicMaterial({color:0xffb35f}));corridorLight.position.set(0,6.61,-18);scene.add(corridorLight);const corridorLamp=new T.PointLight(0xff7b32,1.1,18,2);corridorLamp.position.set(0,6.05,-18);scene.add(corridorLamp);
 // A clearly readable elevator portal: twin armored leaves, a heavy lintel and cyan status rails.
-const elevatorSteel=mat('metal',1,1,.9,0x657783);
+const elevatorSteel=new T.MeshStandardMaterial({color:0x9eafb6,metalness:.9,roughness:.24,emissive:0x1a3038,emissiveIntensity:.38});
+const elevatorDoorSteel=new T.MeshStandardMaterial({color:0xb9c8ce,metalness:.92,roughness:.22,emissive:0x203943,emissiveIntensity:.32});
 const elevatorDoors=[
-  box(-1.4,3,-26,2.8,5.7,.32,mat('metal',1,1,.88,0x3d4b54)),
-  box(1.4,3,-26,2.8,5.7,.32,mat('metal',1,1,.88,0x3d4b54))
+  box(-1.4,3,-26,2.8,5.7,.32,elevatorDoorSteel),
+  box(1.4,3,-26,2.8,5.7,.32,elevatorDoorSteel)
 ];
 elevatorDoors[0].userData.openX=-4.15;elevatorDoors[1].userData.openX=4.15;
 box(-2.95,H/2,-26,.3,H,.72,elevatorSteel,false);box(2.95,H/2,-26,.3,H,.72,elevatorSteel,false);
@@ -89,7 +90,7 @@ function barrel(x,z){
 box(0,.65,-1,7,1.3,.6,mc);box(-6.5,H/2-.3,0,1.2,H,1.2,mc);box(6.5,H/2-.3,0,1.2,H,1.2,mc);
 [[-8,1.1,-7,2.2],[8.3,1.1,-6.5,2.2],[3.5,.8,-6,1.6],[-4.5,.8,6,1.6],[9,1.1,8,2.2],[-9,.8,5,1.6],[0,.8,6.5,1.6]].forEach(([x,y,z,s],i)=>box(x,y,z,s,s,s,i%2?mm2:mm));
 [[-3,-5],[5,3],[-10,-2],[10.5,-1.5]].forEach(([x,z])=>barrel(x,z));
-for(const z of[-S+1.2,S-1.2]){const p=new T.Mesh(new T.CylinderGeometry(.22,.22,S*2,16),mm);p.rotation.z=Math.PI/2;p.position.set(0,H-1.2,z);p.castShadow=true;scene.add(p)}
+for(const z of[-S+1.2,S-1.2]){const p=new T.Mesh(new T.CylinderGeometry(.22,.22,S*2,16),mm);p.rotation.z=Math.PI/2;p.position.set(0,H-1.2,z);p.castShadow=true;scene.add(p);for(const x of[-9.8,9.8]){const hanger=new T.Mesh(new T.BoxGeometry(.12,1.05,.12),elevatorSteel);hanger.position.set(x,H-.62,z);hanger.castShadow=true;scene.add(hanger);const clamp=new T.Mesh(new T.TorusGeometry(.27,.045,8,18),elevatorSteel);clamp.rotation.x=Math.PI/2;clamp.position.set(x,H-1.2,z);scene.add(clamp)}}
 // неоновая вывеска
 const sg=canvas(512,(x,s)=>{x.fillStyle='#000';x.fillRect(0,0,s,s);x.fillStyle='#ff5a2a';x.font='bold 150px Bahnschrift,Arial';x.textAlign='center';x.fillText('SECTOR 7',256,230);x.font='60px Arial';x.fillStyle='#ffd0a0';x.fillText('ДОСТУП ЗАПРЕЩЁН',256,330)});
 const sm=new T.MeshBasicMaterial({map:new T.CanvasTexture(sg),color:new T.Color(2.4,2.4,2.4)});sm.map.encoding=T.sRGBEncoding;
@@ -104,10 +105,10 @@ const terminalBeacon=new T.Mesh(new T.SphereGeometry(.07,12,8),new T.MeshBasicMa
 scene.add(new T.HemisphereLight(0x3a5570,0x0a0a0a,.35));
 const strips=new T.MeshStandardMaterial({color:0,emissive:0xcfeaff,emissiveIntensity:4});
 const bunkerLights=[];
-[[-5,-5],[5,5],[-5,5],[5,-5]].forEach(([x,z],i)=>{const s=new T.Mesh(new T.BoxGeometry(.3,.1,5),strips);s.position.set(x,H-.35,z);scene.add(s);
+[[-5,-5],[5,5],[-5,5],[5,-5]].forEach(([x,z],i)=>{const housing=new T.Mesh(new T.BoxGeometry(.58,.16,5.35),new T.MeshStandardMaterial({color:0x39434a,metalness:.82,roughness:.3}));housing.position.set(x,H-.18,z);scene.add(housing);const s=new T.Mesh(new T.BoxGeometry(.3,.055,4.9),strips);s.position.set(x,H-.31,z);scene.add(s);
  const l=new T.PointLight(0xbfe0ff,.75,20,2);l.position.set(x,H-1,z);if(i<2){l.castShadow=true;l.shadow.mapSize.set(1024,1024);l.shadow.bias=-.002}scene.add(l);bunkerLights.push(l)});
 [[0xff6a1a,-10.5,3,9,1.2],[0xff2a8a,10.5,3,-9,1.2],[0x20e0ff,0,2.5,-10.5,1]].forEach(([c,x,y,z,i])=>{const l=new T.PointLight(c,i,15,2);l.position.set(x,y,z);scene.add(l);
- const g=new T.Mesh(new T.BoxGeometry(.3,2.4,.3),new T.MeshBasicMaterial({color:new T.Color(c).multiplyScalar(3)}));g.position.set(x,y,z);scene.add(g)});
+ const g=new T.Mesh(new T.BoxGeometry(.3,2.4,.3),new T.MeshBasicMaterial({color:new T.Color(c).multiplyScalar(3)}));g.position.set(x,1.2,z);scene.add(g)});
 // пыль
 {const n=500,p=new Float32Array(n*3);for(let i=0;i<n;i++){p[i*3]=R(-S,S);p[i*3+1]=R(.2,H-1);p[i*3+2]=R(-S,S)}
  const g=new T.BufferGeometry();g.setAttribute('position',new T.BufferAttribute(p,3));var dust=new T.Points(g,new T.PointsMaterial({size:.035,color:0xaac8e0,transparent:true,opacity:.45,depthWrite:false}));scene.add(dust)}
