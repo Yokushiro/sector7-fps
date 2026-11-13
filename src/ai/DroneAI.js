@@ -143,10 +143,6 @@
         }
 
         const reactionScale = hitStunned ? 0.18 : enemy.criticalDamage ? 0.78 : 1;
-        if (enemy.criticalDamage) {
-          const instability = Math.sin(enemy.t * 19) * (enemy.type === 'heavy' ? 0.025 : 0.065);
-          group.position.y += instability;
-        }
         group.position.x += moveX * dt * reactionScale;
         group.position.z += moveZ * dt * reactionScale;
         // A surviving unit tries to break the player's firing lane after impact.
@@ -182,7 +178,8 @@
             ? (enemy.evasionVelocity?.x || 0) * 0.035 : 0;
           group.rotation.z = bank + evadeTilt + (windup > 0 ? (enemy.type === 'heavy' ? -0.13 : 0.09) : 0);
           group.rotation.x = enemy.type === 'warden' && enemy.phase === 2
-            ? Math.sin(enemy.t * 4.5) * 0.055 : 0;
+            ? Math.sin(enemy.t * 4.5) * 0.055
+            : enemy.criticalDamage ? Math.sin(enemy.t * 19) * (enemy.type === 'heavy' ? 0.075 : 0.16) : 0;
         }
         if (enemy.visual) {
           const visual = enemy.visual;
