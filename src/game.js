@@ -97,11 +97,28 @@ function preloadNextMission(){
   try{
    const prepared=levelManager.prepare(nextDefinition.levelId,{mat,canvas,randomRange:R,box});
    // Compile the hidden sector's shader variants before it becomes visible, avoiding a first-frame hitch on arrival.
-   if(prepared?.root&&typeof renderer.compileAsync==='function'){
-    const wasVisible=prepared.root.visible;prepared.root.visible=true;
-    let compilation;
-    try{compilation=renderer.compileAsync(scene,cam)}finally{prepared.root.visible=wasVisible}
-    Promise.resolve(compilation).catch(error=>console.warn('Sector shader precompile failed',error));
+   if(prepared?.root){
+    const active=levelManager.getCurrent();
+    const activeVisible=active?.root?.visible;
+    const preparedVisible=prepared.root.visible;
+    const cameraPosition=cam.position.clone();
+    const cameraRotation=cam.rotation.clone();
+    let compilation=null;
+    try{
+     if(active?.root)active.root.visible=false;
+     prepared.root.visible=true;
+     cam.position.set(prepared.playerSpawn?.x||0,prepared.playerSpawn?.y||1.7,prepared.playerSpawn?.z||0);
+     cam.rotation.set(0,prepared.playerSpawn?.yaw||0,0);
+     cam.updateMatrixWorld(true);
+     if(typeof renderer.compileAsync==='function')compilation=renderer.compileAsync(scene,cam);
+     else if(typeof renderer.compile==='function')renderer.compile(scene,cam);
+    }catch(error){console.warn('Sector shader precompile failed',error)}
+    finally{
+     cam.position.copy(cameraPosition);cam.rotation.copy(cameraRotation);cam.updateMatrixWorld(true);
+     prepared.root.visible=preparedVisible;
+     if(active?.root)active.root.visible=activeVisible;
+    }
+    if(compilation)Promise.resolve(compilation).catch(error=>console.warn('Sector shader precompile failed',error));
    }
   }catch(error){console.warn('Next sector preload failed; it will be built during transition',error)}
  };
