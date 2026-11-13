@@ -607,6 +607,8 @@ function end(w){
  if(w&&!outroShown&&currentMission.outroDialogue?.length){
   if(outroPlaying)return;
   outroPlaying=true;state='transition';document.exitPointerLock&&document.exitPointerLock();
+  // Prepare the next sector while the player is reading the chapter outro, not during active combat or the lift ride.
+  preloadNextMission();
   dialogueSystem.startRadio(currentMission.outroDialogue,()=>{outroShown=true;outroPlaying=false;state='play';end(true)});
   return;
  }
@@ -644,7 +646,6 @@ function loadMission(nextMission,transition={}){
   activeLevel=levelManager.load(currentMission.levelId,{mat,canvas,randomRange:R,box});
   destructibleSystem.collisionCollections=[boxes,activeLevel.boxes];
   LEVEL_BOUNDS=activeLevel.bounds;
-  setTimeout(preloadNextMission,750);
   dust=activeLevel.dust||{rotation:{y:0},position:{y:0}};
   interactionSystem=new S7InteractionSystem(activeLevel.interactables||[]);
   GROUND_Y=activeLevel.playerSpawn.y;
