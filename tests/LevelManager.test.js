@@ -212,6 +212,8 @@ test('level material factory receives the active mission style', () => {
     id: 'reactor-03',
     build(context) {
       context.mat('floor', 4, 4, .2, 0xffffff);
+      context.mat('concrete', 6, 2);
+      context.mat('metal', 1, 1, .9);
       return { name: 'Reactor' };
     }
   });
@@ -219,5 +221,9 @@ test('level material factory receives the active mission style', () => {
     mat(...args) { calls.push(args); return {}; },
     box() {}
   });
-  assert.deepEqual(calls, [['floor', 4, 4, .2, 0xffffff, 'reactor-03']]);
+  assert.deepEqual(calls, [
+    ['floor', 4, 4, .2, 0xffffff, 'reactor-03'],
+    ['concrete', 6, 2, 0, 0xffffff, 'reactor-03'],
+    ['metal', 1, 1, .9, 0xffffff, 'reactor-03']
+  ]);
 });
