@@ -140,7 +140,7 @@ const elevatorTransition=new S7ElevatorTransition({
     elevatorTransition.dispose();
     return;
    }
-   elevatorTransition.setDestination(P.pos,P.yaw,String(currentMission.order).padStart(2,'0'),playerYawOffset);
+   elevatorTransition.setDestination(P.pos,P.yaw,String(currentMission.order).padStart(2,'0'),playerYawOffset,activeLevel.elevatorEntryOffset||0);
    dialogueSystem.startRadio(currentMission.introDialogue,()=>elevatorTransition.setRadioComplete());
   }catch(error){
    console.error('Elevator destination load failed',error);
