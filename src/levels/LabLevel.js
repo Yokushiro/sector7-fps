@@ -58,10 +58,11 @@
       exitLamp.position.set(0, 4.8, 21);
       scene.add(exitLamp);
       // Outgoing elevator vestibule: paired armored panels remain visible from the corridor.
-      const elevatorFrame = mat('metal', 1, 1, .9, 0x526c78);
+      const elevatorFrame = new T.MeshStandardMaterial({color:0x9eafb6,metalness:.9,roughness:.24,emissive:0x18323c,emissiveIntensity:.42});
+      const elevatorDoorSteel = new T.MeshStandardMaterial({color:0xb9c8ce,metalness:.92,roughness:.22,emissive:0x203943,emissiveIntensity:.34});
       const elevatorDoors = [
-        box(-1.4, 3, 28, 2.8, 5.7, .32, mat('metal', 1, 1, .88, 0x344b57)),
-        box(1.4, 3, 28, 2.8, 5.7, .32, mat('metal', 1, 1, .88, 0x344b57))
+        box(-1.4, 3, 28, 2.8, 5.7, .32, elevatorDoorSteel),
+        box(1.4, 3, 28, 2.8, 5.7, .32, elevatorDoorSteel)
       ];
       elevatorDoors[0].userData.openX = -4.15;
       elevatorDoors[1].userData.openX = 4.15;
@@ -264,10 +265,10 @@
       }
 
       // A wall-mounted emergency luminaire can be shot out, briefly changing the corridor's lighting.
-      const emergencyFixture = box(-7.2, 5.85, 19.2, .95, .24, .42, darkSteel);
+      const emergencyFixture = box(-7.2, 7.65, 19.2, .95, .24, .42, darkSteel);
       emergencyFixture.userData.destructible = { health: 1, destroyed: false };
       const emergencyGlow = new T.PointLight(0x58dff5, .9, 7, 2);
-      emergencyGlow.position.set(-7.2, 5.55, 19.1);
+      emergencyGlow.position.set(-7.2, 7.35, 19.1);
       scene.add(emergencyGlow);
       emergencyFixture.userData.breakLight = emergencyGlow;
 
