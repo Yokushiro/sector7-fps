@@ -128,7 +128,6 @@ function preloadNextMission(){
  else setTimeout(prepare,1800);
  return true;
 }
-preloadNextMission();
 
 const torch=new T.SpotLight(0xe8f4ff,1.6,28,.5,.6,1.2);let torchEnabled=true;torch.position.set(.2,-.1,0);torch.target.position.set(0,0,-5);cam.add(torch,torch.target);
 
