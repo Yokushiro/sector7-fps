@@ -26,7 +26,7 @@
       this.disposed=false; this.player=player; this.destinationLabel=String(destinationLabel);
       this.createCabin(position,cabinYaw);
       this.phase='closing'; this.phaseTime=0; this.travelTime=0;
-      this.radioComplete=false; this.destinationReady=false; this.doorOpen=0; this.exitRequested=false;
+      this.radioComplete=false; this.destinationReady=false; this.doorOpen=1; this.exitRequested=false;
       // Align the player with the cabin so the floor display is directly ahead, not off to the side.
       // Mouse-look remains available during the ride; any later view offset is preserved at the destination.
       if(this.player?.pos){
@@ -34,8 +34,8 @@
         this.player.pos.copy(inside);
         this.player.yaw=cabinYaw;
       }
-      this.drawDisplay('01','ДВЕРИ ЗАКРЫТЫ');
-      this.setDoorOpen(0);
+      this.drawDisplay('01','ДВЕРИ ОТКРЫТЫ');
+      this.setDoorOpen(1);
       this.onSound('door-close');
       return this;
     }
@@ -171,6 +171,7 @@
         this.travelTime=0;this.lastDisplayKey='B1|ПОДЪЁМ';this.drawDisplay('B1','ПОДЪЁМ');
         this.onSound('motor-start');this.onTravel();
       }else if(phase==='waiting'){
+        this.onSound('motor-stop');
         this.drawDisplay(this.destinationLabel,'ОЖИДАНИЕ ВЫХОДА');
       }else if(phase==='opening'){
         this.drawDisplay(this.destinationLabel,'ПРИБЫТИЕ');this.onSound('arrival');
