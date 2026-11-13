@@ -174,6 +174,52 @@
             const corePulse = windup > 0 ? 1 + Math.sin(enemy.t * 20) * 0.18 : 1 + Math.sin(enemy.t * 2.5) * 0.06;
             visual.core.scale.setScalar(corePulse);
           }
+          // Mechanical motion sells each drone's role: scout rotors spin up,
+          // assault muzzles recoil, heavy exhausts pulse, and elite limbs hunt independently.
+          if (visual.rotors) {
+            const rotorSpeed = enemy.type === 'scout' ? 18 : 0;
+            for (const rotor of visual.rotors) {
+              if (rotor.ring) rotor.ring.rotation.y += dt * rotorSpeed;
+              if (rotor.hub) rotor.hub.rotation.y -= dt * rotorSpeed * 0.72;
+              if (rotor.blade) rotor.blade.rotation.y += dt * rotorSpeed * 1.35;
+            }
+          }
+          if (visual.articulators) {
+            for (const joint of visual.articulators) {
+              if (!joint.part?.rotation) continue;
+              const motion = Math.sin(enemy.t * (enemy.type === 'warden' ? 3.1 : enemy.type === 'scout' ? 4.4 : 1.8) + (joint.phase || 0));
+              const value = motion * (joint.amplitude || 0.05) * (windup > 0 ? 1.65 : 1);
+              joint.part.rotation[joint.axis || 'z'] = value;
+            }
+          }
+          if (visual.weaponPods) {
+            for (const pod of visual.weaponPods) {
+              if (pod.pivot) {
+                const recoil = windup > 0 ? Math.max(0, 1 - windup / 0.16) : 0;
+                pod.pivot.rotation.x = Math.sin(enemy.t * 1.7 + pod.side) * 0.035 - recoil * 0.12;
+              }
+              if (pod.muzzle?.scale) {
+                const flash = windup > 0 ? 0.9 + Math.abs(Math.sin(enemy.t * 24)) * 0.35 : 1;
+                pod.muzzle.scale.setScalar(flash);
+              }
+            }
+          }
+          if (visual.exhausts) {
+            for (const exhaust of visual.exhausts) {
+              const pulse = 0.72 + (Math.sin(enemy.t * 5 + exhaust.side) + 1) * 0.16;
+              if (exhaust.glow?.scale) exhaust.glow.scale.setScalar(pulse * (windup > 0 ? 1.3 : 1));
+              if (exhaust.glow?.material) exhaust.glow.material.opacity = 0.55 + pulse * 0.25;
+            }
+          }
+          if (visual.scope) {
+            visual.scope.rotation.z = Math.sin(enemy.t * 1.1) * 0.045;
+            if (visual.scopeCore?.scale) visual.scopeCore.scale.setScalar(windup > 0 ? 1.25 + Math.sin(enemy.t * 16) * 0.12 : 1);
+          }
+          if (visual.barrel && visual.muzzle) {
+            const recoil = windup > 0 ? Math.max(0, 1 - windup / 1.05) : 0;
+            visual.barrel.position.z = 0.72 - recoil * 0.08;
+            visual.muzzle.scale.setScalar(windup > 0 ? 1.1 + Math.sin(enemy.t * 18) * 0.12 : 1);
+          }
           if (enemy.type === 'warden' && enemy.phase === 2) {
             enemy.phaseTransitionRemaining = Math.max(0, (enemy.phaseTransitionRemaining || 0) - dt);
             const transitionProgress = 1 - enemy.phaseTransitionRemaining / 1.8;
