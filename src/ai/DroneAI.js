@@ -2,11 +2,14 @@
   class S7DroneAI {
     update(enemies, player, dt, collide, scene, projectiles, sound, randomRange, obstacles = []) {
       const hasLineOfSight = (from, to) => {
-        const dx = to.x - from.x, dz = to.z - from.z;
+        const dx = to.x - from.x, dy = (to.y ?? 1.7) - (from.y ?? 1.3), dz = to.z - from.z;
         for (const box of obstacles) {
+          // Use the real vertical extent too: low cover should not hide a target above it.
           let tMin = 0, tMax = 1;
           for (const [origin, delta, min, max] of [
             [from.x, dx, box.x0, box.x1],
+            [from.y ?? 1.3, dy, Number.isFinite(box.y0) ? box.y0 : 0,
+              Number.isFinite(box.y1) ? box.y1 : 2.4],
             [from.z, dz, box.z0, box.z1]
           ]) {
             if (Math.abs(delta) < 1e-8) {
@@ -16,6 +19,7 @@
               if (t1 > t2) [t1, t2] = [t2, t1];
               tMin = Math.max(tMin, t1);
               tMax = Math.min(tMax, t2);
+              if (tMin > tMax) break;
             }
           }
           if (tMin <= tMax && tMin > 0.04 && tMin < 0.96) return false;
