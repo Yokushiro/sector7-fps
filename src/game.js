@@ -196,7 +196,7 @@ function spawn(){
  g.add(body,head,sensor,ring);
  const hitFlash=new T.Mesh(new T.OctahedronGeometry(.18,0),new T.MeshBasicMaterial({color:0xffd18a,transparent:true,opacity:0,depthWrite:false}));
  hitFlash.visible=false;g.add(hitFlash);
- e.visual={body,head,sensor,ring,core:null,phaseHalo:null,hitFlash,rotors:[],articulators:[],weaponPods:[],exhausts:[],armorPanels:[]};
+ e.visual={body,head,sensor,ring,core:null,phaseHalo:null,hitFlash,rotors:[],articulators:[],weaponPods:[],exhausts:[],armorPanels:[],phasePanels:[]};
  const accent=new T.MeshStandardMaterial({color:profile.ringColor,metalness:.72,roughness:.24,emissive:profile.ringColor,emissiveIntensity:.22});
  const darkMetal=new T.MeshStandardMaterial({color:0x111820,metalness:.88,roughness:.34});
  const glowMat=new T.MeshBasicMaterial({color:profile.ringColor,transparent:true,opacity:.88,depthWrite:false});
@@ -351,6 +351,16 @@ function spawn(){
   }
  }
  if(type==='warden'){
+  // Hinged shoulder shrouds expose the boss' internal reactor frame in phase two.
+  for(const side of[-1,1]){
+   const hinge=new T.Group();hinge.position.set(side*.72,.68,-.12);g.add(hinge);
+   addPart(new T.BoxGeometry(.16,.18,.18),darkMetal,[0,0,0],[0,0,0],hinge);
+   addPart(new T.BoxGeometry(.48,.72,.095),accent,[side*.24,0,0],[0,0,side*-.08],hinge);
+   addPart(new T.BoxGeometry(.31,.48,.025),darkMetal,[side*.24,0,.061],[0,0,0],hinge);
+   addPart(new T.BoxGeometry(.2,.035,.018),glowMat,[side*.24,0,.08],[0,0,0],hinge);
+   for(const y of[-.27,.27])addPart(new T.CylinderGeometry(.035,.035,.025,8),darkMetal,[side*.24,y,.08],[Math.PI/2,0,0],hinge);
+   e.visual.phasePanels.push({hinge,side,closed:side*-.08});
+  }
   const phaseHalo=new T.Mesh(
    new T.TorusGeometry(1.28,.028,8,56),
    new T.MeshBasicMaterial({color:0xff58d4,transparent:true,opacity:0,depthWrite:false})
