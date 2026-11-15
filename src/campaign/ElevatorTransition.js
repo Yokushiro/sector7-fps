@@ -148,13 +148,20 @@
     }
 
     constrainPlayer(position){
-      if(!this.isActive()||!this.group||!position||this.phase==='exit-closing')return false;
+      if(!this.isActive()||!this.group||!position)return false;
       const c=Math.cos(this.group.rotation.y),s=Math.sin(this.group.rotation.y);
       const local=this.playerLocalPosition(position);
       let x=local.x,z=local.z;
       x=Math.max(-1.34,Math.min(1.34,x));
       const doorPassable=this.doorOpen>=.98&&(this.phase==='open'||this.phase==='opening');
-      z=Math.max(doorPassable?-3.8:-1.72,Math.min(1.78,z));
+      if(this.phase==='exit-closing'){
+        // The player has crossed the threshold. Keep them in the short landing vestibule
+        // while the leaves close; never disable collision for the entire closing animation.
+        x=Math.max(-1.34,Math.min(1.34,x));
+        z=Math.max(-3.82,Math.min(-3.24,z));
+      }else{
+        z=Math.max(doorPassable?-3.8:-1.72,Math.min(1.78,z));
+      }
       position.x=this.group.position.x+x*c+z*s;
       position.z=this.group.position.z-x*s+z*c;
       position.y=this.group.position.y+1.7;
@@ -240,7 +247,7 @@
         if(this.player?.pos){this.player.pos.y+=delta;this.player.pos.x+=c*lateralDelta;this.player.pos.z-=s*lateralDelta;}
         if(this.ceilingLight)this.ceilingLight.intensity=.95+Math.sin(this.travelTime*13)*.13+Math.sin(this.vibrationTime*38)*.08;
       }
-      if(this.player?.pos&&this.isActive()&&this.phase!=='exit-closing')this.constrainPlayer(this.player.pos);
+      if(this.player?.pos&&this.isActive())this.constrainPlayer(this.player.pos);
       return true;
     }
 
