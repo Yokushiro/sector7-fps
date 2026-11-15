@@ -187,6 +187,14 @@ $('missionDescription').textContent=currentMission.description;
 $('kl').textContent=`Дроны: 0 / ${GOAL}`;
 function collide(p,r){for(const b of boxes){const playerBottom=p.y-GROUND_Y;if(Number.isFinite(b.y1)&&playerBottom>=b.y1-.08)continue;const cx=cl(p.x,b.x0,b.x1),cz=cl(p.z,b.z0,b.z1),dx=p.x-cx,dz=p.z-cz,d2=dx*dx+dz*dz;
  if(d2<r*r){if(d2>1e-6){const d=Math.sqrt(d2),k=(r-d)/d;p.x+=dx*k;p.z+=dz*k}else p.x+=r}}}
+function constrainToLevelBounds(position,radius=.4){
+ const halfSize=Number(LEVEL_BOUNDS?.halfSize);
+ if(!Number.isFinite(halfSize)||halfSize<=radius)return false;
+ const limit=halfSize-radius;
+ position.x=cl(position.x,-limit,limit);
+ position.z=cl(position.z,-limit,limit);
+ return true;
+}
 
 /* ---------- звук ---------- */
 const audioManager=new S7AudioManager();
@@ -826,6 +834,7 @@ function loop(now){requestAnimationFrame(loop);const dt=Math.min(.05,(now-last)/
   if(P.grounded&&P.groundedPlatform&&!jumpController.isSupported(P,boxes)){P.grounded=false;P.velocityY=0;}
   if(!inElevator&&jumpController.update(P,dt,boxes))snd(75,.09,'sine',.08);
   if(P.grounded&&!inElevator)P.pos.y=(Number.isFinite(P.groundedHeight)?P.groundedHeight:GROUND_Y)+(mv?Math.sin(tm*(keys.ShiftLeft?13:9))*.035:0);
+  if(!inElevator)constrainToLevelBounds(P.pos,.4);
   cam.position.copy(P.pos);cam.rotation.set(P.pitch+weapon.pitchKick,P.yaw,0);
   if(!inElevator&&mouse&&!combatCleared)weapon.fire(solids,enemies,spark,hitEnemy,hitWorld,R);
   weapon.update(dt,tm,mv);
