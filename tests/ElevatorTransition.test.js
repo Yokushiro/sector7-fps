@@ -93,6 +93,11 @@ test('elevator remains walkable during travel and opens into the next sector',()
     elevator.constrainPlayer(player.pos);
     assert.equal(elevator.phase,'exit-closing','the doors close after the player has crossed the threshold');
     assert.ok(elevator.doorOpen>0,'the doors animate shut behind the player');
+    player.pos.copy(elevator.group.localToWorld(new Vector3(0,1.7,-12)));
+    elevator.constrainPlayer(player.pos);
+    const heldOutside=elevator.playerLocalPosition(player.pos);
+    assert.ok(heldOutside.z>=-3.82&&heldOutside.z<=-3.24,'the player cannot run away from the landing while doors close');
+    assert.ok(Math.abs(heldOutside.x)<=1.34,'the player remains within the elevator vestibule width');
     for(let i=0;i<8;i++)elevator.update(.1);
     assert.equal(elevator.phase,'complete');
     assert.equal(completeCalls,1);
