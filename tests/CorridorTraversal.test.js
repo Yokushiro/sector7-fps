@@ -12,7 +12,7 @@ test('all campaign locations provide traversable corridor exits', () => {
     const source = read(levelPath);
     assert.match(source, /corridorFloor/);
     assert.match(source, /exitZone:\s*\{/);
-    assert.match(source, /bounds:\s*\{\s*halfSize:\s*(27|29|33)/);
+    assert.match(source, /bounds:\s*\{\s*halfSize:\s*(27|29|42)/);
     assert.match(source, /interactables:\s*\[/);
     assert.match(source, /update\(dt, time\)/);
     assert.match(source, /openExit\(\)/);
