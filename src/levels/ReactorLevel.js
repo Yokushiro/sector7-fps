@@ -298,7 +298,7 @@
 
       return {
         name: 'Реакторное ядро',
-        bounds: { halfSize: 33, height: H },
+        bounds: { halfSize: 42, height: H },
         exitZone: { x0: -2.1, x1: 2.1, z0: -31.8, z1: -30.6 },
         exitYaw: 0,
         requiredInteractionId: 'reactor-shutdown',
