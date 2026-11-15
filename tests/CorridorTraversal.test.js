@@ -250,6 +250,16 @@ test('sector handoff uses a diegetic elevator and preserves player resources', (
   assert.match(html, /#dialogue\.radio/);
 });
 
+test('player is clamped to level bounds and reactor evacuation corridor remains inside them', () => {
+  const game = read('src/game.js');
+  const reactor = read('src/levels/ReactorLevel.js');
+  assert.match(game, /function constrainToLevelBounds\(position,radius=\.4\)/);
+  assert.match(game, /if\(!inElevator\)constrainToLevelBounds\(P\.pos,\.4\)/);
+  assert.match(game, /position\.x=cl\(position\.x,-limit,limit\)/);
+  assert.match(game, /position\.z=cl\(position\.z,-limit,limit\)/);
+  assert.match(reactor, /bounds: \{ halfSize: 42, height: H \}/,'reactor bounds include the far end of the evacuation vestibule');
+});
+
 test('surface finale continues from the reactor tunnel into an outdoor extraction yard', () => {
   const surface = read('src/levels/SurfaceLevel.js');
   const game = read('src/game.js');
