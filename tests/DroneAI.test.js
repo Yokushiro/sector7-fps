@@ -84,6 +84,29 @@ test('drones separate from overlapping squadmates instead of stacking together',
   assert.ok(distance > 0.25, 'overlapping drones should receive deterministic opposing separation forces');
 });
 
+test('crowded obstacle avoidance cannot create an excessive drone speed burst', () => {
+  const ai = new DroneAI();
+  const enemy = makeEnemy('scout', 2.65, 5.5);
+  const squadmate = makeEnemy('scout', 2.65, 5.5);
+  enemy.g.position.x = squadmate.g.position.x = 5;
+  enemy.g.position.z = squadmate.g.position.z = 0;
+  const start = { x: enemy.g.position.x, z: enemy.g.position.z };
+  ai.update(
+    [enemy, squadmate],
+    { pos: { x: 0, y: 1.7, z: 0 } },
+    0.1,
+    () => {},
+    { add() {} },
+    [],
+    () => {},
+    (min, max) => (min + max) / 2,
+    [{ x0: 4, x1: 6, y0: 0, y1: 2.5, z0: -1, z1: 1 }]
+  );
+  const displacement = Math.hypot(enemy.g.position.x - start.x, enemy.g.position.z - start.z);
+  assert.ok(displacement <= 2.65 * 1.8 * 0.1 + 1e-9,
+    'combined obstacle and squad forces should steer without exceeding the movement cap');
+});
+
 test('scout drones advance faster than heavy drones', () => {
   const ai = new DroneAI();
   const scout = makeEnemy('scout', 2.65, 5.5);
