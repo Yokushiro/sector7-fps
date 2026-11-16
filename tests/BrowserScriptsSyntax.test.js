@@ -14,7 +14,7 @@ const scripts = [
   'src/levels/LevelManager.js',
   'src/levels/BunkerLevel.js',
   'src/levels/LabLevel.js',
-  'src/levels/ReactorLevel.js',
+  'src/levels/ReactorLevel.js', 'src/levels/ArchiveLevel.js', 'src/levels/UplinkLevel.js',
   'src/audio/AudioManager.js',
   'src/ai/EnemyFactory.js',
   'src/ai/DroneAI.js',
