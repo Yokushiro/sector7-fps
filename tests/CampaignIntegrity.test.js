@@ -16,17 +16,19 @@ const levelFiles = {
   'bunker-01': { path: 'src/levels/BunkerLevel.js', symbol: 'S7BunkerLevel' },
   'lab-02': { path: 'src/levels/LabLevel.js', symbol: 'S7LabLevel' },
   'reactor-03': { path: 'src/levels/ReactorLevel.js', symbol: 'S7ReactorLevel' },
-  'surface-04': { path: 'src/levels/SurfaceLevel.js', symbol: 'S7SurfaceLevel' }
+  'surface-04': { path: 'src/levels/SurfaceLevel.js', symbol: 'S7SurfaceLevel' },
+  'archive-05': { path: 'src/levels/ArchiveLevel.js', symbol: 'S7ArchiveLevel' },
+  'uplink-06': { path: 'src/levels/UplinkLevel.js', symbol: 'S7UplinkLevel' }
 };
 
 test('every campaign mission maps to a registered, loadable level script', () => {
   const missions = new MissionSystem();
   const game = read('src/game.js');
   const html = read('index.html');
-  const definitions = missions.getUnlockedMissions({ unlockedMission: 4 });
+  const definitions = missions.getUnlockedMissions({ unlockedMission: 6 });
 
-  assert.equal(definitions.length, 4);
-  assert.deepEqual(definitions.map(mission => mission.order), [1, 2, 3, 4]);
+  assert.equal(definitions.length, 6);
+  assert.deepEqual(definitions.map(mission => mission.order), [1, 2, 3, 4, 5, 6]);
 
   for (const mission of definitions) {
     const level = levelFiles[mission.levelId];
@@ -43,7 +45,7 @@ test('every campaign mission maps to a registered, loadable level script', () =>
 
 test('mission objectives, spawn schedules and enemy archetypes agree', () => {
   const missions = new MissionSystem();
-  const definitions = missions.getUnlockedMissions({ unlockedMission: 4 });
+  const definitions = missions.getUnlockedMissions({ unlockedMission: 6 });
 
   for (const mission of definitions) {
     const objective = mission.objectives.find(item => item.type === 'eliminate');
@@ -105,4 +107,23 @@ test('fallback mouse-look mode can pause safely and clears stuck input on window
   const game = read('src/game.js');
   assert.match(game, /e\.code==='Escape'&&state==='play'&&fallback/);
   assert.match(game, /addEventListener\('blur',\(\)=>\{for\(const key of Object\.keys\(keys\)\)delete keys\[key\];mouse=false;if\(state==='play'&&fallback\)showPauseMenu\(\);\}\)/);
+});
+
+
+test('archive and uplink sectors have gated consoles, visible exit doors and unique visual systems', () => {
+  const archive = read('src/levels/ArchiveLevel.js');
+  const uplink = read('src/levels/UplinkLevel.js');
+  for (const [source, interaction] of [[archive, 'archive-core-terminal'], [uplink, 'uplink-disable']]) {
+    assert.ok(source.includes("requiredInteractionId:'" + interaction + "'"));
+    assert.ok(source.includes("id:'" + interaction + "'"));
+    assert.ok(source.includes('exitZone:'));
+    assert.ok(source.includes('openExit()'));
+    assert.ok(source.includes('elevatorDoors') || source.includes('const doors='));
+    assert.ok(source.includes('playerSpawn:'));
+    assert.ok(source.includes('enemySpawnPoints:'));
+  }
+  assert.ok(archive.includes('cryogenic') || archive.includes('capsules'));
+  assert.ok(archive.includes('Архив памяти'));
+  assert.ok(uplink.includes('Передающий узел'));
+  assert.ok(uplink.includes('lightning'));
 });
