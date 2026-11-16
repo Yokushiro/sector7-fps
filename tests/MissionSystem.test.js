@@ -122,3 +122,16 @@ test('mission registry rejects duplicate objective identifiers within a chapter'
     objectives: [base.objectives[0], { ...base.objectives[0], target: 5 }]
   }]), /Duplicate objective id/);
 });
+
+
+test('new campaigns always begin at the lowest mission order', () => {
+  const reversed = MissionSystem.MISSIONS.slice().reverse();
+  const missions = new MissionSystem(reversed);
+  assert.equal(missions.getFirstMission().id, 'bunker-01');
+  assert.equal(missions.getFirstMission().order, 1);
+});
+
+test('empty mission registries return no first mission', () => {
+  const missions = new MissionSystem([]);
+  assert.equal(missions.getFirstMission(), null);
+});
