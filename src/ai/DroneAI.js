@@ -169,6 +169,16 @@
         moveX += separationX;
         moveZ += separationZ;
 
+        // Avoidance and squad-separation forces steer the drone, but must not
+        // turn into an implausible speed burst in crowded corners.
+        const maxPlanarSpeed = Math.max(enemy.moveSpeed || 2.4, 0.8) * 1.8;
+        const planarSpeed = Math.hypot(moveX, moveZ);
+        if (planarSpeed > maxPlanarSpeed) {
+          const movementScale = maxPlanarSpeed / planarSpeed;
+          moveX *= movementScale;
+          moveZ *= movementScale;
+        }
+
         const reactionScale = hitStunned ? 0.18 : enemy.criticalDamage ? 0.78 : 1;
         group.position.x += moveX * dt * reactionScale;
         group.position.z += moveZ * dt * reactionScale;
