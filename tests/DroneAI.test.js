@@ -61,6 +61,29 @@ test('drone AI moves enemies toward the player', () => {
   assert.ok(enemy.g.position.x < 10);
 });
 
+test('drones separate from overlapping squadmates instead of stacking together', () => {
+  const ai = new DroneAI();
+  const first = makeEnemy('scout', 0, 5.5);
+  const second = makeEnemy('scout', 0, 5.5);
+  first.g.position.x = second.g.position.x = 5;
+  first.g.position.z = second.g.position.z = 0;
+  ai.update(
+    [first, second],
+    { pos: { x: 0, y: 1.7, z: 0 } },
+    0.1,
+    () => {},
+    { add() {} },
+    [],
+    () => {},
+    (min, max) => (min + max) / 2
+  );
+  const distance = Math.hypot(
+    first.g.position.x - second.g.position.x,
+    first.g.position.z - second.g.position.z
+  );
+  assert.ok(distance > 0.25, 'overlapping drones should receive deterministic opposing separation forces');
+});
+
 test('scout drones advance faster than heavy drones', () => {
   const ai = new DroneAI();
   const scout = makeEnemy('scout', 2.65, 5.5);
