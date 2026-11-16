@@ -1,7 +1,7 @@
 (function(root){
   'use strict';
   const UplinkLevel = {
-    id:'uplink-06',
+    id: 'uplink-06',
     build(context){
       const {THREE:T,scene,mat,box,solids}=context;
       const S=30,H=12;
