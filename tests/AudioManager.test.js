@@ -20,6 +20,8 @@ function fakeAudioContext() {
   };
   return {
     state: 'running',
+    closeCalls: 0,
+    close() { this.closeCalls++; this.state = 'closed'; return Promise.resolve(); },
     currentTime: 0,
     sampleRate: 100,
     destination: {},
@@ -123,4 +125,31 @@ test('surface mission uses a lighter wind-like exterior ambience profile', () =>
   assert.equal(context.sources[0].frequency.value, 48);
   assert.equal(context.sources[1].frequency.value, 72);
   audio.stopAmbience();
+});
+
+
+test('dispose releases active and crossfading audio and closes the context once', () => {
+  const context = fakeAudioContext();
+  const audio = new AudioManager(() => context);
+  audio.unlock();
+  audio.startAmbience('bunker');
+  const previousSources = [...audio.sources];
+  const previousNodes = [...audio.nodes];
+  audio.startAmbience('reactor', .5);
+  const activeSources = [...audio.sources];
+  const activeNodes = [...audio.nodes];
+  audio.startMusic();
+  const musicSources = [...audio.musicSources];
+  audio.dispose();
+  audio.dispose();
+
+  assert.equal(previousSources.every(source => source.stopped), true);
+  assert.equal(previousNodes.every(node => node.disconnected), true);
+  assert.equal(activeSources.every(source => source.stopped), true);
+  assert.equal(activeNodes.every(node => node.disconnected), true);
+  assert.equal(musicSources.every(source => source.stopped), true);
+  assert.equal(audio.ambienceReleaseTimers.size, 0);
+  assert.equal(audio.musicTimer, null);
+  assert.equal(audio.context, null);
+  assert.equal(context.closeCalls, 1);
 });
