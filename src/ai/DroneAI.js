@@ -4,23 +4,39 @@
       const hasLineOfSight = (from, to) => {
         const dx = to.x - from.x, dy = (to.y ?? 1.7) - (from.y ?? 1.3), dz = to.z - from.z;
         for (const box of obstacles) {
-          // Use the real vertical extent too: low cover should not hide a target above it.
+          // Slab-test each axis directly: avoid allocating three temporary arrays
+          // for every enemy on every simulation frame.
           let tMin = 0, tMax = 1;
-          for (const [origin, delta, min, max] of [
-            [from.x, dx, box.x0, box.x1],
-            [from.y ?? 1.3, dy, Number.isFinite(box.y0) ? box.y0 : 0,
-              Number.isFinite(box.y1) ? box.y1 : 2.4],
-            [from.z, dz, box.z0, box.z1]
-          ]) {
-            if (Math.abs(delta) < 1e-8) {
-              if (origin < min || origin > max) { tMin = 2; break; }
-            } else {
-              let t1 = (min - origin) / delta, t2 = (max - origin) / delta;
-              if (t1 > t2) [t1, t2] = [t2, t1];
-              tMin = Math.max(tMin, t1);
-              tMax = Math.min(tMax, t2);
-              if (tMin > tMax) break;
-            }
+          let origin = from.x, delta = dx, min = box.x0, max = box.x1;
+          if (Math.abs(delta) < 1e-8) {
+            if (origin < min || origin > max) continue;
+          } else {
+            let near = (min - origin) / delta, far = (max - origin) / delta;
+            if (near > far) { const swap = near; near = far; far = swap; }
+            tMin = Math.max(tMin, near); tMax = Math.min(tMax, far);
+            if (tMin > tMax) continue;
+          }
+
+          origin = from.y ?? 1.3; delta = dy;
+          min = Number.isFinite(box.y0) ? box.y0 : 0;
+          max = Number.isFinite(box.y1) ? box.y1 : 2.4;
+          if (Math.abs(delta) < 1e-8) {
+            if (origin < min || origin > max) continue;
+          } else {
+            let near = (min - origin) / delta, far = (max - origin) / delta;
+            if (near > far) { const swap = near; near = far; far = swap; }
+            tMin = Math.max(tMin, near); tMax = Math.min(tMax, far);
+            if (tMin > tMax) continue;
+          }
+
+          origin = from.z; delta = dz; min = box.z0; max = box.z1;
+          if (Math.abs(delta) < 1e-8) {
+            if (origin < min || origin > max) continue;
+          } else {
+            let near = (min - origin) / delta, far = (max - origin) / delta;
+            if (near > far) { const swap = near; near = far; far = swap; }
+            tMin = Math.max(tMin, near); tMax = Math.min(tMax, far);
+            if (tMin > tMax) continue;
           }
           if (tMin <= tMax && tMin > 0.04 && tMin < 0.96) return false;
         }
@@ -126,14 +142,15 @@
           let awayZ = group.position.z - Math.max(box.z0, Math.min(box.z1, group.position.z));
           let awayDistance = Math.hypot(awayX, awayZ);
           if (inside) {
-            const faces = [
-              { distance: group.position.x - box.x0, x: -1, z: 0 },
-              { distance: box.x1 - group.position.x, x: 1, z: 0 },
-              { distance: group.position.z - box.z0, x: 0, z: -1 },
-              { distance: box.z1 - group.position.z, x: 0, z: 1 }
-            ].sort((a, b) => a.distance - b.distance);
-            awayX = faces[0].x;
-            awayZ = faces[0].z;
+            // Select the nearest face with scalar comparisons instead of
+            // allocating and sorting four temporary objects per enemy/frame.
+            const left = group.position.x - box.x0;
+            const right = box.x1 - group.position.x;
+            const back = group.position.z - box.z0;
+            const front = box.z1 - group.position.z;
+            const nearest = Math.min(left, right, back, front);
+            awayX = nearest === left ? -1 : nearest === right ? 1 : 0;
+            awayZ = nearest === back ? -1 : nearest === front ? 1 : 0;
             awayDistance = 0;
           }
           if ((inside || awayDistance < 1.35) && (awayDistance > 0.001 || inside)) {
