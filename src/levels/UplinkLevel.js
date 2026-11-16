@@ -11,8 +11,8 @@
       box(0,H,0,S*2+2,.7,S*2+2,black,false);
       // Exposed storm platform with segmented blast walls, gantries and a massive transmission mast.
       for(const x of [-S-.5,S+.5])box(x,H/2,0,1,H,S*2,concrete);
-      box(-15,H/2,-S-.5,30,H,1,concrete);box(15,H/2,-S-.5,30,H,1,concrete);
-      box(-15,H/2,S+.5,30,H,1,concrete);box(15,H/2,S+.5,30,H,1,concrete);
+      box(-9.5,H/2,-S-.5,11,H,1,concrete);box(9.5,H/2,-S-.5,11,H,1,concrete);
+      box(-9.5,H/2,S+.5,11,H,1,concrete);box(9.5,H/2,S+.5,11,H,1,concrete);
       const mast=new T.Group();mast.position.set(0,0,2);scene.add(mast);
       const mastBase=new T.Mesh(new T.CylinderGeometry(4.5,6,1.4,8),steel);mastBase.position.y=.7;mast.add(mastBase);
       const shaft=new T.Mesh(new T.CylinderGeometry(.85,1.8,15,8),new T.MeshStandardMaterial({color:0x596d7a,metalness:.9,roughness:.3}));shaft.position.y=8.2;mast.add(shaft);
@@ -48,7 +48,7 @@
       return {
         name:'Передающий узел',
         bounds:{halfSize:33,height:H},
-        exitZone:{x0:-2.1,x1:2.1,z0:26.4,z1:27.8},
+        exitZone:{x0:-2.1,x1:2.1,z0:29.1,z1:30.0},
         exitYaw:Math.PI,
         elevatorEntryOffset:2.25,
         playerSpawn:{x:0,y:1.7,z:-25,yaw:Math.PI},
