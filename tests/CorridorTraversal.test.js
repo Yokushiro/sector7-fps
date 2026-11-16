@@ -270,7 +270,7 @@ test('surface finale continues from the reactor tunnel into an outdoor extractio
   assert.match(surface, /playerSpawn: \{ x: 0, y: 1\.7, z: -34, yaw: Math\.PI \}/);
   assert.match(surface, /id: 'surface-uplink'/);
   assert.match(surface, /evacuationSeconds: 120/);
-  assert.match(surface, /evacuationMessage: 'МАЯК АКТИВЕН · ДОБЕРИСЬ ДО ПОСАДОЧНОЙ ПЛОЩАДКИ'/);
+  assert.match(surface, /evacuationMessage: 'МАЯК АКТИВЕН · ДОБЕРИСЬ ДО СЕРВИСНОГО ПОДЪЁМНИКА'/);
   assert.match(surface, /context\.removeCollisionBox\(exitGate\.userData\.collisionBox\)/);
   assert.match(surface, /exitGate\.position\.y \+=/);
   assert.match(surface, /exitZone: \{ x0: -3\.2, x1: 3\.2, z0: 42, z1: 46 \}/);
