@@ -5,7 +5,7 @@
     build(context) {
       const { THREE:T, scene, mat, box, solids } = context;
       const S=28, H=9;
-      const floor=new T.Mesh(new T.PlaneGeometry(S*2,S*2),mat('floor',9,9,.18,0x243b4b));
+      const floor=new T.Mesh(new T.PlaneGeometry(S*2+4,S*2+4),mat('floor',9,9,.18,0x243b4b));
       floor.rotation.x=-Math.PI/2; floor.receiveShadow=true; scene.add(floor); solids.push(floor);
       const wall=mat('concrete',7,3,0,0x405564), steel=mat('metal',3,2,.88,0x8bb9c9), dark=mat('metal',2,2,.94,0x172a36);
       box(0,H,0,S*2+2,.6,S*2+2,dark,false);
@@ -49,7 +49,7 @@
       return {
         name:'Архив памяти',
         bounds:{halfSize:31,height:H},
-        exitZone:{x0:-2.1,x1:2.1,z0:25.3,z1:26.6},
+        exitZone:{x0:-2.1,x1:2.1,z0:28.1,z1:29.2},
         exitYaw:Math.PI,
         elevatorEntryOffset:2.25,
         playerSpawn:{x:0,y:1.7,z:-24,yaw:Math.PI},
