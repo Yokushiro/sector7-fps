@@ -26,7 +26,8 @@
         }
         return true;
       };
-      for (const enemy of enemies) {
+      for (let enemyIndex = 0; enemyIndex < enemies.length; enemyIndex++) {
+        const enemy = enemies[enemyIndex];
         const group = enemy.g;
         enemy.t += dt;
         // Damage is persistent: once a critical subsystem fails, the silhouette
@@ -142,6 +143,31 @@
             moveZ += awayZ / normalizer * strength;
           }
         }
+
+        // Keep combat groups readable: nearby drones spread out instead of
+        // occupying the same firing lane or stacking into a single hitbox.
+        const separationRadius = enemy.type === 'heavy' || enemy.type === 'warden' ? 1.9 : 1.55;
+        let separationX = 0, separationZ = 0;
+        for (let otherIndex = 0; otherIndex < enemies.length; otherIndex++) {
+          if (otherIndex === enemyIndex) continue;
+          const other = enemies[otherIndex];
+          if (!other?.g?.position) continue;
+          let awayX = group.position.x - other.g.position.x;
+          let awayZ = group.position.z - other.g.position.z;
+          let separationDistance = Math.hypot(awayX, awayZ);
+          if (separationDistance >= separationRadius) continue;
+          if (separationDistance < 1e-4) {
+            // Stable opposite directions for coincident spawns; no random jitter.
+            awayX = enemyIndex < otherIndex ? -1 : 1;
+            awayZ = ((enemyIndex + otherIndex) % 2) ? 0.35 : -0.35;
+            separationDistance = Math.hypot(awayX, awayZ);
+          }
+          const strength = (1 - Math.min(1, separationDistance / separationRadius)) * 2.8;
+          separationX += awayX / separationDistance * strength;
+          separationZ += awayZ / separationDistance * strength;
+        }
+        moveX += separationX;
+        moveZ += separationZ;
 
         const reactionScale = hitStunned ? 0.18 : enemy.criticalDamage ? 0.78 : 1;
         group.position.x += moveX * dt * reactionScale;
