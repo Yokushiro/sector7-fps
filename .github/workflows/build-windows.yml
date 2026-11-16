@@ -3,6 +3,8 @@ name: Windows Build Check
 on:
   pull_request:
     branches: [main]
+  push:
+    branches: [feature/sector7-2-core]
   workflow_dispatch:
 
 permissions:
