@@ -98,6 +98,13 @@ test('elevator remains walkable during travel and opens into the next sector',()
     const heldOutside=elevator.playerLocalPosition(player.pos);
     assert.ok(heldOutside.z>=-3.820001&&heldOutside.z<=-3.239999,`the player cannot run away from the landing while doors close (local z=${heldOutside.z}, phase=${elevator.phase}, yaw=${elevator.group.rotation.y})`);
     assert.ok(Math.abs(heldOutside.x)<=1.34,'the player remains within the elevator vestibule width');
+    for(const escapeAttempt of [[12,-12],[-12,-12],[12,12],[-12,12]]){
+      player.pos.copy(elevator.group.localToWorld(new Vector3(escapeAttempt[0],1.7,escapeAttempt[1])));
+      elevator.constrainPlayer(player.pos);
+      const held=elevator.playerLocalPosition(player.pos);
+      assert.ok(held.x>=-1.340001&&held.x<=1.340001,'lateral escape is blocked (x='+held.x+')');
+      assert.ok(held.z>=-3.820001&&held.z<=-3.239999,'forward/backward escape is blocked (z='+held.z+')');
+    }
     for(let i=0;i<8;i++)elevator.update(.1);
     assert.equal(elevator.phase,'complete');
     assert.equal(completeCalls,1);
