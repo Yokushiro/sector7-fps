@@ -18,6 +18,7 @@
       this.nodes = [];
       this.sources = [];
       this.master = null;
+      this.ambienceReleaseTimers = new Map();
     }
 
     unlock() {
@@ -42,7 +43,11 @@
           previous.master.gain.setValueAtTime(previous.master.gain.value, now);
           previous.master.gain.linearRampToValueAtTime(0, now + fade);
         } catch (error) {}
-        setTimeout(() => this.releaseAmbience(previous), fade * 1000 + 100);
+        const timer = setTimeout(() => {
+          this.ambienceReleaseTimers.delete(timer);
+          this.releaseAmbience(previous);
+        }, fade * 1000 + 100);
+        this.ambienceReleaseTimers.set(timer, previous);
         this.master = null;
         this.sources = [];
         this.nodes = [];
@@ -270,6 +275,22 @@
       if (!this.musicMaster) return false;
       this.musicMaster.gain.value = Math.max(0, Math.min(1, Number(value) || 0));
       return true;
+    }
+
+    dispose() {
+      for (const [timer, graph] of this.ambienceReleaseTimers) {
+        clearTimeout(timer);
+        this.releaseAmbience(graph);
+      }
+      this.ambienceReleaseTimers.clear();
+      this.stopAmbience();
+      this.stopMusic();
+      const context = this.context;
+      this.context = null;
+      if (context && typeof context.close === 'function' && context.state !== 'closed') {
+        const closing = context.close();
+        if (closing && typeof closing.catch === 'function') closing.catch(() => {});
+      }
     }
   }
 
