@@ -15,11 +15,37 @@
       this.apply();
     }
 
+    static normalizeSettings(value) {
+      if (!value || typeof value !== 'object' || Array.isArray(value) ||
+          !['low', 'medium', 'high', 'custom'].includes(value.preset)) return null;
+      const defaults = {
+        low: { pixelRatio: 1, shadows: false, bloom: false, bloomStrength: .35 },
+        medium: { pixelRatio: 1.5, shadows: true, bloom: true, bloomStrength: .5 },
+        high: { pixelRatio: 2, shadows: true, bloom: true, bloomStrength: .75 },
+        custom: { pixelRatio: 1.5, shadows: true, bloom: true, bloomStrength: .5 }
+      };
+      const fallback = defaults[value.preset];
+      const ratios = [1, 1.25, 1.5, 1.75, 2];
+      const requestedRatio = Number(value.pixelRatio);
+      const safeRatio = Number.isFinite(requestedRatio)
+        ? Math.max(1, Math.min(2, requestedRatio))
+        : fallback.pixelRatio;
+      const pixelRatio = ratios.reduce((nearest, ratio) =>
+        Math.abs(ratio - safeRatio) < Math.abs(nearest - safeRatio) ? ratio : nearest, ratios[0]);
+      const strength = Number(value.bloomStrength);
+      return {
+        preset: value.preset,
+        pixelRatio,
+        shadows: typeof value.shadows === 'boolean' ? value.shadows : fallback.shadows,
+        bloom: typeof value.bloom === 'boolean' ? value.bloom : fallback.bloom,
+        bloomStrength: Number.isFinite(strength) ? Math.max(0, Math.min(1.5, strength)) : fallback.bloomStrength
+      };
+    }
+
     load() {
       try {
         const value = JSON.parse(localStorage.getItem('s7-graphics-settings'));
-        if (!value || !['low','medium','high','custom'].includes(value.preset)) return null;
-        return value;
+        return S7GraphicsSettings.normalizeSettings(value);
       } catch (_) { return null; }
     }
 
