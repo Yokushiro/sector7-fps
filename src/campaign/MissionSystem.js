@@ -164,7 +164,10 @@
     }
 
     getFirstMission() {
-      return this.missions.length ? this.getMission(this.missions[0].id) : null;
+      if (!this.missions.length) return null;
+      const first = this.missions.reduce((earliest, mission) =>
+        mission.order < earliest.order ? mission : earliest, this.missions[0]);
+      return this.getMission(first.id);
     }
 
     getUnlockedMissions(campaignSave) {
