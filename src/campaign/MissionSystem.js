@@ -118,6 +118,33 @@
   class S7MissionSystem {
     constructor(missions) {
       const source = Array.isArray(missions) ? missions : MISSIONS;
+      const ids = new Set();
+      const orders = new Set();
+      for (const mission of source) {
+        if (!mission || typeof mission.id !== 'string' || !mission.id.trim() ||
+            !Number.isInteger(mission.order) || mission.order < 1 ||
+            typeof mission.levelId !== 'string' || !mission.levelId.trim() ||
+            !Array.isArray(mission.objectives) || !mission.objectives.length ||
+            !mission.spawn || !Number.isFinite(mission.spawn.interval) || mission.spawn.interval <= 0 ||
+            !Number.isInteger(mission.spawn.maxActive) || mission.spawn.maxActive < 1 ||
+            !Array.isArray(mission.spawn.enemySequence) || !mission.spawn.enemySequence.length ||
+            mission.spawn.enemySequence.some(type => typeof type !== 'string' || !type.trim())) {
+          throw new TypeError('Each mission requires a unique id/order, level, objectives and a valid spawn schedule');
+        }
+        if (ids.has(mission.id)) throw new Error('Duplicate mission id: ' + mission.id);
+        if (orders.has(mission.order)) throw new Error('Duplicate mission order: ' + mission.order);
+        ids.add(mission.id);
+        orders.add(mission.order);
+        const objectiveIds = new Set();
+        for (const objective of mission.objectives) {
+          if (!objective || typeof objective.id !== 'string' || !objective.id.trim() ||
+              !Number.isFinite(objective.target) || objective.target <= 0) {
+            throw new TypeError('Mission objectives require an id and a positive target: ' + mission.id);
+          }
+          if (objectiveIds.has(objective.id)) throw new Error('Duplicate objective id in mission ' + mission.id + ': ' + objective.id);
+          objectiveIds.add(objective.id);
+        }
+      }
       this.missions = source.map(mission => ({
         ...mission,
         objectives: mission.objectives.map(objective => ({ ...objective })),
