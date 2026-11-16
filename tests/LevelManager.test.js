@@ -250,3 +250,43 @@ test('discardPreparedExcept releases stale hidden sectors but keeps the requeste
   assert.equal(disposed.stale, true);
   assert.equal(scene.children.length, 1);
 });
+
+
+test('dispose releases the active and every prepared sector', () => {
+  const scene = new Group();
+  const solids = [];
+  const boxes = [];
+  const manager = new LevelManager({ THREE: fakeThree, scene, solids, boxes });
+  const disposed = { active: false, preparedA: false, preparedB: false };
+  for (const id of Object.keys(disposed)) {
+    manager.register({
+      id,
+      build(context) {
+        context.scene.add({ geometry: { dispose() { disposed[id] = true; } } });
+        context.solids.push({ id });
+        context.boxes.push({ id });
+      }
+    });
+  }
+  manager.load('active', { box() {} });
+  manager.prepare('preparedA', { box() {} });
+  manager.prepare('preparedB', { box() {} });
+  assert.equal(scene.children.length, 3);
+  assert.equal(solids.length, 1);
+  assert.equal(boxes.length, 1);
+
+  assert.equal(manager.dispose(), true);
+  assert.deepEqual(disposed, { active: true, preparedA: true, preparedB: true });
+  assert.equal(scene.children.length, 0);
+  assert.equal(solids.length, 0);
+  assert.equal(boxes.length, 0);
+  assert.equal(manager.getCurrent(), null);
+  assert.equal(manager.getPrepared('preparedA'), null);
+  assert.equal(manager.hasLevel('active'), false);
+});
+
+test('dispose is safe when called repeatedly on an empty manager', () => {
+  const manager = new LevelManager({ THREE: fakeThree, scene: new Group(), solids: [], boxes: [] });
+  assert.equal(manager.dispose(), true);
+  assert.equal(manager.dispose(), true);
+});
