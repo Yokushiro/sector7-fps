@@ -100,3 +100,25 @@ test('campaign dialogue identifies the engineer as Lev in every chapter', () => 
   assert.ok(lines.filter(line => line.speaker.startsWith('ЛЕВ')).length >= 10);
   assert.ok(lines.every(line => !/Илья|Ильи|ИЛЬЯ/.test(line.speaker + ' ' + line.text)));
 });
+
+test('mission registry rejects duplicate mission identifiers and campaign orders', () => {
+  const base = MissionSystem.MISSIONS[0];
+  assert.throws(() => new MissionSystem([base, { ...base, order: 2 }]), /Duplicate mission id/);
+  assert.throws(() => new MissionSystem([base, { ...MissionSystem.MISSIONS[1], order: 1 }]), /Duplicate mission order/);
+});
+
+test('mission registry rejects incomplete objectives and invalid spawn schedules', () => {
+  const base = MissionSystem.MISSIONS[0];
+  assert.throws(() => new MissionSystem([{ ...base, objectives: [] }]), /valid spawn schedule/);
+  assert.throws(() => new MissionSystem([{ ...base, objectives: [{ id: 'bad', target: 0 }] }]), /positive target/);
+  assert.throws(() => new MissionSystem([{ ...base, spawn: { ...base.spawn, interval: 0 } }]), /valid spawn schedule/);
+  assert.throws(() => new MissionSystem([{ ...base, spawn: { ...base.spawn, enemySequence: [] } }]), /valid spawn schedule/);
+});
+
+test('mission registry rejects duplicate objective identifiers within a chapter', () => {
+  const base = MissionSystem.MISSIONS[0];
+  assert.throws(() => new MissionSystem([{
+    ...base,
+    objectives: [base.objectives[0], { ...base.objectives[0], target: 5 }]
+  }]), /Duplicate objective id/);
+});
