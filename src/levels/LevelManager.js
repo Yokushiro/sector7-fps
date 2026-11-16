@@ -151,6 +151,13 @@
       this.current = null;
     }
 
+    dispose() {
+      this.unload();
+      for (const id of [...this.prepared.keys()]) this.discardPrepared(id);
+      this.definitions.clear();
+      return true;
+    }
+
     getCurrent() {
       return this.current;
     }
