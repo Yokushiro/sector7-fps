@@ -69,7 +69,7 @@ test('unlocked missions always follow campaign order even if definitions are sup
   const missions = new MissionSystem(MissionSystem.MISSIONS.slice().reverse());
   assert.deepEqual(
     missions.getUnlockedMissions({ unlockedMission: 4 }).map(mission => mission.id),
-    ['bunker-01', 'lab-02', 'reactor-03', 'surface-04']
+    ['bunker-01', 'lab-02', 'reactor-03', 'surface-04', 'archive-05', 'uplink-06']
   );
 });
 
@@ -92,7 +92,7 @@ test('surface finale completes the four-sector campaign and keeps the extraction
 
 test('campaign dialogue identifies the engineer as Lev in every chapter', () => {
   const missions = new MissionSystem();
-  const lines = missions.getUnlockedMissions({ unlockedMission: 4 })
+  const lines = missions.getUnlockedMissions({ unlockedMission: 6 })
     .flatMap(mission => [...mission.introDialogue, ...mission.outroDialogue]);
   assert.ok(lines.some(line => line.text.includes('Меня зовут Лев Афанасьев')));
   assert.ok(lines.some(line => line.speaker === 'СИСТЕМА БУНКЕРА'));
@@ -134,4 +134,22 @@ test('new campaigns always begin at the lowest mission order', () => {
 test('empty mission registries return no first mission', () => {
   const missions = new MissionSystem([]);
   assert.equal(missions.getFirstMission(), null);
+});
+
+
+test('six-sector campaign has continuous order, unique levels and a final transmission shutdown', () => {
+  const missions = new MissionSystem();
+  const all = missions.getUnlockedMissions({ unlockedMission: 6 });
+  assert.equal(all.length, 6);
+  assert.deepEqual(all.map(item => item.order), [1, 2, 3, 4, 5, 6]);
+  assert.deepEqual(all.map(item => item.levelId), [
+    'bunker-01', 'lab-02', 'reactor-03', 'surface-04', 'archive-05', 'uplink-06'
+  ]);
+  assert.equal(missions.getMission('archive-05').objectives[0].target, 16);
+  assert.equal(missions.getMission('uplink-06').objectives[0].target, 20);
+  assert.equal(missions.getMission('uplink-06').spawn.enemySequence.at(-1), 'warden');
+  assert.equal(missions.getMission('uplink-06').outroDialogue.length, 6);
+  assert.deepEqual(missions.getUnlockedMissions({ unlockedMission: 5 }).map(item => item.id), [
+    'bunker-01', 'lab-02', 'reactor-03', 'surface-04', 'archive-05'
+  ]);
 });
