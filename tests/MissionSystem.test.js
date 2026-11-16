@@ -68,7 +68,7 @@ test('campaign selection resumes at the first incomplete mission and ignores sta
 test('unlocked missions always follow campaign order even if definitions are supplied out of order', () => {
   const missions = new MissionSystem(MissionSystem.MISSIONS.slice().reverse());
   assert.deepEqual(
-    missions.getUnlockedMissions({ unlockedMission: 4 }).map(mission => mission.id),
+    missions.getUnlockedMissions({ unlockedMission: 6 }).map(mission => mission.id),
     ['bunker-01', 'lab-02', 'reactor-03', 'surface-04', 'archive-05', 'uplink-06']
   );
 });
