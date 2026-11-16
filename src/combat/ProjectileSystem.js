@@ -19,53 +19,30 @@
       for (let i = projectiles.length - 1; i >= 0; i--) {
         const projectile = projectiles[i];
         const position = projectile.m.position;
-        const start = { x: position.x, y: position.y, z: position.z };
+        const startX = position.x, startY = position.y, startZ = position.z;
         position.addScaledVector(projectile.v, dt);
         projectile.l -= dt;
-        const end = { x: position.x, y: position.y, z: position.z };
+        const endX = position.x, endY = position.y, endZ = position.z;
+        const dx = endX - startX, dy = endY - startY, dz = endZ - startZ;
         let remove = false;
 
         // Sweep the full movement segment so fast bolts cannot tunnel through thin walls or props.
-        const intersectsBox = box => {
-          const minimum = [box.x0, Number.isFinite(box.y0) ? box.y0 : 0, box.z0];
-          const maximum = [box.x1, Number.isFinite(box.y1) ? box.y1 : this.verticalCollisionLimit, box.z1];
-          const origin = [start.x, start.y, start.z];
-          const delta = [end.x - start.x, end.y - start.y, end.z - start.z];
-          let entry = 0, exit = 1;
-          for (let axis = 0; axis < 3; axis++) {
-            if (Math.abs(delta[axis]) < 1e-8) {
-              if (origin[axis] < minimum[axis] || origin[axis] > maximum[axis]) return false;
-              continue;
-            }
-            let near = (minimum[axis] - origin[axis]) / delta[axis];
-            let far = (maximum[axis] - origin[axis]) / delta[axis];
-            if (near > far) [near, far] = [far, near];
-            entry = Math.max(entry, near);
-            exit = Math.min(exit, far);
-            if (entry > exit) return false;
-          }
-          return true;
-        };
-
-        if (!remove) {
-          for (const box of boxes) {
-            if (intersectsBox(box)) {
-              remove = true;
-              break;
-            }
+        for (const box of boxes) {
+          if (this.segmentIntersectsBox(startX, startY, startZ, dx, dy, dz, box)) {
+            remove = true;
+            break;
           }
         }
 
         if (!remove) {
-          const dx = end.x - start.x, dy = end.y - start.y, dz = end.z - start.z;
           const lengthSquared = dx * dx + dy * dy + dz * dz;
           const projection = lengthSquared > 1e-8
-            ? Math.max(0, Math.min(1, ((playerPosition.x - start.x) * dx
-              + (playerPosition.y - start.y) * dy + (playerPosition.z - start.z) * dz) / lengthSquared))
+            ? Math.max(0, Math.min(1, ((playerPosition.x - startX) * dx
+              + (playerPosition.y - startY) * dy + (playerPosition.z - startZ) * dz) / lengthSquared))
             : 0;
-          const closestX = start.x + dx * projection;
-          const closestY = start.y + dy * projection;
-          const closestZ = start.z + dz * projection;
+          const closestX = startX + dx * projection;
+          const closestY = startY + dy * projection;
+          const closestZ = startZ + dz * projection;
           const distance = Math.hypot(closestX - playerPosition.x, closestY - playerPosition.y, closestZ - playerPosition.z);
           if (distance < this.playerHitDistance) {
             onPlayerHit(projectile.damage || 8, projectile);
@@ -75,9 +52,9 @@
         }
 
         if (!remove && (projectile.l <= 0
-          || Math.abs(end.x) > bounds.halfSize
-          || Math.abs(end.z) > bounds.halfSize
-          || end.y < 0)) remove = true;
+          || Math.abs(endX) > bounds.halfSize
+          || Math.abs(endZ) > bounds.halfSize
+          || endY < 0)) remove = true;
 
         if (remove) {
           this.dispose(projectile);
@@ -85,6 +62,45 @@
         }
       }
       return hits;
+    }
+
+    segmentIntersectsBox(startX, startY, startZ, dx, dy, dz, box) {
+      let entry = 0, exit = 1;
+      let origin = startX, delta = dx, min = box.x0, max = box.x1;
+      if (Math.abs(delta) < 1e-8) {
+        if (origin < min || origin > max) return false;
+      } else {
+        let near = (min - origin) / delta, far = (max - origin) / delta;
+        if (near > far) { const swap = near; near = far; far = swap; }
+        entry = Math.max(entry, near);
+        exit = Math.min(exit, far);
+        if (entry > exit) return false;
+      }
+
+      origin = startY; delta = dy;
+      min = Number.isFinite(box.y0) ? box.y0 : 0;
+      max = Number.isFinite(box.y1) ? box.y1 : this.verticalCollisionLimit;
+      if (Math.abs(delta) < 1e-8) {
+        if (origin < min || origin > max) return false;
+      } else {
+        let near = (min - origin) / delta, far = (max - origin) / delta;
+        if (near > far) { const swap = near; near = far; far = swap; }
+        entry = Math.max(entry, near);
+        exit = Math.min(exit, far);
+        if (entry > exit) return false;
+      }
+
+      origin = startZ; delta = dz; min = box.z0; max = box.z1;
+      if (Math.abs(delta) < 1e-8) {
+        if (origin < min || origin > max) return false;
+      } else {
+        let near = (min - origin) / delta, far = (max - origin) / delta;
+        if (near > far) { const swap = near; near = far; far = swap; }
+        entry = Math.max(entry, near);
+        exit = Math.min(exit, far);
+        if (entry > exit) return false;
+      }
+      return true;
     }
 
     dispose(projectile) {
