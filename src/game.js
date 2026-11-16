@@ -83,6 +83,8 @@ levelManager.register(S7BunkerLevel);
 levelManager.register(S7LabLevel);
 levelManager.register(S7ReactorLevel);
 levelManager.register(S7SurfaceLevel);
+levelManager.register(S7ArchiveLevel);
+levelManager.register(S7UplinkLevel);
 let activeLevel=levelManager.load(currentMission.levelId,{mat,canvas,randomRange:R,box});
 let LEVEL_BOUNDS=activeLevel.bounds;
 let dust=activeLevel.dust || {rotation:{y:0},position:{y:0}};
