@@ -198,6 +198,7 @@ function constrainToLevelBounds(position,radius=.4){
 
 /* ---------- звук ---------- */
 const audioManager=new S7AudioManager();
+addEventListener('pagehide',()=>audioManager.dispose(),{once:true});
 let ac;function snd(f,d,type,v,noise){if(!ac)return;const t=ac.currentTime,o=ac.createGain();o.gain.setValueAtTime(v,t);o.gain.exponentialRampToValueAtTime(.0001,t+d);let s,filter;
  if(noise){const b=ac.createBuffer(1,Math.max(1,Math.floor(ac.sampleRate*d)),ac.sampleRate),a=b.getChannelData(0);for(let i=0;i<a.length;i++)a[i]=Math.random()*2-1;s=ac.createBufferSource();s.buffer=b;filter=ac.createBiquadFilter();filter.type='lowpass';filter.frequency.value=f;s.connect(filter);filter.connect(o)}
  else{s=ac.createOscillator();s.type=type;s.frequency.setValueAtTime(f,t);s.frequency.exponentialRampToValueAtTime(Math.max(20,f/3),t+d);s.connect(o)}
