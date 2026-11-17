@@ -153,3 +153,18 @@ test('dispose releases active and crossfading audio and closes the context once'
   assert.equal(audio.context, null);
   assert.equal(context.closeCalls, 1);
 });
+
+
+test('archive and uplink sectors have distinct cold-vault and storm soundscapes', () => {
+  const context = fakeAudioContext();
+  const audio = new AudioManager(() => context);
+  audio.unlock();
+  assert.equal(audio.startAmbience('archive'), true);
+  assert.equal(context.sources[0].frequency.value, 64);
+  assert.equal(context.sources[1].frequency.value, 96);
+  audio.stopAmbience();
+  assert.equal(audio.startAmbience('uplink'), true);
+  assert.equal(context.sources[0].frequency.value, 39);
+  assert.equal(context.sources[1].frequency.value, 58);
+  audio.stopAmbience();
+});
