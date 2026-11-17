@@ -119,6 +119,34 @@ test('elevator remains walkable during travel and opens into the next sector',()
   }finally{if(previousDocument===undefined)delete global.document;else global.document=previousDocument;}
 });
 
+test('a visible exit cabin is boarded in place before the doors close',()=>{
+  const previousDocument=global.document;global.document=fakeDocument();
+  try{
+    const scene=new Group();
+    const camera={position:new Vector3(),rotation:{set(){}}};
+    const player={pos:new Vector3(0,1.7,-24.95),yaw:.24,pitch:.08};
+    let travelCalls=0;
+    const elevator=new ElevatorTransition({THREE:fakeThree(),scene,camera,onTravel(){travelCalls++;}});
+    const preview=elevator.showExitCabin({x:0,y:1.7,z:-24.95},0);
+    assert.ok(preview,'the elevator cabin is created before the player reaches the exit');
+    assert.equal(scene.children.length,1);
+    assert.equal(elevator.preview.doors.length,2);
+    assert.equal(elevator.preview.doorOpen,1,'the cabin is waiting with its doors open');
+    const original={x:player.pos.x,y:player.pos.y,z:player.pos.z};
+    elevator.begin({position:player.pos,yaw:0,destinationLabel:'02',player});
+    assert.equal(elevator.group,preview,'boarding promotes the already visible cabin instead of spawning another one');
+    assert.deepEqual({x:player.pos.x,y:player.pos.y,z:player.pos.z},original,'boarding never teleports the player');
+    assert.equal(player.yaw,0,'the player is turned toward the cabin panel without changing position');
+    assert.equal(player.pitch,.08,'boarding preserves vertical camera aim');
+    assert.equal(elevator.phase,'closing');
+    for(let i=0;i<9;i++)elevator.update(.1);
+    assert.equal(elevator.doorOpen,0,'the doors finish closing before travel begins');
+    assert.equal(elevator.phase,'travel');
+    assert.equal(travelCalls,1,'the next-sector dialogue callback cannot run before the doors close');
+    elevator.dispose();
+  }finally{if(previousDocument===undefined)delete global.document;else global.document=previousDocument;}
+});
+
 test('elevator validates dependencies and prevents overlapping starts',()=>{
   assert.throws(()=>new ElevatorTransition({}),/requires THREE, scene and camera/);
   const previousDocument=global.document;global.document=fakeDocument();
