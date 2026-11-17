@@ -750,6 +750,8 @@ function transitionToMission(nextMission){
  elevatorNextMission=nextMission;
  elevatorVitals={hp:P.hp};
  elevatorDialogueQueue=[...(currentMission.outroDialogue||[]),...(nextMission.introDialogue||[])];
+ const radioDuration=elevatorDialogueQueue.reduce((total,line)=>total+Math.max(3.2,Math.min(26,2+String(line?.text||'').length/13)),0);
+ elevatorTransition.durations.travel=Math.max(4.2,radioDuration+.35);
  elevatorTransition.begin({
   position:{x:P.pos.x,y:P.pos.y,z:P.pos.z},
   yaw:Number.isFinite(activeLevel.exitYaw)?activeLevel.exitYaw:P.yaw,
