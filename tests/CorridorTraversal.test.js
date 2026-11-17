@@ -389,3 +389,36 @@ test('elevator trigger volumes are on the approach side of the visible doors', (
   const game = read('src/game.js');
   assert.match(game, /yaw:Number\.isFinite\(activeLevel\.exitYaw\)\?activeLevel\.exitYaw:P\.yaw/);
 });
+
+
+test('all six sectors have a visible open elevator cabin aligned with their exit trigger', () => {
+  const game = read('src/game.js');
+  const elevator = read('src/campaign/ElevatorTransition.js');
+  const levels = [
+    ['src/levels/BunkerLevel.js', /exitYaw: 0/],
+    ['src/levels/LabLevel.js', /exitYaw: Math\.PI/],
+    ['src/levels/ReactorLevel.js', /exitYaw: 0/],
+    ['src/levels/SurfaceLevel.js', /exitYaw: 0/],
+    ['src/levels/ArchiveLevel.js', /exitYaw:0/],
+    ['src/levels/UplinkLevel.js', /exitYaw:0/]
+  ];
+  for (const [path, yaw] of levels) {
+    const source = read(path);
+    assert.match(source, /exitZone\s*:/, path + ' must define the cabin boarding volume');
+    assert.match(source, yaw, path + ' must face the cabin doors');
+  }
+  assert.match(game, /function prepareExitElevator\(\)/);
+  assert.match(game, /elevatorTransition\.showExitCabin\(position,yaw\)/);
+  assert.match(game, /prepareExitElevator\(\);/);
+  assert.match(elevator, /showExitCabin\(position,yaw=0\)/);
+  assert.match(elevator, /this\.preview=preview/);
+  assert.match(elevator, /if\(!this\.adoptPreview\(\)\)this\.createCabin\(position,cabinYaw\)/);
+  assert.match(elevator, /Never reposition them on boarding/);
+});
+
+test('surface service lift is placed just inside the opened extraction gate', () => {
+  const surface = read('src/levels/SurfaceLevel.js');
+  assert.match(surface, /exitGate = box\(0, 3\.8, 40\.5/);
+  assert.match(surface, /exitZone: \{ x0: -2\.1, x1: 2\.1, z0: 41\.1, z1: 42\.1 \}/);
+  assert.match(surface, /exitYaw: 0/);
+});
