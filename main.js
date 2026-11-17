@@ -1,4 +1,5 @@
-const { app, BrowserWindow, Menu } = require('electron');
+const { app, BrowserWindow, Menu, ipcMain } = require('electron');
+const path = require('node:path');
 
 app.commandLine.appendSwitch('ignore-gpu-blocklist');
 
@@ -15,23 +16,31 @@ function create() {
       nodeIntegration: false,
       contextIsolation: true,
       sandbox: true,
-      webSecurity: true
+      webSecurity: true,
+      preload: path.join(__dirname, 'preload.js')
     }
   });
 
-  w.loadFile('index.html');
+  w.loadFile(path.join(__dirname, 'index.html'));
 
   w.webContents.on('before-input-event', (e, i) => {
     if (i.type === 'keyDown' && i.key === 'F11') {
+      e.preventDefault();
       w.setFullScreen(!w.isFullScreen());
     }
 
     // Temporary diagnostics: open Chromium DevTools with Ctrl+Shift+I.
     if (i.type === 'keyDown' && i.control && i.shift && i.key.toLowerCase() === 'i') {
+      e.preventDefault();
       w.webContents.openDevTools({ mode: 'detach' });
     }
   });
 }
+
+ipcMain.on('sector7:quit', event => {
+  const senderWindow = BrowserWindow.fromWebContents(event.sender);
+  if (senderWindow) app.quit();
+});
 
 app.whenReady().then(create);
 
