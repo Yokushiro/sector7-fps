@@ -295,7 +295,7 @@
         name: 'Исследовательский комплекс',
         requiredInteractionId: 'lab-security-console',
         bounds: { halfSize: 29, height: H },
-        exitZone: { x0: -2.1, x1: 2.1, z0: 26.3, z1: 27.7 },
+        exitZone: { x0: -1.2, x1: 1.2, z0: 26.3, z1: 27.7 },
         exitYaw: Math.PI,
         elevatorEntryOffset: 2.25,
         playerSpawn: { x: 0, y: 1.7, z: -26, yaw: Math.PI },
