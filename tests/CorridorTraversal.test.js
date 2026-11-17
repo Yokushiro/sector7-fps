@@ -338,7 +338,9 @@ test('elevator cabin keeps the floor display centered on the front wall and pres
   assert.match(elevator, /addBox\(1\.9,2\.86,\.12,-\.95,1\.62,-2\.22,doorMaterial\)/);
   assert.match(elevator, /this\.player\.yaw=destinationYaw\+yawOffset/);
   assert.match(elevator, /capturePlayerYawOffset\(\)/);
-  assert.match(elevator, /addBox\(3\.8,3\.35,\.14,0,1\.62,2\.33,metal\)/);
+  assert.match(elevator, /boarding entrance; the player walks in from the sector corridor/);
+  assert.match(elevator, /addBox\(\.14,3\.35,\.18,-1\.83,1\.62,2\.32,trim\)/);
+  assert.match(elevator, /addBox\(3\.8,\.16,\.18,0,3\.22,2\.32,trim\)/);
 });
 
 
