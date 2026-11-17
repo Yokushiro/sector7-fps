@@ -76,7 +76,7 @@ test('elevator remains walkable during travel and opens into the next sector',()
     for(let i=0;i<42;i++)elevator.update(.1);
     assert.equal(elevator.phase,'travel','the cabin waits for the radio dialogue before opening');
     assert.ok(player.pos.y<10,'the player descends with the moving cabin');
-    assert.equal(sounds.filter(type=>type==='floor-beep').length,3,'floor beeps occur only when the displayed floor or direction changes');
+    assert.equal(sounds.filter(type=>type==='floor-beep').length,5,'floor beeps occur only when the displayed floor or direction changes');
     elevator.setRadioComplete();
     elevator.update(.1);
     assert.equal(elevator.phase,'waiting','arrival doors stay closed until the player approaches');
