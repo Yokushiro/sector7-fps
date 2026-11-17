@@ -145,7 +145,7 @@ test('each sector starts at the far end of its incoming corridor', () => {
   const lab = read('src/levels/LabLevel.js');
   const reactor = read('src/levels/ReactorLevel.js');
   assert.match(bunker, /entryFloor/);
-  assert.match(bunker, /exitZone: \{ x0: -2\.1, x1: 2\.1, z0: -25\.6, z1: -24\.3 \}/);
+  assert.match(bunker, /exitZone: \{ x0: -1\.2, x1: 1\.2, z0: -25\.6, z1: -24\.3 \}/);
   assert.match(bunker, /playerSpawn:\s*\{\s*x:\s*0,\s*y:\s*1\.7,\s*z:\s*22,\s*yaw:\s*0\s*\}/);
   assert.match(lab, /playerSpawn:\s*\{\s*x:\s*0,\s*y:\s*1\.7,\s*z:\s*-26,\s*yaw:\s*Math\.PI\s*\}/);
   assert.match(reactor, /playerSpawn:\s*\{\s*x:\s*0,\s*y:\s*1\.7,\s*z:\s*28,\s*yaw:\s*0\s*\}/);
@@ -185,7 +185,7 @@ test('laboratory route enters from the bunker side and exits through the opposit
   assert.match(lab, /exitCorridorFloor\.position\.set\(0, \.015, 21\)/);
   assert.match(lab, /const elevatorDoors = \[/);
   assert.match(lab, /box\(-1\.4, 3, 28, 2\.8, 5\.7, \.32/);
-  assert.match(lab, /exitZone: \{ x0: -2\.1, x1: 2\.1, z0: 26\.3, z1: 27\.7 \}/);
+  assert.match(lab, /exitZone: \{ x0: -1\.2, x1: 1\.2, z0: 26\.3, z1: 27\.7 \}/);
   assert.doesNotMatch(lab, /const exitDoor = box\(0, 3, -28,/);
 });
 
@@ -194,7 +194,7 @@ test('reactor entry continues from the laboratory exit while the evacuation corr
   assert.match(reactor, /entryFloor\.position\.set\(0, \.015, 25\)/);
   assert.match(reactor, /corridorFloor\.position\.set\(0, \.015, -25\.25\)/);
   assert.match(reactor, /playerSpawn: \{ x: 0, y: 1\.7, z: 28, yaw: 0 \}/);
-  assert.match(reactor, /exitZone: \{ x0: -2\.1, x1: 2\.1, z0: -31\.8, z1: -30\.6 \}/);
+  assert.match(reactor, /exitZone: \{ x0: -1\.2, x1: 1\.2, z0: -31\.8, z1: -30\.6 \}/);
   assert.match(reactor, /evacuationFloor\.position\.set\(0, \.015, -36\.75\)/);
 });
 
@@ -275,7 +275,7 @@ test('surface finale continues from the reactor tunnel into an outdoor extractio
   assert.match(surface, /evacuationMessage: 'МАЯК АКТИВЕН · ДОБЕРИСЬ ДО СЕРВИСНОГО ПОДЪЁМНИКА'/);
   assert.match(surface, /context\.removeCollisionBox\(exitGate\.userData\.collisionBox\)/);
   assert.match(surface, /exitGate\.position\.y \+=/);
-  assert.match(surface, /exitZone: \{ x0: -2\.1, x1: 2\.1, z0: 41\.1, z1: 42\.1 \}/);
+  assert.match(surface, /exitZone: \{ x0: -1\.2, x1: 1\.2, z0: 41\.1, z1: 42\.1 \}/);
   assert.match(surface, /exitYaw: 0/);
   assert.match(game, /levelManager\.register\(S7SurfaceLevel\)/);
   assert.match(html, /src\/levels\/SurfaceLevel\.js/);
@@ -385,9 +385,9 @@ test('elevator trigger volumes are on the approach side of the visible doors', (
   const bunker = read('src/levels/BunkerLevel.js');
   const lab = read('src/levels/LabLevel.js');
   const reactor = read('src/levels/ReactorLevel.js');
-  assert.match(bunker, /exitZone: \{ x0: -2\.1, x1: 2\.1, z0: -25\.6, z1: -24\.3 \}/);
-  assert.match(lab, /exitZone: \{ x0: -2\.1, x1: 2\.1, z0: 26\.3, z1: 27\.7 \}/);
-  assert.match(reactor, /exitZone: \{ x0: -2\.1, x1: 2\.1, z0: -31\.8, z1: -30\.6 \}/);
+  assert.match(bunker, /exitZone: \{ x0: -1\.2, x1: 1\.2, z0: -25\.6, z1: -24\.3 \}/);
+  assert.match(lab, /exitZone: \{ x0: -1\.2, x1: 1\.2, z0: 26\.3, z1: 27\.7 \}/);
+  assert.match(reactor, /exitZone: \{ x0: -1\.2, x1: 1\.2, z0: -31\.8, z1: -30\.6 \}/);
   assert.match(bunker, /exitYaw: 0/);
   assert.match(lab, /exitYaw: Math\.PI/);
   assert.match(reactor, /exitYaw: 0/);
@@ -424,6 +424,6 @@ test('all six sectors have a visible open elevator cabin aligned with their exit
 test('surface service lift is placed just inside the opened extraction gate', () => {
   const surface = read('src/levels/SurfaceLevel.js');
   assert.match(surface, /exitGate = box\(0, 3\.8, 40\.5/);
-  assert.match(surface, /exitZone: \{ x0: -2\.1, x1: 2\.1, z0: 41\.1, z1: 42\.1 \}/);
+  assert.match(surface, /exitZone: \{ x0: -1\.2, x1: 1\.2, z0: 41\.1, z1: 42\.1 \}/);
   assert.match(surface, /exitYaw: 0/);
 });
