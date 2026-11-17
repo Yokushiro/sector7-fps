@@ -153,3 +153,23 @@ test('six-sector campaign has continuous order, unique levels and a final transm
     'bunker-01', 'lab-02', 'reactor-03', 'surface-04', 'archive-05'
   ]);
 });
+
+
+test('campaign resumes at archive and uplink after the surface chapter is completed', () => {
+  const missions = new MissionSystem();
+  const completedSurface = {
+    unlockedMission: 6,
+    completedMissions: ['bunker-01', 'lab-02', 'reactor-03', 'surface-04']
+  };
+  assert.equal(missions.getMissionForCampaign(completedSurface).id, 'archive-05');
+  const completedArchive = {
+    ...completedSurface,
+    completedMissions: [...completedSurface.completedMissions, 'archive-05']
+  };
+  assert.equal(missions.getMissionForCampaign(completedArchive).id, 'uplink-06');
+  const completedCampaign = {
+    ...completedArchive,
+    completedMissions: [...completedArchive.completedMissions, 'uplink-06']
+  };
+  assert.equal(missions.getMissionForCampaign(completedCampaign).id, 'bunker-01');
+});
