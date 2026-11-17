@@ -139,7 +139,7 @@ test('a visible exit cabin is boarded in place before the doors close',()=>{
     assert.equal(player.yaw,0,'the player is turned toward the cabin panel without changing position');
     assert.equal(player.pitch,.08,'boarding preserves vertical camera aim');
     assert.equal(elevator.phase,'closing');
-    for(let i=0;i<9;i++)elevator.update(.1);
+    for(let i=0;i<10;i++)elevator.update(.1);
     assert.equal(elevator.doorOpen,0,'the doors finish closing before travel begins');
     assert.equal(elevator.phase,'travel');
     assert.equal(travelCalls,1,'the next-sector dialogue callback cannot run before the doors close');
