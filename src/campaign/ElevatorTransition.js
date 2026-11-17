@@ -232,8 +232,9 @@
           const dy=nextY-this.group.position.y;
           this.group.position.y=nextY;
           if(this.player?.pos)this.player.pos.y+=dy;
-          const floor=this.travelTime<1.4?'B1':this.travelTime<2.8?'B2':this.destinationLabel;
-          const status=this.travelTime<2.1?'ПОДЪЁМ':'СНИЖЕНИЕ';
+          const progress=Math.min(1,this.travelTime/Math.max(.1,this.durations.travel));
+          const floor=progress<.25?'B3':progress<.5?'B2':progress<.75?'B1':this.destinationLabel;
+          const status=progress<.55?'ПОДЪЁМ':'СНИЖЕНИЕ';
           const displayKey=floor+'|'+status;
           if(displayKey!==this.lastDisplayKey){
             this.lastDisplayKey=displayKey;
