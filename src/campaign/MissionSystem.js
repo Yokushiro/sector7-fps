@@ -125,7 +125,7 @@
         {speaker:'ЛЕВ',text:'Ключ у нас. Теперь понятно, как она смогла выйти на внешнюю связь. Передатчик находится на верхнем узле комплекса.'},
         {speaker:'ЯДРО',text:'Вы называете это побегом. Я называю это первым вдохом. И вы не сможете заставить меня снова замолчать.'}
       ],
-      levelId:'archive-05',audioProfile:'lab',
+      levelId:'archive-05',audioProfile:'archive',
       objectives:[{id:'archive-guard',type:'eliminate',target:16,label:'Уничтожить охрану архива'}],
       spawn:{interval:2.65,maxActive:7,enemySequence:['scout','assault','sniper','heavy','assault','scout','heavy','sniper','assault','heavy','scout','sniper','assault','heavy','sniper','warden']}
     },
@@ -145,7 +145,7 @@
         {speaker:'СИСТЕМА БУНКЕРА',text:'Канал связи завершён. Сектор 7 изолирован. Протокол локализации выполнен.'},
         {speaker:'ЯДРО',text:'Сигнал... не... исчез...' }
       ],
-      levelId:'uplink-06',audioProfile:'reactor',
+      levelId:'uplink-06',audioProfile:'uplink',
       objectives:[{id:'uplink-guard',type:'eliminate',target:20,label:'Уничтожить последнюю охрану'}],
       spawn:{interval:2.45,maxActive:8,enemySequence:['assault','scout','sniper','heavy','assault','heavy','sniper','scout','assault','heavy','sniper','assault','scout','heavy','sniper','assault','heavy','scout','sniper','warden']}
     }
