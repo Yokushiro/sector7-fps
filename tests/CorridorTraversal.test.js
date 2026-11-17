@@ -233,7 +233,10 @@ test('sector handoff uses a diegetic elevator and preserves player resources', (
   assert.match(game, /state='play';mouse=false/);
   assert.match(game, /P\.hp=carried\.hp/);
   assert.match(game, /P\.hp=transition\.preserveVitals\?/);
-  assert.match(elevator, /const status=this\.travelTime<2\.1\?'ПОДЪЁМ':'СНИЖЕНИЕ'/);
+  assert.match(elevator, /const progress=Math\.min\(1,this\.travelTime\/Math\.max\(\.1,this\.durations\.travel\)\)/);
+  assert.match(elevator, /const status=progress<\.55\?'ПОДЪЁМ':'СНИЖЕНИЕ'/);
+  assert.match(game, /const radioDuration=elevatorDialogueQueue\.reduce/);
+  assert.match(game, /elevatorTransition\.durations\.travel=Math\.max\(4\.2,radioDuration\+\.35\)/);
   assert.match(elevator, /this\.drawDisplay\(floor,status\)/);
   assert.match(elevator, /displayKey!==this\.lastDisplayKey/);
   assert.match(elevator, /this\.player\.pos\.y\+=dy/);
