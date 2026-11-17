@@ -165,7 +165,7 @@
       return {
         name: 'Поверхность комплекса',
         bounds: { halfSize: 47, height: 12 },
-        exitZone: { x0: -2.1, x1: 2.1, z0: 41.1, z1: 42.1 },
+        exitZone: { x0: -1.2, x1: 1.2, z0: 41.1, z1: 42.1 },
         exitYaw: 0,
         requiredInteractionId: 'surface-uplink',
         evacuationSeconds: 120,
