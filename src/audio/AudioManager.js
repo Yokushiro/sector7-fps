@@ -5,7 +5,9 @@
     bunker: { base: 43, overtone: 57, cutoff: 135, hum: .035, noise: .009 },
     lab: { base: 56, overtone: 83, cutoff: 210, hum: .027, noise: .006 },
     reactor: { base: 31, overtone: 47, cutoff: 105, hum: .046, noise: .012 },
-    surface: { base: 48, overtone: 72, cutoff: 260, hum: .018, noise: .022 }
+    surface: { base: 48, overtone: 72, cutoff: 260, hum: .018, noise: .022 },
+    archive: { base: 64, overtone: 96, cutoff: 330, hum: .022, noise: .004 },
+    uplink: { base: 39, overtone: 58, cutoff: 520, hum: .018, noise: .04 }
   };
 
   class S7AudioManager {
