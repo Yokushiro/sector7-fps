@@ -48,7 +48,7 @@
         name:'Архив памяти',
         bounds:{halfSize:31,height:H},
         exitZone:{x0:-2.1,x1:2.1,z0:28.1,z1:29.2},
-        exitYaw:Math.PI,
+        exitYaw:0,
         elevatorEntryOffset:2.25,
         playerSpawn:{x:0,y:1.7,z:-24,yaw:Math.PI},
         enemySpawnPoints:[[-19,-15],[19,-15],[-19,7],[19,7],[-8,18],[8,18],[0,-4],[-14,0],[14,0]],
