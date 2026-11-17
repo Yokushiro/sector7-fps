@@ -81,7 +81,11 @@
       addBox(3.8,.14,4.8,0,3.37,0,dark);
       addBox(.14,3.35,4.8,-1.83,1.62,0,metal);
       addBox(.14,3.35,4.8,1.83,1.62,0,metal);
-      addBox(3.8,3.35,.14,0,1.62,2.33,metal);
+      // Keep the rear side open as the boarding entrance; the player walks in from the sector corridor.
+      addBox(.14,3.35,.18,-1.83,1.62,2.32,trim);
+      addBox(.14,3.35,.18,1.83,1.62,2.32,trim);
+      addBox(3.8,.16,.18,0,3.22,2.32,trim);
+      addBox(3.8,.12,.18,0,.08,2.32,trim);
       addBox(.14,3.35,.18,-1.83,1.62,-2.32,trim);
       addBox(.14,3.35,.18,1.83,1.62,-2.32,trim);
       addBox(3.8,.16,.18,0,3.22,-2.32,trim);
