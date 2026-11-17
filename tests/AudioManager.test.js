@@ -160,11 +160,11 @@ test('archive and uplink sectors have distinct cold-vault and storm soundscapes'
   const audio = new AudioManager(() => context);
   audio.unlock();
   assert.equal(audio.startAmbience('archive'), true);
-  assert.equal(context.sources[0].frequency.value, 64);
-  assert.equal(context.sources[1].frequency.value, 96);
+  assert.equal(audio.sources[0].frequency.value, 64);
+  assert.equal(audio.sources[1].frequency.value, 96);
   audio.stopAmbience();
   assert.equal(audio.startAmbience('uplink'), true);
-  assert.equal(context.sources[0].frequency.value, 39);
-  assert.equal(context.sources[1].frequency.value, 58);
+  assert.equal(audio.sources[0].frequency.value, 39);
+  assert.equal(audio.sources[1].frequency.value, 58);
   audio.stopAmbience();
 });
