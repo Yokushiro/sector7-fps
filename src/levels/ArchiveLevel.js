@@ -20,7 +20,6 @@
           const strip=new T.Mesh(new T.BoxGeometry(1.55,.055,.035),new T.MeshBasicMaterial({color:i%2?0x4be7ff:0x83aaff}));
           strip.position.set(0,-2.25+row*.95,2.63); rack.add(strip);
         }
-        const glow=new T.PointLight(0x42bfe9,.35,7,2); glow.position.set(x,3,-1.8); scene.add(glow);
       }
       // Suspended cryo capsules and their animated status rings.
       const capsules=[];
@@ -30,7 +29,6 @@
         pod.position.set(x,2.35,z); scene.add(pod);
         const ring=new T.Mesh(new T.TorusGeometry(.9,.055,8,24),new T.MeshBasicMaterial({color:0x48dcff}));
         ring.rotation.x=Math.PI/2; ring.position.set(x,.35,z); scene.add(ring); capsules.push({pod,ring,index:i});
-        const lamp=new T.PointLight(0x3adfff,.8,6,2); lamp.position.set(x,3.5,z); scene.add(lamp);
       }
       // A sealed exit lift is visible from the main aisle; both leaves slide away from the centre.
       const frame=mat('metal',2,2,.9,0x9bc2ce), doorMat=new T.MeshStandardMaterial({color:0x7eabb9,metalness:.94,roughness:.2,emissive:0x153b4b,emissiveIntensity:.45});
