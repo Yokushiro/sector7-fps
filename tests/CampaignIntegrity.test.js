@@ -132,7 +132,7 @@ test('archive and uplink sectors have gated consoles, visible exit doors and uni
 test('new sectors keep decorative lighting emissive and point-light counts bounded', () => {
   const archive = read('src/levels/ArchiveLevel.js');
   const uplink = read('src/levels/UplinkLevel.js');
-  const countPointLights = source => (source.match(/new T\\.PointLight\\(/g) || []).length;
+  const countPointLights = source => (source.match(/new T\.PointLight\(/g) || []).length;
 
   assert.equal(countPointLights(archive), 1, 'archive should use only its interaction alarm as a point light');
   assert.equal(countPointLights(uplink), 3, 'uplink should retain only the mast, console and storm flash lights');
