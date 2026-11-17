@@ -146,6 +146,8 @@ test('six-sector campaign has continuous order, unique levels and a final transm
     'bunker-01', 'lab-02', 'reactor-03', 'surface-04', 'archive-05', 'uplink-06'
   ]);
   assert.equal(missions.getMission('archive-05').objectives[0].target, 16);
+  assert.equal(missions.getMission('archive-05').audioProfile, 'archive');
+  assert.equal(missions.getMission('uplink-06').audioProfile, 'uplink');
   assert.equal(missions.getMission('uplink-06').objectives[0].target, 20);
   assert.equal(missions.getMission('uplink-06').spawn.enemySequence.at(-1), 'warden');
   assert.equal(missions.getMission('uplink-06').outroDialogue.length, 6);
