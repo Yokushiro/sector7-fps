@@ -89,3 +89,27 @@ test('active mission is persisted and restored for the load menu', () => {
   const restored = new SaveSystem(storage).load();
   assert.equal(restored.campaign.currentMission, 'lab-02');
 });
+
+
+test('all six campaign sectors unlock in sequence and survive a full save reload', () => {
+  const storage = memoryStorage();
+  const save = new SaveSystem(storage);
+  save.load();
+  const missions = [
+    ['bunker-01', 2, 10],
+    ['lab-02', 3, 14],
+    ['reactor-03', 4, 18],
+    ['surface-04', 5, 9],
+    ['archive-05', 6, 16],
+    ['uplink-06', 7, 20]
+  ];
+  for (const [missionId, nextMissionOrder, kills] of missions) {
+    const data = save.recordMissionResult({ missionId, won: true, kills, nextMissionOrder });
+    assert.equal(data.campaign.unlockedMission, nextMissionOrder);
+  }
+  const restored = new SaveSystem(storage).load();
+  assert.equal(restored.campaign.unlockedMission, 7);
+  assert.deepEqual(restored.campaign.completedMissions, missions.map(([id]) => id));
+  assert.equal(restored.stats.wins, 6);
+  assert.equal(restored.stats.totalKills, 87);
+});
