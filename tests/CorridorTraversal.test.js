@@ -210,9 +210,9 @@ test('the next sector is prebuilt invisibly and its collision is isolated until 
   assert.match(game, /local\?\.s7Solids\|\|solids/);
   assert.match(game, /function preloadNextMission\(\)/);
   assert.match(game, /levelManager\.prepare\(nextDefinition\.levelId/);
-  assert.match(game, /preloadNextMission\(\);\s*dialogueSystem\.startRadio\(currentMission\.outroDialogue/);
+  assert.match(game, /preloadNextMission\(\);transitionToMission\(nextMission\)/);
   assert.doesNotMatch(game, /setTimeout\(preloadNextMission,750\)/);
-  assert.equal((game.match(/preloadNextMission\(\);/g)||[]).length,1,'sector generation is requested only from the chapter outro, never at startup');
+  assert.equal((game.match(/preloadNextMission\(\);/g)||[]).length,1,'sector generation is requested only when the player enters the exit elevator');
   assert.doesNotMatch(game, /}\s*preloadNextMission\(\);\s*const torch=/);
 });
 
@@ -222,11 +222,10 @@ test('sector handoff uses a diegetic elevator and preserves player resources', (
   assert.match(game, /function transitionToMission\(nextMission\)/);
   assert.match(game, /elevatorTransition\.begin\(/);
   assert.match(game, /loadMission\(elevatorNextMission,\{elevator:true,preserveVitals:elevatorVitals\}\)/);
-  assert.match(game, /dialogueSystem\.startRadio\(currentMission\.introDialogue,\(\)=>elevatorTransition\.setRadioComplete\(\)\)/);
-  assert.match(game, /outroPlaying=true;state='play'/,'chapter outro dialogue must leave gameplay and pointer lock active');
-  assert.doesNotMatch(game, /outroPlaying=true;state='play';document\.exitPointerLock/);
-  assert.match(game, /dialogueSystem\.startRadio\(currentMission\.outroDialogue/);
-  assert.match(game, /outroShown=true;outroPlaying=false;state='play';end\(true\)/);
+  assert.match(game, /dialogueSystem\.startRadio\(elevatorDialogueQueue,\(\)=>\{elevatorDialogueQueue=\[\];elevatorTransition\.setRadioComplete\(\)\}\)/);
+  assert.match(game, /elevatorDialogueQueue=\[\.\.\.\(currentMission\.outroDialogue\|\|\[\]\),\.\.\.\(nextMission\.introDialogue\|\|\[\]\)\]/);
+  const endBlock=game.slice(game.indexOf('function end(w)'),game.indexOf('/* ---------- управление ---------- */'));
+  assert.doesNotMatch(endBlock,/dialogueSystem\.startRadio/,'chapter dialogue must not begin in the corridor before boarding');
   assert.match(game, /dialogueSystem\.update\(dt\)/);
   assert.match(game, /elevatorTransition\.update\(dt\)/);
   assert.match(game, /onComplete:\(\)=>\{/);
@@ -273,7 +272,8 @@ test('surface finale continues from the reactor tunnel into an outdoor extractio
   assert.match(surface, /evacuationMessage: 'МАЯК АКТИВЕН · ДОБЕРИСЬ ДО СЕРВИСНОГО ПОДЪЁМНИКА'/);
   assert.match(surface, /context\.removeCollisionBox\(exitGate\.userData\.collisionBox\)/);
   assert.match(surface, /exitGate\.position\.y \+=/);
-  assert.match(surface, /exitZone: \{ x0: -3\.2, x1: 3\.2, z0: 42, z1: 46 \}/);
+  assert.match(surface, /exitZone: \{ x0: -2\.1, x1: 2\.1, z0: 41\.1, z1: 42\.1 \}/);
+  assert.match(surface, /exitYaw: 0/);
   assert.match(game, /levelManager\.register\(S7SurfaceLevel\)/);
   assert.match(html, /src\/levels\/SurfaceLevel\.js/);
   assert.match(missions, /id: 'surface-04'[\s\S]*order: 4[\s\S]*target: 9/);
@@ -333,7 +333,8 @@ test('elevator cabin keeps the floor display centered on the front wall and pres
   assert.match(elevator, /group\.rotation\.y=yaw/);
   assert.match(elevator, /panel\.position\.set\(0,3\.15,-2\.22\)/);
   assert.match(elevator, /screen\.position\.set\(0,3\.15,-2\.145\)/);
-  assert.match(elevator, /this\.player\.pos\.copy\(inside\)/);
+  assert.match(elevator, /this\.player\.yaw=cabinYaw/);
+  assert.match(elevator, /this\.adoptPreview\(\)/);
   assert.match(elevator, /addBox\(1\.9,2\.86,\.12,-\.95,1\.62,-2\.22,doorMaterial\)/);
   assert.match(elevator, /this\.player\.yaw=destinationYaw\+yawOffset/);
   assert.match(elevator, /capturePlayerYawOffset\(\)/);
@@ -344,10 +345,10 @@ test('elevator cabin keeps the floor display centered on the front wall and pres
 
 
 
-test('next-sector generation is scheduled during chapter outro rather than active gameplay', () => {
+test('next-sector generation is scheduled when boarding the elevator rather than before the lift appears', () => {
   const game = read('src/game.js');
-  assert.match(game, /Prepare the next sector while the player is reading the chapter outro/);
-  assert.match(game, /preloadNextMission\(\);\s*dialogueSystem\.startRadio\(currentMission\.outroDialogue/);
+  assert.match(game, /preloadNextMission\(\);transitionToMission\(nextMission\)/);
+  assert.match(game, /dialogueSystem\.startRadio\(elevatorDialogueQueue/);
   assert.doesNotMatch(game, /setTimeout\(preloadNextMission,750\)/);
 });
 
