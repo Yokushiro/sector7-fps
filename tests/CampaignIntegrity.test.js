@@ -127,3 +127,18 @@ test('archive and uplink sectors have gated consoles, visible exit doors and uni
   assert.ok(uplink.includes('Передающий узел'));
   assert.ok(uplink.includes('lightning'));
 });
+
+
+test('new sectors keep decorative lighting emissive and point-light counts bounded', () => {
+  const archive = read('src/levels/ArchiveLevel.js');
+  const uplink = read('src/levels/UplinkLevel.js');
+  const countPointLights = source => (source.match(/new T\\.PointLight\\(/g) || []).length;
+
+  assert.equal(countPointLights(archive), 1, 'archive should use only its interaction alarm as a point light');
+  assert.equal(countPointLights(uplink), 3, 'uplink should retain only the mast, console and storm flash lights');
+  assert.ok(archive.includes('new T.MeshBasicMaterial({color:i%2?0x4be7ff:0x83aaff})'),
+    'archive rack indicators should remain emissive without individual lights');
+  assert.ok(archive.includes('emissiveIntensity:.7'), 'cryo pods should retain their self-illumination');
+  assert.ok(uplink.includes('lightning.intensity=Math.random()<.012'),
+    'uplink should retain its intermittent lightning flash');
+});
