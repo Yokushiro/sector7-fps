@@ -47,7 +47,7 @@
       return {
         name:'Архив памяти',
         bounds:{halfSize:31,height:H},
-        exitZone:{x0:-2.1,x1:2.1,z0:28.1,z1:29.2},
+        exitZone:{x0:-1.2,x1:1.2,z0:28.1,z1:29.2},
         exitYaw:0,
         elevatorEntryOffset:2.25,
         playerSpawn:{x:0,y:1.7,z:-24,yaw:Math.PI},
