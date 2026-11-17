@@ -8,7 +8,7 @@
       this.onTravel=typeof onTravel==='function'?onTravel:()=>{};
       this.onComplete=typeof onComplete==='function'?onComplete:()=>{};
       this.onSound=typeof onSound==='function'?onSound:()=>{};
-      this.group=null; this.displayCanvas=null; this.displayTexture=null;
+      this.group=null; this.displayCanvas=null; this.displayTexture=null; this.preview=null;
       this.doors=[]; this.ceilingLight=null; this.player=null;
       this.phase='idle'; this.phaseTime=0; this.travelTime=0;
       this.destinationReady=false; this.radioComplete=false; this.destinationLabel='02';
@@ -20,20 +20,42 @@
 
     isActive(){return this.phase!=='idle'&&this.phase!=='complete';}
 
+    showExitCabin(position,yaw=0){
+      if(!position||this.isActive())return null;
+      this.preview?.dispose();
+      const preview=new S7ElevatorTransition({
+        THREE:this.THREE,scene:this.scene,camera:this.camera,
+        onTravel:()=>{},onComplete:()=>{},onSound:()=>{}
+      });
+      preview.createCabin(position,Number.isFinite(yaw)?yaw:0);
+      preview.setDoorOpen(1);
+      preview.drawDisplay('01','ОЖИДАНИЕ');
+      this.preview=preview;
+      return preview.group;
+    }
+
+    adoptPreview(){
+      const preview=this.preview;
+      if(!preview)return false;
+      this.group=preview.group;this.displayCanvas=preview.displayCanvas;
+      this.displayTexture=preview.displayTexture;this.doors=preview.doors;
+      this.ceilingLight=preview.ceilingLight;this.panel=preview.panel;
+      preview.group=null;preview.displayCanvas=null;preview.displayTexture=null;
+      preview.doors=[];preview.ceilingLight=null;preview.panel=null;preview.disposed=true;
+      this.preview=null;
+      return true;
+    }
+
     begin({position,yaw=0,destinationLabel='02',player=null}={}){
       if(this.isActive()||!position)throw new Error('Elevator transition is already active or has no start position');
       const cabinYaw=Number.isFinite(yaw)?yaw:0;
       this.disposed=false; this.player=player; this.destinationLabel=String(destinationLabel);
-      this.createCabin(position,cabinYaw);
+      if(!this.adoptPreview())this.createCabin(position,cabinYaw);
       this.phase='closing'; this.phaseTime=0; this.travelTime=0;
       this.radioComplete=false; this.destinationReady=false; this.doorOpen=1; this.exitRequested=false;
-      // Align the player with the cabin so the floor display is directly ahead, not off to the side.
-      // Mouse-look remains available during the ride; any later view offset is preserved at the destination.
-      if(this.player?.pos){
-        const inside=this.group.localToWorld(new this.THREE.Vector3(0,1.7,.55));
-        this.player.pos.copy(inside);
-        this.player.yaw=cabinYaw;
-      }
+      // The player has already walked into the visible cabin. Never reposition them on boarding;
+      // only align the view with the control panel while preserving pitch and position.
+      if(this.player?.pos)this.player.yaw=cabinYaw;
       this.drawDisplay('01','ДВЕРИ ОТКРЫТЫ');
       this.setDoorOpen(1);
       this.onSound('door-close');
@@ -256,6 +278,7 @@
       this.onSound('motor-stop');
       this.phase='complete';
       this.disposed=true;
+      this.preview?.dispose();this.preview=null;
       if(this.group){
         const geometries=new Set(),materials=new Set();
         this.group.traverse(object=>{
