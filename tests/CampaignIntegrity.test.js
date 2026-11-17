@@ -68,18 +68,22 @@ test('campaign completion routes through the cinematic elevator and preserves pl
   const elevator = read('src/campaign/ElevatorTransition.js');
 
   for (const fragment of [
-    'if(w&&nextMission){transitionToMission(nextMission);return}',
+    'if(w&&nextMission){preloadNextMission();transitionToMission(nextMission);return}',
     'elevatorVitals={hp:P.hp}',
     'elevatorTransition.begin(',
     'loadMission(elevatorNextMission,{elevator:true,preserveVitals:elevatorVitals})',
     'elevatorTransition.setDestination(P.pos,P.yaw',
-    'dialogueSystem.startRadio(currentMission.introDialogue,()=>elevatorTransition.setRadioComplete())',
+    'dialogueSystem.startRadio(elevatorDialogueQueue,()=>{elevatorDialogueQueue=[];elevatorTransition.setRadioComplete()})',
     'onComplete:()=>',
     'state=\'play\';mouse=false',
     'fallback=Boolean(transition.elevator&&!locked)',
     'elevatorTransition.constrainPlayer(P.pos)'
   ]) assert.ok(game.includes(fragment), 'game transition must include: ' + fragment);
 
+  assert.ok(game.includes("elevatorDialogueQueue=[...(currentMission.outroDialogue||[]),...(nextMission.introDialogue||[])]"));
+  assert.ok(game.includes('prepareExitElevator();'));
+  assert.ok(elevator.includes('showExitCabin(position,yaw=0)'));
+  assert.ok(elevator.includes('adoptPreview()'));
   assert.ok(elevator.includes("this.phase==='travel'"));
   assert.ok(elevator.includes('this.radioComplete'));
   assert.ok(elevator.includes('this.player.pos.y+=dy'));
