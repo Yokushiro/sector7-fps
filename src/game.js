@@ -163,7 +163,7 @@ const elevatorTransition=new S7ElevatorTransition({
    // loadMission may unlock audio after the lift motor-start event on the first run.
    startElevatorMotor();
    elevatorTransition.setDestination(P.pos,P.yaw,String(currentMission.order).padStart(2,'0'),playerYawOffset,activeLevel.elevatorEntryOffset||0);
-   dialogueSystem.startRadio(currentMission.introDialogue,()=>elevatorTransition.setRadioComplete());
+   dialogueSystem.startRadio(elevatorDialogueQueue,()=>{elevatorDialogueQueue=[];elevatorTransition.setRadioComplete()});
   }catch(error){
    console.error('Elevator destination load failed',error);
    elevatorTransition.dispose();
@@ -176,10 +176,20 @@ const elevatorTransition=new S7ElevatorTransition({
   state='play';
   cam.position.copy(P.pos);
   cam.rotation.set(P.pitch+weapon.pitchKick,P.yaw,0);
+  prepareExitElevator();
  }
 });
 let elevatorNextMission=null;
 let elevatorVitals=null;
+let elevatorDialogueQueue=[];
+function prepareExitElevator(){
+ const zone=activeLevel?.exitZone;
+ if(!zone)return null;
+ const position={x:(zone.x0+zone.x1)/2,y:GROUND_Y,z:(zone.z0+zone.z1)/2};
+ const yaw=Number.isFinite(activeLevel.exitYaw)?activeLevel.exitYaw:P.yaw;
+ return elevatorTransition.showExitCabin(position,yaw);
+}
+prepareExitElevator();
 let interactionSystem=new S7InteractionSystem(activeLevel.interactables||[]);
 $('dialogue').addEventListener('click',()=>dialogueSystem.advance());
 const savedStats=savedCampaign.stats;
@@ -651,21 +661,12 @@ function dmg(n){const result=damageSystem.applyPlayerDamage(P,n);hurt=1;snd(70,.
 function end(w){
  if(state==='over'||state==='transition')return;
  $('evacTimer').hidden=true;
- if(w&&!outroShown&&currentMission.outroDialogue?.length){
-  if(outroPlaying)return;
-  // Keep the FPS session live: the radio outro is an overlay, not a pause or a pointer-lock handoff.
-  outroPlaying=true;state='play';
-  // Prepare the next sector while the player is reading the chapter outro, not during active combat or the lift ride.
-  preloadNextMission();
-  dialogueSystem.startRadio(currentMission.outroDialogue,()=>{outroShown=true;outroPlaying=false;state='play';end(true)});
-  return;
- }
  state='transition';
  const record=saveSystem.recordMissionResult({missionId:currentMission.id,won:w,kills,nextMissionOrder:currentMission.order+1});
  savedCampaign=record;
  $('saveInfo').textContent=`СОХРАНЕНИЕ · Побед: ${record.stats.wins} · Поражений: ${record.stats.losses} · Лучший результат: ${record.stats.bestKills} дронов`;
  const nextMission=w?missionSystem.getUnlockedMissions(record.campaign).find(mission=>mission.order>currentMission.order):null;
- if(w&&nextMission){transitionToMission(nextMission);return}
+ if(w&&nextMission){preloadNextMission();transitionToMission(nextMission);return}
  document.exitPointerLock&&document.exitPointerLock();
  audioManager.stopMusic();audioManager.stopAmbience();
  state='over';
@@ -748,6 +749,7 @@ function transitionToMission(nextMission){
  if(!locked)fallback=true; // A preceding outro may have released pointer lock; keep mouse-look usable.
  elevatorNextMission=nextMission;
  elevatorVitals={hp:P.hp};
+ elevatorDialogueQueue=[...(currentMission.outroDialogue||[]),...(nextMission.introDialogue||[])];
  elevatorTransition.begin({
   position:{x:P.pos.x,y:P.pos.y,z:P.pos.z},
   yaw:Number.isFinite(activeLevel.exitYaw)?activeLevel.exitYaw:P.yaw,
