@@ -49,7 +49,7 @@
         name:'Передающий узел',
         bounds:{halfSize:33,height:H},
         exitZone:{x0:-2.1,x1:2.1,z0:29.1,z1:30.0},
-        exitYaw:Math.PI,
+        exitYaw:0,
         elevatorEntryOffset:2.25,
         playerSpawn:{x:0,y:1.7,z:-25,yaw:Math.PI},
         enemySpawnPoints:[[-20,-18],[20,-18],[-20,12],[20,12],[-12,0],[12,0],[-8,20],[8,20],[0,3]],
